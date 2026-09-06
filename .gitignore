@@ -1,0 +1,77 @@
+# ============================================
+# Archivos temporales y del sistema
+# ============================================
+*~
+*.sw[mnpcod]
+.tmp
+*.tmp
+*.tmp.*
+UserInterfaceState.xcuserstate
+$RECYCLE.BIN/
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Logs
+# ============================================
+*.log
+log.txt
+npm-debug.log
+yarn-error.log
+libpeerconnection.log
+testem.log
+
+# ============================================
+# Ionic / Cordova
+# ============================================
+/.ionic
+/www
+/platforms
+/plugins
+
+# ============================================
+# Compilación / Build
+# ============================================
+/.sourcemaps
+/.versions
+/coverage
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# ============================================
+# Node
+# ============================================
+/node_modules
+
+# ============================================
+# Angular / Nx
+# ============================================
+/.angular
+/.angular/cache
+/.nx
+/.nx/cache
+.sass-cache/
+/connect.lock
+/typings
+
+# ============================================
+# IDEs y editores
+# ============================================
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-project
+*.sublime-workspace
+.history/*
+
+# Visual Studio Code (mantener configs compartidas)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json

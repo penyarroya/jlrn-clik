@@ -1,0 +1,513 @@
+// src/app/features/pages/public/not-found/not-found.component.scss
+
+/* ============================================================ */
+/* NOT FOUND - CON IONIC                                        */
+/* ============================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.not-found-container {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  padding: clamp(12px, 3vh, 30px);
+  box-sizing: border-box;
+  background: var(--ion-background-color);
+
+  /* --- FONDO CON IMAGEN --- */
+  .background-image {
+    position: absolute;
+    inset: 0;
+    background: url('/assets/img/pages/not-found/FondoNotFound.webp') no-repeat center center;
+    background-size: cover;
+    z-index: 0;
+  }
+
+  .background-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+    z-index: 1;
+  }
+
+  /* --- TEMA OSCURO --- */
+  &.dark {
+    .background-overlay {
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .content-card {
+      background: rgba(30, 30, 46, 0.92) !important;
+      border-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .badge {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.20);
+      color: #38bdf8;
+    }
+
+    .icon-wrapper {
+      background: rgba(56, 189, 248, 0.10);
+      border-color: rgba(255, 255, 255, 0.06);
+      
+      ion-icon {
+        color: #38bdf8;
+      }
+    }
+
+    .title {
+      color: #ffffff;
+      
+      span {
+        color: #38bdf8;
+      }
+    }
+
+    .not-found-text {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .main-cta {
+      --border-color: #38bdf8;
+      --color: #38bdf8;
+      
+      &:hover {
+        --background: linear-gradient(135deg, #38bdf8, #0284c7);
+        --color: #ffffff;
+      }
+    }
+
+    .aux-nav a {
+      color: rgba(255, 255, 255, 0.5);
+      
+      &:hover {
+        color: #38bdf8;
+      }
+    }
+
+    .aux-nav .dot {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .simple-footer p {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .big-404 {
+      color: rgba(255, 255, 255, 0.10);
+    }
+
+    .voice-hint {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .voice-command {
+      --background: rgba(56, 189, 248, 0.15);
+      --color: #38bdf8;
+    }
+  }
+
+  /* --- CAPA DECORATIVA (404) --- */
+  .decor-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .big-404 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(12rem, 30vw, 25rem);
+    font-weight: 900;
+    color: rgba(12, 74, 110, 0.15);
+    letter-spacing: -0.05em;
+    user-select: none;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    transition: color 0.3s ease;
+  }
+
+  /* --- TARJETA PRINCIPAL --- */
+  .content-card {
+    width: min(100%, 500px);
+    margin: 0;
+    border-radius: clamp(24px, 4vw, 32px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    z-index: 2;
+    text-align: center;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    padding: clamp(28px, 5vh, 45px) clamp(24px, 4vw, 40px);
+
+    ion-card-header {
+      padding: 0 0 16px 0;
+    }
+
+    ion-card-content {
+      padding: 0 0 20px 0;
+    }
+
+    .card-footer {
+      padding: 16px 0 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* --- BADGE --- */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.5rem;
+    border-radius: 100px;
+    background: linear-gradient(135deg, rgba(2, 132, 199, 0.12), rgba(56, 189, 248, 0.08));
+    border: 2px solid rgba(2, 132, 199, 0.20);
+    color: #0284c7;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.10);
+    
+    ion-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(2, 132, 199, 0.20);
+      border-color: rgba(2, 132, 199, 0.30);
+    }
+  }
+
+  /* --- ICONO --- */
+  .icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 24px;
+    background: rgba(2, 132, 199, 0.06);
+    border: 1px solid rgba(2, 132, 199, 0.10);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+
+    ion-icon {
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+      color: #0284c7;
+      transition: color 0.3s ease;
+    }
+  }
+
+  /* --- TÍTULO --- */
+  .title {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-weight: 900;
+    color: #0c4a6e;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    transition: color 0.3s ease;
+
+    span {
+      color: #0284c7;
+      transition: color 0.3s ease;
+    }
+  }
+
+  /* --- TEXTO --- */
+  .not-found-text {
+    margin: 0;
+    color: #334155;
+    font-size: clamp(0.85rem, 2vw, 1.1rem);
+    line-height: 1.6;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  /* --- BOTÓN PRINCIPAL --- */
+  .main-cta {
+    --border-radius: clamp(16px, 2vw, 22px) !important;
+    --border-width: 2px;
+    --border-color: #0c4a6e;
+    --color: #0c4a6e;
+    --background: transparent;
+    --background-hover: linear-gradient(135deg, #0284c7 0%, #0c4a6e 100%);
+    --color-hover: #ffffff;
+    height: 52px;
+    font-weight: 700 !important;
+    font-size: clamp(0.8rem, 1.8vw, 1rem) !important;
+    letter-spacing: 0.5px;
+    margin: 0;
+
+    ion-icon {
+      font-size: 20px;
+    }
+
+    &:hover {
+      --border-color: #0284c7;
+      box-shadow: 0 8px 30px rgba(2, 132, 199, 0.3);
+      transform: translateY(-2px) scale(1.01);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  /* --- ENLACES AUXILIARES --- */
+  .aux-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0.5rem 0;
+
+    a {
+      color: #64748b;
+      font-size: 0.85rem;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+      cursor: pointer;
+
+      &:hover {
+        color: #0284c7;
+        text-decoration: underline;
+      }
+    }
+
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      display: inline-block;
+    }
+  }
+
+  /* --- COMANDOS DE VOZ --- */
+  .voice-commands {
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 10px;
+  }
+
+  .voice-hint {
+    font-size: 13px;
+    color: #475569;
+    margin: 0 0 8px 0;
+    font-weight: 500;
+  }
+
+  .voice-commands-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .voice-command {
+    --background: #0284c7;
+    --color: #ffffff;
+    height: 28px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 0 12px;
+    border-radius: 14px;
+
+    ion-label {
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  /* --- PIE DE PÁGINA --- */
+  .simple-footer {
+    position: absolute;
+    bottom: clamp(12px, 2vh, 24px);
+    left: 0;
+    right: 0;
+    z-index: 2;
+    text-align: center;
+    padding: 0 1.5rem;
+  }
+
+  .simple-footer p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    transition: color 0.3s ease;
+  }
+}
+
+/* ============================================================ */
+/* RESPONSIVE                                                   */
+/* ============================================================ */
+
+@media (max-height: 700px) {
+  .content-card {
+    padding: 18px 20px !important;
+  }
+  
+  .title {
+    font-size: 1.8rem;
+  }
+  
+  .icon-wrapper {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 0.8rem;
+    
+    ion-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+  
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.4rem 1rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .main-cta {
+    height: 42px;
+    font-size: 0.75rem !important;
+  }
+  
+  .voice-commands {
+    padding: 8px;
+  }
+  
+  .voice-command {
+    height: 24px;
+    font-size: 10px;
+    padding: 0 10px;
+  }
+  
+  .simple-footer {
+    bottom: 10px;
+    
+    p {
+      font-size: 0.6rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .content-card {
+    padding: 20px 16px !important;
+    border-radius: 24px !important;
+  }
+  
+  .title {
+    font-size: 1.6rem;
+  }
+  
+  .main-cta {
+    height: 46px;
+    font-size: 0.75rem !important;
+    --border-radius: 14px !important;
+  }
+  
+  .aux-nav {
+    gap: 0.5rem;
+    
+    a {
+      font-size: 0.7rem;
+    }
+  }
+  
+  .big-404 {
+    font-size: clamp(8rem, 25vw, 15rem);
+  }
+
+  .voice-command {
+    font-size: 10px;
+    height: 24px;
+    padding: 0 10px;
+  }
+
+  .badge {
+    font-size: 0.6rem;
+    padding: 0.35rem 0.8rem;
+    
+    ion-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+@media (max-width: 380px) {
+  .content-card {
+    padding: 14px 12px !important;
+  }
+  
+  .title {
+    font-size: 1.3rem;
+  }
+  
+  .main-cta {
+    height: 38px;
+    font-size: 0.65rem !important;
+  }
+  
+  .icon-wrapper {
+    width: 44px;
+    height: 44px;
+    
+    ion-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+  }
+}

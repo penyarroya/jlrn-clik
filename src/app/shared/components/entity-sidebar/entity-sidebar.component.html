@@ -1,0 +1,197 @@
+<!-- src/app/features/admin/dynamic-entity-manager/components/entity-sidebar/entity-sidebar.component.html -->
+
+<ion-menu 
+  [menuId]="menuId" 
+  side="start" 
+  [swipeGesture]="!isMinimized()"
+  [contentId]="'main-content'"
+  class="entity-sidebar-menu"
+  [style.width.px]="currentWidth()"
+  [style.min-width.px]="currentWidth()"
+  [style.max-width.px]="currentWidth()"
+  [class.minimized]="isMinimized()">
+
+  <!-- ========================================================== -->
+  <!-- HEADER                                                      -->
+  <!-- ========================================================== -->
+  <ion-header class="sidebar-header">
+    <ion-toolbar>
+      <ion-title class="sidebar-title">
+        @if (!isMinimized()) {
+          <ion-icon name="folder-outline" class="header-icon"></ion-icon>
+          <span>Entidades</span>
+        }
+        @if (isMinimized()) {
+          <span class="title-mini">📂</span>
+        }
+      </ion-title>
+      
+      <ion-buttons slot="end" class="header-actions">
+        @if (!isMinimized()) {
+          <ion-button 
+            class="btn-config" 
+            (click)="toggleConfig()"
+            fill="clear"
+            [title]="showConfig() ? 'Cerrar configuración' : 'Configurar sidebar'">
+            <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
+          </ion-button>
+        }
+        <ion-button 
+          class="btn-minimize" 
+          (click)="toggleMinimize()"
+          fill="clear"
+          [title]="isMinimized() ? 'Expandir' : 'Minimizar'">
+          <ion-icon slot="icon-only" [name]="isMinimized() ? 'chevron-forward-outline' : 'chevron-back-outline'"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- ========================================================== -->
+  <!-- CONFIG PANEL                                               -->
+  <!-- ========================================================== -->
+  @if (showConfig() && !isMinimized()) {
+    <div class="config-panel">
+      <h4 class="config-title">⚙️ Configuración</h4>
+      
+      <div class="config-group">
+        <ion-label class="config-label">Ancho: {{ sidebarWidth() }}px</ion-label>
+        <ion-range 
+          min="120" 
+          max="400" 
+          step="10"
+          [value]="sidebarWidth()"
+          (ionChange)="onWidthChange($event.detail.value)">
+        </ion-range>
+      </div>
+
+      <div class="config-group">
+        <ion-label class="config-label">Altura:</ion-label>
+        <ion-select 
+          [value]="sidebarHeight()" 
+          (ionChange)="onHeightChange($event.detail.value)"
+          interface="popover">
+          <ion-select-option value="100%">100%</ion-select-option>
+          <ion-select-option value="100vh">100vh</ion-select-option>
+          <ion-select-option value="calc(100vh - 64px)">Header - 64px</ion-select-option>
+          <ion-select-option value="calc(100vh - 80px)">Header - 80px</ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="config-group">
+        <ion-label class="config-label">Tamaño texto: {{ fontSize() }}px</ion-label>
+        <ion-range 
+          min="10" 
+          max="20" 
+          step="1"
+          [value]="fontSize()"
+          (ionChange)="onWidthChange(getRangeValue($event.detail.value))">
+        </ion-range>
+      </div>
+
+      <div class="config-group color-group">
+        <ion-label class="config-label">Color fondo:</ion-label>
+        <ion-input 
+          type="color"
+          [value]="backgroundColor()"
+          (ionChange)="onColorChange('bg', $event.detail.value ?? '#f8fafc')"
+          class="color-input">
+        </ion-input>
+      </div>
+
+      <div class="config-group color-group">
+        <ion-label class="config-label">Color borde:</ion-label>
+        <ion-input 
+          type="color"
+          [value]="borderColor()"
+          (ionChange)="onColorChange('border', $event.detail.value)"
+          class="color-input">
+        </ion-input>
+      </div>
+
+      <div class="config-group checkbox-group">
+        <ion-item lines="none" class="checkbox-item">
+          <ion-label>Mostrar iconos</ion-label>
+          <ion-toggle 
+            [checked]="showIcons()"
+            (ionChange)="toggleIcons()">
+          </ion-toggle>
+        </ion-item>
+      </div>
+
+      <div class="config-group checkbox-group">
+        <ion-item lines="none" class="checkbox-item">
+          <ion-label>Scroll vertical</ion-label>
+          <ion-toggle 
+            [checked]="scrollable()"
+            (ionChange)="toggleScroll()">
+          </ion-toggle>
+        </ion-item>
+      </div>
+
+      <div class="config-actions">
+        <ion-button 
+          class="btn-reset" 
+          fill="outline" 
+          color="danger"
+          (click)="resetConfig()"
+          expand="block">
+          <ion-icon slot="start" name="refresh-outline"></ion-icon>
+          Restablecer
+        </ion-button>
+        <ion-button 
+          class="btn-close-config" 
+          fill="clear"
+          (click)="toggleConfig()"
+          expand="block">
+          <ion-icon slot="start" name="close-outline"></ion-icon>
+          Cerrar
+        </ion-button>
+      </div>
+    </div>
+  }
+
+  <!-- ========================================================== -->
+  <!-- NAVEGACIÓN                                                 -->
+  <!-- ========================================================== -->
+  <ion-content 
+    class="entity-nav"
+    [scrollY]="scrollable()"
+    [style.--padding-bottom]="bottomPadding"
+    [style.background-color]="backgroundColor()">
+
+    <ion-list class="entity-list" lines="none">
+      @for (entity of entityList(); track entity.value) {
+        <ion-item 
+          class="nav-item"
+          [class.active]="selectedEntity() === entity.value"
+          [class.no-icon]="!showIcons()"
+          [class.minimized]="isMinimized()"
+          [style.font-size.px]="fontSize()"
+          (click)="selectEntity(entity.value)"
+          button>
+          
+          @if (showIcons() && !isMinimized()) {
+            <ion-icon 
+              slot="start" 
+              [name]="entity.icon || 'document-outline'"
+              class="nav-icon">
+            </ion-icon>
+          }
+          
+          @if (!isMinimized()) {
+            <ion-label class="nav-label">{{ entity.label }}</ion-label>
+          }
+          
+          @if (isMinimized()) {
+            <span class="nav-label-mini">{{ entity.icon || '📄' }}</span>
+          }
+          
+          @if (selectedEntity() === entity.value && !isMinimized()) {
+            <ion-badge class="nav-indicator" color="primary"></ion-badge>
+          }
+        </ion-item>
+      }
+    </ion-list>
+  </ion-content>
+</ion-menu>

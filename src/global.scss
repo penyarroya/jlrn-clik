@@ -1,0 +1,61 @@
+// src/global.scss
+
+// ============================================================
+// 1. @use AL INICIO (ANTES DE CUALQUIER OTRA REGLA)
+// ============================================================
+@use '@angular/material' as mat;
+@use './theme/themes.scss';
+
+// ============================================================
+// 2. ESTILOS DE IONIC (con @import)
+// ============================================================
+@import "@ionic/angular/css/core.css";
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+// ============================================================
+// 3. ESTILOS GLOBALES
+// ============================================================
+html {
+  height: 100%;
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  height: 100%;
+}
+
+// ============================================================
+// 4. TUS ESTILOS PERSONALIZADOS
+// ============================================================
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Roboto', sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
+}

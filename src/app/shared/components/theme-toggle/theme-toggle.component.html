@@ -1,0 +1,35 @@
+<!-- @if (isVisible()) { 
+  <button 
+    class="theme-toggle-btn" 
+    (click)="toggleTheme()" 
+    [attr.aria-label]="isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+    [title]="isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+  >
+    @if (isDark()) {
+      <span class="icon sun">☀️</span>
+    } @else {
+      <span class="icon moon">🌙</span>
+    }
+  </button>
+} -->
+
+
+
+<!-- src/app/shared/components/theme-toggle/theme-toggle.component.html -->
+@if (isVisible() && shouldShow) {
+  <button 
+    class="theme-toggle-btn" 
+    (click)="toggleTheme()" 
+    [attr.aria-label]="isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+    [title]="isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+    [class.dark]="isDark()"
+    [class.small]="size() === 'small'"
+    [class.large]="size() === 'large'"
+  >
+    @if (isDark()) {
+      <span class="icon sun">☀️</span>
+    } @else {
+      <span class="icon moon">🌙</span>
+    }
+  </button>
+}

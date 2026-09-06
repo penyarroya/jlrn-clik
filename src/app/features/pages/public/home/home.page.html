@@ -1,0 +1,49 @@
+<div class="welcome-wrapper">
+  <!-- Navegación superior con componentes nativos de Ionic -->
+  <header class="top-nav">
+    <div class="logo" routerLink="/home">
+      <img src="assets/icon/logo.ico" alt="Logo" class="logo-img">
+    </div>
+
+    <div class="nav-actions">
+      <!-- Botón "Acerca de" -->
+      <div class="action-item">
+        <ion-button fill="clear" routerLink="/about" class="circle-btn">
+          <ion-icon name="information-circle-outline"></ion-icon>
+        </ion-button>
+        <span class="action-label">Acerca De..</span>
+      </div>
+      
+      <!-- Botón "Login" -->
+      <div class="action-item">
+        <ion-button fill="clear" routerLink="/login" class="login-circle-btn">
+          <ion-icon name="person-circle-outline"></ion-icon>
+        </ion-button>
+        <span class="action-label">Login</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Carrusel de fondo adaptado a Ionic / Angular -->
+  <div class="carousel-background">
+    @for (slide of slides(); track slide; let i = $index) {
+      <div 
+        class="slide" 
+        [style.backgroundImage]="'url(' + slide + ')'"
+        [style.animationDuration]="totalDuration() + 's'" 
+        [style.animationDelay]="(i * 5) + 's'">
+      </div>
+    }
+    <div class="overlay"></div> 
+  </div>
+
+  <!-- Contenido principal (hero) -->
+  <div class="content-overlay">
+    <section class="hero-container">
+      <h1 class="title">Voz Acción</h1>
+      <p class="subtitle">
+        Tecnología y <span class="highlight">Apoyo Digital </span>Accesible
+      </p>
+    </section>
+  </div>
+</div>

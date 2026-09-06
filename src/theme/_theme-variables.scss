@@ -1,0 +1,283 @@
+// src/styles/themes.scss
+// @use '@angular/material' as mat;
+@use '@angular/material' as mat;
+@include mat.core();
+// ============================================================
+// 1. PALETAS PERSONALIZADAS (desde tu archivo)
+// ============================================================
+
+// Paleta principal (azul)
+$my-primary-palette: (
+  50: #e3f2fd,
+  100: #bbdefb,
+  200: #90caf9,
+  300: #64b5f6,
+  400: #42a5f5,
+  500: #1976d2,
+  600: #1e88e5,
+  700: #1976d2,
+  800: #1565c0,
+  900: #0d47a1,
+  A100: #82b1ff,
+  A200: #448aff,
+  A400: #2979ff,
+  A700: #2962ff,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: white,
+    A400: white,
+    A700: white,
+  )
+);
+
+// Paleta secundaria (verde)
+$my-accent-palette: (
+  50: #e8f5e9,
+  100: #c8e6c9,
+  200: #a5d6a7,
+  300: #81c784,
+  400: #66bb6a,
+  500: #388e3c,
+  600: #43a047,
+  700: #388e3c,
+  800: #2e7d32,
+  900: #1b5e20,
+  A100: #b9f6ca,
+  A200: #69f0ae,
+  A400: #00e676,
+  A700: #00c853,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: rgba(black, 0.87),
+    A400: rgba(black, 0.87),
+    A700: rgba(black, 0.87),
+  )
+);
+
+// Paleta de advertencia (rojo)
+$my-warn-palette: (
+  50: #ffebee,
+  100: #ffcdd2,
+  200: #ef9a9a,
+  300: #e57373,
+  400: #ef5350,
+  500: #d32f2f,
+  600: #c62828,
+  700: #b71c1c,
+  800: #9a0007,
+  900: #7f0000,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+  )
+);
+
+// ============================================================
+// 2. TEMA CLARO
+// ============================================================
+html {
+  @include mat.theme((
+    color: (
+      primary: $my-primary-palette,
+      tertiary: $my-accent-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+  color-scheme: light;
+
+  // Variables nativas de Ionic para el tema claro
+  --ion-background-color: #f0f4f8;
+  --ion-background-color-rgb: 240, 244, 248;
+  --ion-text-color: #0f172a;
+  --ion-text-color-rgb: 15, 23, 42;
+
+  // Variables CSS personalizadas
+  --bg-primary: #f0f4f8;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-inverse: #f1f5f9;
+  
+  --accent: #38bdf8;
+  --accent-dark: #0c4a6e;
+  --accent-light: #7dd3fc;
+  --accent-bg: rgba(56, 189, 248, 0.1);
+  --accent-hover: #0284c7;
+  
+  --border-color: #e2e8f0;
+  --border-light: rgba(255, 255, 255, 0.15);
+  
+  --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.08);
+  --shadow-btn: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  
+  --card-bg: #ffffff;
+  --blur-bg: rgba(255, 255, 255, 0.85);
+  
+  --btn-bg-light: rgba(255, 255, 255, 0.15);
+  --btn-bg-light-hover: rgba(255, 255, 255, 0.25);
+  
+  --login-bg: rgba(56, 189, 248, 0.15);
+  --login-border: rgba(56, 189, 248, 0.3);
+  --login-bg-hover: rgba(56, 189, 248, 0.25);
+  --login-border-hover: #38bdf8;
+  --login-glow: rgba(56, 189, 248, 0.3);
+  
+  --shadow-text: rgba(0, 0, 0, 0.8);
+  --shadow-text-light: rgba(0, 0, 0, 0.5);
+  --shadow-icon: rgba(0, 0, 0, 0.3);
+  
+  --nav-mobile-bg: rgba(0, 0, 0, 0.5);
+  
+  --mic-bg: rgba(56, 189, 248, 0.1);
+  --mic-border: #38bdf8;
+  --mic-color: #38bdf8;
+  --mic-active-bg: rgba(56, 189, 248, 0.15);
+  --mic-active-border: #38bdf8;
+  --mic-shadow: rgba(56, 189, 248, 0.3);
+  --mic-dot-bg: #94a3b8;
+}
+
+// ============================================================
+// 3. TEMA OSCURO
+// ============================================================
+html.dark-theme,
+body.dark-theme,
+.ion-palette-dark {
+  @include mat.theme((
+    color: (
+      primary: $my-primary-palette,
+      tertiary: $my-accent-palette,
+    ),
+    typography: Roboto,
+    density: -1,
+  ));
+  color-scheme: dark;
+
+  // Variables nativas de Ionic para el tema oscuro
+  --ion-background-color: #0a0e1a;
+  --ion-background-color-rgb: 10, 14, 26;
+  --ion-text-color: #f1f5f9;
+  --ion-text-color-rgb: 241, 245, 249;
+
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #0f172a;
+  --bg-card: #1e293b;
+  --bg-overlay: rgba(0, 0, 0, 0.85);
+  
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-inverse: #0f172a;
+  
+  --accent: #38bdf8;
+  --accent-dark: #0284c7;
+  --accent-light: #7dd3fc;
+  --accent-bg: rgba(56, 189, 248, 0.15);
+  --accent-hover: #0284c7;
+  
+  --border-color: #1e293b;
+  --border-light: rgba(255, 255, 255, 0.06);
+  
+  --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.6);
+  --shadow-btn: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+  
+  --card-bg: #1e293b;
+  --blur-bg: rgba(15, 23, 42, 0.95);
+  
+  --btn-bg-light: rgba(255, 255, 255, 0.08);
+  --btn-bg-light-hover: rgba(255, 255, 255, 0.15);
+  
+  --login-bg: rgba(56, 189, 248, 0.12);
+  --login-border: rgba(56, 189, 248, 0.2);
+  --login-bg-hover: rgba(56, 189, 248, 0.2);
+  --login-border-hover: #38bdf8;
+  --login-glow: rgba(56, 189, 248, 0.2);
+  
+  --shadow-text: rgba(0, 0, 0, 0.9);
+  --shadow-text-light: rgba(0, 0, 0, 0.6);
+  --shadow-icon: rgba(0, 0, 0, 0.4);
+  
+  --nav-mobile-bg: rgba(0, 0, 0, 0.5);
+  
+  --mic-bg: rgba(56, 189, 248, 0.12);
+  --mic-border: #38bdf8;
+  --mic-color: #38bdf8;
+  --mic-active-bg: rgba(56, 189, 248, 0.2);
+  --mic-active-border: #38bdf8;
+  --mic-shadow: rgba(56, 189, 248, 0.2);
+  --mic-dot-bg: #64748b;
+}
+
+// ============================================================
+// 4. CLASES PARA COMPATIBILIDAD CON COMPONENTES EXISTENTES
+// ============================================================
+
+.bg-blur {
+  background: var(--blur-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.btn-glass {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-primary) !important;
+  transition: all 0.3s ease !important;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: translateY(-2px);
+  }
+}

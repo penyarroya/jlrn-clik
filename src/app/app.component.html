@@ -1,0 +1,30 @@
+<!-- <ion-app>
+ <app-theme-toggle [isVisible]="showToggle"></app-theme-toggle>
+
+  <ion-content>
+    <router-outlet />
+
+    <app-voice-toggle />
+  </ion-content>
+</ion-app> -->
+
+
+
+
+
+<!-- src/app/app.component.html -->
+
+<ion-app>
+  <!-- ✅ Toggle de tema (flotante en la esquina) -->
+  <app-theme-toggle [isVisible]="showToggle"></app-theme-toggle>
+
+  <ion-content>
+    <!-- Enrutador principal de vistas -->
+    <router-outlet />
+
+    <!-- ✅ Componente flotante de control por voz (SOLO si hay auriculares) -->
+    @if (showVoiceToggle()) {
+      <app-voice-toggle />
+    }
+  </ion-content>
+</ion-app>

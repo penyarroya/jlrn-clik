@@ -1,0 +1,83 @@
+<!-- src/app/features/pages/public/not-found/not-found.component.html -->
+
+<div class="not-found-container" [class.dark]="themeService.currentTheme() === 'dark'">
+  
+  <!-- Capa de fondo con imagen -->
+  <div class="background-image"></div>
+  <div class="background-overlay"></div>
+  
+  <!-- Capa decorativa con el 404 -->
+  <div class="decor-layer">
+    <div class="big-404">404</div>
+  </div>
+
+  <!-- Tarjeta principal de contenido -->
+  <ion-card class="content-card">
+    <ion-card-header>
+      <!-- ✅ Badge mejorado con icono -->
+      <ion-badge class="badge" color="primary">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        ERROR DE NAVEGACIÓN
+      </ion-badge>
+
+      <div class="icon-wrapper">
+        <ion-icon name="map-outline"></ion-icon>
+      </div>
+      
+      <ion-card-title class="title">
+        Página no <span>encontrada</span>
+      </ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <p class="not-found-text">
+        Lo sentimos, el enlace que has seguido puede estar roto o la página ha sido eliminada.
+      </p>
+      
+      <!-- Comandos de voz -->
+      <div class="voice-commands">
+        <p class="voice-hint">🎤 Comandos de voz disponibles:</p>
+        <div class="voice-commands-list">
+          <ion-chip class="voice-command">
+            <ion-label>"volver"</ion-label>
+          </ion-chip>
+          <ion-chip class="voice-command">
+            <ion-label>"home"</ion-label>
+          </ion-chip>
+          <ion-chip class="voice-command">
+            <ion-label>"login"</ion-label>
+          </ion-chip>
+          <ion-chip class="voice-command">
+            <ion-label>"ayuda"</ion-label>
+          </ion-chip>
+        </div>
+      </div>
+    </ion-card-content>
+
+    <!-- ✅ Footer de la tarjeta -->
+    <div class="card-footer">
+      <ion-button 
+        class="main-cta" 
+        expand="block"
+        (click)="goBack()"
+      >
+        <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+        VOLVER ATRÁS
+      </ion-button>
+
+      <div class="aux-nav">
+        <a routerLink="/home">Ir al inicio</a>
+        <span class="dot"></span>
+        <a routerLink="/login">Iniciar sesión</a>
+        <span class="dot"></span>
+        <a routerLink="/help">Ayuda</a>
+      </div>
+    </div>
+  </ion-card>
+
+  <!-- Pie de página -->
+  <footer class="simple-footer">
+    <p>&copy; {{ currentYear }} JLRN-Gamosa1956 - Todos los derechos reservados</p>
+  </footer>
+
+</div>

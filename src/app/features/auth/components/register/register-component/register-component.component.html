@@ -1,0 +1,361 @@
+<!-- src/app/features/auth/register/register.component.html -->
+
+<ion-content class="register-content">
+  <div class="register-container">
+
+    <div class="register-card">
+
+      <!-- Logo -->
+      <div class="logo-container">
+        <div class="logo-icon">🎤</div>
+        <h1 class="app-title">Voz<span class="highlight">Acción</span></h1>
+        <p class="app-subtitle">
+          @if (isVerifying()) {
+            Verifica tu cuenta
+          } @else {
+            Crea tu cuenta para empezar
+          }
+        </p>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- VISTA 1: FORMULARIO DE REGISTRO              -->
+      <!-- ============================================ -->
+      @if (!isVerifying()) {
+        <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="register-form">
+
+          <!-- Nombre de usuario -->
+          <div class="form-field-wrapper">
+            <ion-item
+              class="form-item"
+              lines="full"
+              [class.has-error]="fullNameCtrl.invalid && fullNameCtrl.touched"
+              [class.has-success]="fullNameCtrl.valid && fullNameCtrl.dirty">
+              <ion-icon name="person-circle-outline" slot="start" class="input-icon"></ion-icon>
+              <ion-input
+                #userInput
+                type="text"
+                placeholder="Usuario"
+                formControlName="fullName"
+                autocomplete="off"
+                (ionBlur)="fullNameCtrl.markAsTouched()">
+              </ion-input>
+              @if (fullNameCtrl.dirty && fullNameCtrl.value) {
+                <ion-icon
+                  slot="end"
+                  [name]="fullNameCtrl.valid ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                  [color]="fullNameCtrl.valid ? 'success' : 'danger'"
+                  class="validation-icon">
+                </ion-icon>
+              }
+            </ion-item>
+            <div class="input-hint">
+              <ion-text color="medium"><small>Tu nombre de usuario</small></ion-text>
+              <ion-text color="medium"><small>{{ fullNameCtrl.value?.length || 0 }} / 20</small></ion-text>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="form-field-wrapper">
+            <ion-item
+              class="form-item"
+              lines="full"
+              [class.has-error]="emailCtrl.invalid && emailCtrl.touched"
+              [class.has-success]="emailCtrl.valid && emailCtrl.dirty">
+              <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
+              <ion-input
+                #emailInput
+                type="email"
+                placeholder="Correo electrónico"
+                formControlName="email"
+                autocomplete="off"
+                (ionBlur)="emailCtrl.markAsTouched()">
+              </ion-input>
+              @if (emailCtrl.dirty && emailCtrl.value) {
+                <ion-icon
+                  slot="end"
+                  [name]="emailCtrl.valid ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                  [color]="emailCtrl.valid ? 'success' : 'danger'"
+                  class="validation-icon">
+                </ion-icon>
+              }
+            </ion-item>
+            <div class="input-hint">
+              <ion-text color="medium"><small>Enviaremos un código de verificación</small></ion-text>
+            </div>
+          </div>
+
+          <!-- Contraseña -->
+          <div class="form-field-wrapper">
+            <ion-item
+              class="form-item"
+              lines="full"
+              [class.has-error]="passwordCtrl.invalid && passwordCtrl.touched"
+              [class.has-success]="passwordCtrl.valid && passwordCtrl.dirty">
+              <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
+              <ion-input
+                #passwordInput
+                [type]="hidePassword() ? 'password' : 'text'"
+                placeholder="Contraseña"
+                formControlName="password"
+                autocomplete="off"
+                (ionBlur)="passwordCtrl.markAsTouched()">
+              </ion-input>
+              <ion-button slot="end" fill="clear" type="button"
+                (click)="togglePassword()" class="toggle-password-btn">
+                <ion-icon [name]="hidePassword() ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+              </ion-button>
+            </ion-item>
+            <div class="input-hint">
+              <ion-text color="medium"><small>Mínimo 9 caracteres</small></ion-text>
+              <ion-text
+                [color]="(passwordCtrl.value?.length || 0) >= 9 ? 'success' : 'medium'"
+                class="char-counter"
+                [class.met]="(passwordCtrl.value?.length || 0) >= 9">
+                <small>{{ passwordCtrl.value?.length || 0 }} / 9</small>
+              </ion-text>
+            </div>
+
+            <!-- Requisitos de la contraseña -->
+            @if (passwordCtrl.dirty && passwordCtrl.value && passwordCtrl.value.length >= 3) {
+              <div class="password-requirements">
+                <div class="requirement-item" [class.met]="(passwordCtrl.value?.length ?? 0) >= 9">
+                  <ion-icon
+                    [name]="(passwordCtrl.value?.length ?? 0) >= 9 ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                    [color]="(passwordCtrl.value?.length ?? 0) >= 9 ? 'success' : 'danger'"
+                    size="small">
+                  </ion-icon>
+                  <ion-text [color]="(passwordCtrl.value?.length ?? 0) >= 9 ? 'success' : 'medium'">
+                    <small>Mínimo 9 caracteres</small>
+                  </ion-text>
+                </div>
+                <div class="requirement-item" [class.met]="!passwordCtrl.hasError('missingUppercase')">
+                  <ion-icon
+                    [name]="!passwordCtrl.hasError('missingUppercase') ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                    [color]="!passwordCtrl.hasError('missingUppercase') ? 'success' : 'danger'"
+                    size="small">
+                  </ion-icon>
+                  <ion-text [color]="!passwordCtrl.hasError('missingUppercase') ? 'success' : 'medium'">
+                    <small>Al menos 1 mayúscula</small>
+                  </ion-text>
+                </div>
+                <div class="requirement-item" [class.met]="!passwordCtrl.hasError('missingLowercase')">
+                  <ion-icon
+                    [name]="!passwordCtrl.hasError('missingLowercase') ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                    [color]="!passwordCtrl.hasError('missingLowercase') ? 'success' : 'danger'"
+                    size="small">
+                  </ion-icon>
+                  <ion-text [color]="!passwordCtrl.hasError('missingLowercase') ? 'success' : 'medium'">
+                    <small>Al menos 1 minúscula</small>
+                  </ion-text>
+                </div>
+                <div class="requirement-item" [class.met]="!passwordCtrl.hasError('missingNumber')">
+                  <ion-icon
+                    [name]="!passwordCtrl.hasError('missingNumber') ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                    [color]="!passwordCtrl.hasError('missingNumber') ? 'success' : 'danger'"
+                    size="small">
+                  </ion-icon>
+                  <ion-text [color]="!passwordCtrl.hasError('missingNumber') ? 'success' : 'medium'">
+                    <small>Al menos 1 número</small>
+                  </ion-text>
+                </div>
+                <div class="requirement-item" [class.met]="!passwordCtrl.hasError('missingSpecialChar')">
+                  <ion-icon
+                    [name]="!passwordCtrl.hasError('missingSpecialChar') ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                    [color]="!passwordCtrl.hasError('missingSpecialChar') ? 'success' : 'danger'"
+                    size="small">
+                  </ion-icon>
+                  <ion-text [color]="!passwordCtrl.hasError('missingSpecialChar') ? 'success' : 'medium'">
+                    <small>Al menos 1 carácter especial</small>
+                  </ion-text>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Confirmar contraseña -->
+          <div class="form-field-wrapper">
+            <ion-item
+              class="form-item"
+              lines="full"
+              [class.has-error]="confirmPasswordCtrl.invalid && confirmPasswordCtrl.touched"
+              [class.has-success]="confirmPasswordCtrl.valid && confirmPasswordCtrl.dirty">
+              <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
+              <ion-input
+                #confirmPasswordInput
+                [type]="hideConfirmPassword() ? 'password' : 'text'"
+                placeholder="Confirmar contraseña"
+                formControlName="confirmPassword"
+                autocomplete="off"
+                (ionBlur)="confirmPasswordCtrl.markAsTouched()">
+              </ion-input>
+              <ion-button slot="end" fill="clear" type="button"
+                (click)="toggleConfirmPassword()" class="toggle-password-btn">
+                <ion-icon [name]="hideConfirmPassword() ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+              </ion-button>
+            </ion-item>
+            @if (confirmPasswordCtrl.dirty && confirmPasswordCtrl.touched && confirmPasswordCtrl.hasError('mismatch')) {
+              <div class="error-container">
+                <ion-text color="danger">
+                  <small>
+                    <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+                    La confirmación no coincide con la contraseña
+                  </small>
+                </ion-text>
+              </div>
+            }
+          </div>
+
+          <!-- Nombre y Apellidos en fila -->
+          <div class="name-row">
+            <div class="form-field-wrapper half">
+              <ion-item class="form-item" lines="full"
+                [class.has-error]="firstNameCtrl.invalid && firstNameCtrl.touched">
+                <ion-icon name="person-outline" slot="start" class="input-icon"></ion-icon>
+                <ion-input
+                  #nameInput
+                  type="text"
+                  placeholder="Nombre"
+                  formControlName="firstName"
+                  autocomplete="off"
+                  (ionBlur)="firstNameCtrl.markAsTouched()">
+                </ion-input>
+              </ion-item>
+            </div>
+            <div class="form-field-wrapper half">
+              <ion-item class="form-item" lines="full"
+                [class.has-error]="lastNameCtrl.invalid && lastNameCtrl.touched">
+                <ion-icon name="id-card-outline" slot="start" class="input-icon"></ion-icon>
+                <ion-input
+                  #lastNameInput
+                  type="text"
+                  placeholder="Apellidos"
+                  formControlName="lastName"
+                  autocomplete="off"
+                  (ionBlur)="lastNameCtrl.markAsTouched()">
+                </ion-input>
+              </ion-item>
+            </div>
+          </div>
+
+          <!-- Mensajes de error -->
+          @if (errorMessage()) {
+            <div class="error-message" role="alert">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              <span>{{ errorMessage() }}</span>
+            </div>
+          }
+          @if (hasVisibleErrors) {
+            <div class="error-message" role="alert">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              <span>{{ generalErrorMessage }}</span>
+            </div>
+          }
+
+          <!-- Botones -->
+          <div class="form-actions">
+            <ion-button type="button" fill="outline" class="back-btn" (click)="goBack()">
+              <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+              Volver
+            </ion-button>
+            <ion-button type="submit" class="login-btn"
+              [disabled]="registerForm.invalid || isLoading()">
+              @if (isLoading()) {
+                <ion-spinner name="crescent"></ion-spinner>
+              } @else {
+                <span>REGISTRAR</span>
+              }
+            </ion-button>
+          </div>
+        </form>
+      }
+
+      <!-- ============================================ -->
+      <!-- VISTA 2: VERIFICACIÓN OTP                    -->
+      <!-- ============================================ -->
+      @if (isVerifying()) {
+        <div class="verification-form">
+
+          <!-- Timer -->
+          <div class="timer-display" [class.low-time]="timerSeconds() < 30">
+            <ion-icon name="timer-outline"></ion-icon>
+            <span>{{ formattedTime() }}</span>
+          </div>
+
+          <!-- OTP Slots -->
+          <div class="otp-slots">
+            @for (slot of otpSlots; track $index) {
+              <div class="otp-slot"
+                [class.filled]="slot.filled"
+                [class.active]="slot.active"
+                [class.error]="slot.error">
+                {{ verificationCode()[$index] || '' }}
+              </div>
+            }
+          </div>
+
+          <!-- Campo OTP -->
+          <div class="form-field-wrapper">
+            <ion-item class="form-item" lines="full">
+              <ion-icon name="key-outline" slot="start" class="input-icon"></ion-icon>
+              <ion-input
+                #otpInput
+                type="text"
+                inputmode="numeric"
+                maxlength="6"
+                placeholder="000000"
+                autocomplete="off"
+                [value]="verificationCode()"
+                (input)="onOtpChange($event)">
+              </ion-input>
+            </ion-item>
+            <div class="input-hint">
+              <ion-text color="medium"><small>Código de 6 dígitos</small></ion-text>
+              <ion-text color="medium"><small>{{ verificationCode().length || 0 }} / 6</small></ion-text>
+            </div>
+          </div>
+
+          <p class="otp-info-text">El código expirará pronto. Revisa tu bandeja de entrada.</p>
+
+          <!-- Botón pegar código -->
+          @if (isMicActive() && receivedOtpCode()) {
+            <ion-button expand="block" fill="outline" class="btn-paste"
+              (click)="pasteOtpCode()" type="button">
+              <ion-icon name="clipboard-outline" slot="start"></ion-icon>
+              PEGAR CÓDIGO
+            </ion-button>
+          }
+
+          <!-- Botones -->
+          <div class="form-actions">
+            <ion-button type="button" fill="outline" class="back-btn" (click)="resetVerification()">
+              <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+              Atrás
+            </ion-button>
+            <ion-button type="button" class="login-btn"
+              [disabled]="verificationCode().length < 6 || timerSeconds() === 0 || isLoading()"
+              (click)="verifyCode()">
+              @if (isLoading()) {
+                <ion-spinner name="crescent"></ion-spinner>
+              } @else {
+                <span>VERIFICAR</span>
+              }
+            </ion-button>
+          </div>
+        </div>
+      }
+
+      <!-- Separador + Registro (solo en vista 1) -->
+      @if (!isVerifying()) {
+        <div class="card-divider"></div>
+
+        <div class="register-section">
+          <p>¿Ya tienes cuenta?
+            <a class="register-link" (click)="goToLogin()">Inicia sesión aquí</a>
+          </p>
+        </div>
+      }
+
+    </div>
+  </div>
+</ion-content>

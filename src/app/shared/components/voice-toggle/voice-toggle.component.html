@@ -1,0 +1,70 @@
+<!-- ✅ Mensaje de Firefox (solo en Welcome y si no está cerrado) -->
+@if (isFirefox && showFirefoxMessage) {
+  <div class="firefox-message-overlay">
+    <div class="firefox-message">
+      <div class="firefox-message-content">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <span class="firefox-message-text">
+          ⚠️ El reconocimiento de voz no está disponible en Firefox. 
+          Usa <strong>Chrome</strong> o <strong>Edge</strong> para comandos de voz.
+        </span>
+      </div>
+      <ion-button fill="clear" size="small" class="firefox-message-close" (click)="closeFirefoxMessage()" aria-label="Cerrar mensaje">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+}
+
+<!-- ✅ Voice Toggle Wrapper -->
+<div class="voice-toggle-wrapper">
+  @if (!isVoiceSupported() && !isFirefox) {
+    <!-- ⚠️ Navegador no soportado (no Firefox) -->
+    <div class="voice-not-supported">
+      <ion-icon name="mic-off-outline"></ion-icon>
+      <div class="voice-not-supported-content">
+        <span class="voice-not-supported-title">⚠️ Reconocimiento de voz no disponible</span>
+        <span class="voice-not-supported-text">
+          Este navegador no soporta reconocimiento de voz.
+        </span>
+        <span class="voice-not-supported-suggestion">
+          💡 Usa <strong>Chrome</strong>, <strong>Edge</strong> o <strong>Safari</strong> para comandos de voz.
+        </span>
+      </div>
+    </div>
+  } @else if (!isFirefox) {
+    <!-- 🟢 Navegadores compatibles -->
+
+    <!-- ✅ Indicador de carga (micrófono activo pero aún no listo) -->
+    @if (!isReady && !isMuted()) {
+      <div class="voice-loading">
+        <ion-icon name="mic-outline" class="spinning"></ion-icon>
+        <span>Activando micrófono...</span>
+      </div>
+    } @else {
+      <!-- ✅ Botón normal adaptado a Ionic -->
+      <button
+        type="button"
+        class="voice-toggle-btn"
+        [ngClass]="{
+          'listening': micState() === 'listening',
+          'error': micState() === 'error',
+          'muted': isMuted()
+        }"
+        [disabled]="!isVoiceSupported() || (!isReady && !isMuted())"
+        (click)="toggleMic()"
+        [attr.aria-label]="statusText"
+        [attr.title]="tooltipText"
+      >
+        <ion-icon [name]="micIcon"></ion-icon>
+        <span class="status-dot" [class.pulsing]="isPulsing"></span>
+      </button>
+
+      @if (showStatusLabel()) {
+        <div class="status-label">
+          {{ statusText }}
+        </div>
+      }
+    }
+  }
+</div>

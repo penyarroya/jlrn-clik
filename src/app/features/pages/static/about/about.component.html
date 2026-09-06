@@ -1,0 +1,140 @@
+<!-- <div class="about-wrapper" [class.dark]="themeService.currentTheme() === 'dark'">
+  
+  <div class="bg-blur-circle"></div>
+  <div class="bg-blur-circle-secondary"></div>
+
+  <ion-card class="about-card fade-in">
+    
+    <ion-card-header class="about-header">
+      <div class="logo-container">
+        <ion-img src="/ico/Micro.jpg" alt="Logo VozAcción" class="logo"></ion-img>
+      </div>
+      <ion-card-title class="title">VozAcción</ion-card-title>
+      <ion-card-subtitle class="tagline">El Universo de la Palabra</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content class="content">
+      <p class="intro">
+        <strong>Comandos de voz para todos</strong>. VozAcción permite interactuar con la tecnología 
+        usando solo la voz, facilitando el acceso a personas con diversas capacidades.
+      </p>
+
+      <div class="features">
+        <div class="feature-item">
+          <div class="icon-box">
+            <ion-icon name="mic-outline"></ion-icon>
+          </div>
+          <span>Control total por voz, sin necesidad de clics.</span>
+        </div>
+        <div class="feature-item">
+          <div class="icon-box">
+            <ion-icon name="accessibility-outline"></ion-icon>
+          </div>
+          <span>Diseñado para personas con movilidad reducida.</span>
+        </div>
+        <div class="feature-item">
+          <div class="icon-box">
+            <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+          </div>
+          <span>Asistente inteligente que entiende comandos naturales.</span>
+        </div>
+      </div>
+
+      <div class="about-footer">
+        <div class="contact-line">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span>Versión 1.0 - Proyecto de accesibilidad</span>
+        </div>
+        <div class="contact-line">
+          <ion-icon name="code-outline"></ion-icon>
+          <a href="https://github.com/tu-usuario/voxaction" target="_blank">Repositorio en GitHub</a>
+        </div>
+      </div>
+
+      <ion-button 
+        class="btn-back-secondary" 
+        (click)="goBack()"
+        aria-label="Volver"
+        expand="block">
+        <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+        VOLVER
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+</div> -->
+
+
+
+
+
+
+
+
+
+
+<!-- src/app/features/pages/static/about/about.component.html -->
+
+<div class="about-wrapper" [class.dark]="themeService.currentTheme() === 'dark'">
+  
+  <div class="bg-blur-circle"></div>
+  <div class="bg-blur-circle-secondary"></div>
+
+  <ion-card class="about-card fade-in">
+    
+    <ion-card-header class="about-header">
+      <div class="logo-container">
+        <div class="logo-icon">🎤</div>
+        <ion-card-title class="app-title">Voz<span class="highlight">Acción</span></ion-card-title>
+        <ion-card-subtitle class="app-subtitle">El Universo de la Palabra</ion-card-subtitle>
+      </div>
+    </ion-card-header>
+
+    <ion-card-content class="content">
+      <p class="intro">
+        <strong>Comandos de voz para todos</strong>. VozAcción permite interactuar con la tecnología 
+        usando solo la voz, facilitando el acceso a personas con diversas capacidades.
+      </p>
+
+      <div class="features">
+        <div class="feature-item">
+          <div class="icon-box">
+            <mat-icon>mic</mat-icon>
+          </div>
+          <span>Control total por voz, sin necesidad de clics.</span>
+        </div>
+        <div class="feature-item">
+          <div class="icon-box">
+            <mat-icon>accessibility_new</mat-icon>
+          </div>
+          <span>Diseñado para personas con movilidad reducida.</span>
+        </div>
+        <div class="feature-item">
+          <div class="icon-box">
+            <mat-icon>chat</mat-icon>
+          </div>
+          <span>Asistente inteligente que entiende comandos naturales.</span>
+        </div>
+      </div>
+
+      <div class="about-footer">
+        <div class="contact-line">
+          <mat-icon>info</mat-icon>
+          <span>Versión 1.0 - Proyecto de accesibilidad</span>
+        </div>
+        <div class="contact-line">
+          <mat-icon>code</mat-icon>
+          <a href="https://github.com/tu-usuario/voxaction" target="_blank">Repositorio en GitHub</a>
+        </div>
+      </div>
+
+      <ion-button 
+        class="btn-back-secondary" 
+        (click)="goBack()"
+        aria-label="Volver"
+        expand="block">
+        <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+        VOLVER
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+</div>

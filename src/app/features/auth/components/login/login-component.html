@@ -1,0 +1,465 @@
+<!-- <ion-content class="login-content">
+  <div class="login-container">
+    
+    <div class="back-button">
+      <ion-button fill="clear" (click)="goBack()">
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        Volver
+      </ion-button>
+    </div>
+
+    <div class="logo-container">
+      <div class="logo-icon">🎤</div>
+      <h1 class="app-title">Voz<span class="highlight">Acción</span></h1>
+      <p class="app-subtitle">Identifícate para continuar</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      
+      <div class="form-field-wrapper">
+        <ion-item 
+          class="form-item" 
+          lines="full" 
+          [class.has-error]="usernameOrEmailCtrl.invalid && usernameOrEmailCtrl.touched"
+          [class.has-success]="isUsernameValid() && usernameOrEmailCtrl.dirty">
+          <ion-icon name="person-outline" slot="start" class="input-icon"></ion-icon>
+          <ion-input
+            #usernameInput
+            #usernameInputEl
+            type="text"
+            placeholder="Usuario o correo electrónico"
+            formControlName="usernameOrEmail"
+            [class.invalid]="usernameOrEmailCtrl.invalid && usernameOrEmailCtrl.touched"
+            (ionBlur)="onUsernameBlur()"
+            (ionInput)="usernameOrEmailCtrl.markAsDirty(); usernameOrEmailCtrl.updateValueAndValidity()"
+            aria-label="Usuario o correo electrónico">
+          </ion-input>
+
+          @if (usernameOrEmailCtrl.dirty && usernameOrEmailCtrl.value) {
+            <ion-icon 
+              slot="end" 
+              [name]="isUsernameValid() ? 'checkmark-circle-outline' : 'close-circle-outline'"
+              [color]="isUsernameValid() ? 'success' : 'danger'"
+              class="validation-icon"
+            ></ion-icon>
+          }
+        </ion-item>
+
+        <div class="input-hint">
+          <ion-text color="medium">
+            <small>Tu nombre de usuario o email</small>
+          </ion-text>
+          <ion-text 
+            [color]="usernameLength() >= 3 ? 'success' : 'medium'" 
+            class="char-counter"
+            [class.met]="usernameLength() >= 3">
+            <small>{{ usernameLength() }} / 3</small>
+          </ion-text>
+        </div>
+
+        @if (usernameOrEmailCtrl.invalid && (usernameOrEmailCtrl.dirty || usernameOrEmailCtrl.touched)) {
+          <div class="error-container">
+            <ion-text color="danger">
+              <small>
+                <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+                {{ getUsernameErrors() }}
+              </small>
+            </ion-text>
+          </div>
+        }
+      </div>
+
+      <div class="form-field-wrapper">
+        <ion-item 
+          class="form-item" 
+          lines="full" 
+          [class.has-error]="passwordCtrl.invalid && passwordCtrl.touched"
+          [class.has-success]="isPasswordValid() && passwordCtrl.dirty">
+          <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
+          <ion-input
+            #passwordInput
+            #passwordInputEl
+            [type]="hidePassword() ? 'password' : 'text'"
+            placeholder="Contraseña"
+            formControlName="password"
+            [class.invalid]="passwordCtrl.invalid && passwordCtrl.touched"
+            (ionBlur)="onPasswordBlur()"
+            (ionInput)="passwordCtrl.markAsDirty(); passwordCtrl.updateValueAndValidity()"
+            aria-label="Contraseña">
+          </ion-input>
+
+          <ion-button slot="end" fill="clear" (click)="togglePasswordVisibility()" class="toggle-password-btn">
+            <ion-icon [name]="hidePassword() ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+          </ion-button>
+
+          @if (passwordCtrl.dirty && passwordCtrl.value) {
+            <ion-icon 
+              slot="end" 
+              [name]="isPasswordValid() ? 'checkmark-circle-outline' : 'close-circle-outline'"
+              [color]="isPasswordValid() ? 'success' : 'danger'"
+              class="validation-icon"
+            ></ion-icon>
+          }
+        </ion-item>
+
+        <div class="input-hint">
+          <ion-text color="medium">
+            <small>Requisitos: min 9 caracteres, mayúscula, minúscula, número y carácter especial</small>
+          </ion-text>
+          <ion-text 
+            [color]="passwordLength() >= 9 ? 'success' : 'medium'" 
+            class="char-counter"
+            [class.met]="passwordLength() >= 9">
+            <small>{{ passwordLength() }} / 9</small>
+          </ion-text>
+        </div>
+
+        @if (passwordCtrl.dirty && passwordCtrl.value && passwordLength() >= 3) {
+          <div class="password-strength-container">
+            <div class="strength-bars">
+              <div class="strength-bar" 
+                   [class.active]="passwordStrength() >= 1" 
+                   [class.weak]="passwordStrength() === 1"></div>
+              <div class="strength-bar" 
+                   [class.active]="passwordStrength() >= 2" 
+                   [class.medium]="passwordStrength() === 2"></div>
+              <div class="strength-bar" 
+                   [class.active]="passwordStrength() >= 3" 
+                   [class.strong]="passwordStrength() === 3"></div>
+              <div class="strength-bar" 
+                   [class.active]="passwordStrength() >= 4" 
+                   [class.very-strong]="passwordStrength() === 4"></div>
+            </div>
+            <ion-text [color]="passwordStrengthColor()" class="strength-text">
+              <small>
+                <ion-icon [name]="passwordStrength() >= 3 ? 'checkmark-circle-outline' : 'warning-outline'"></ion-icon>
+                {{ passwordStrengthText() }}
+              </small>
+            </ion-text>
+          </div>
+        }
+
+        @if (passwordCtrl.dirty && passwordCtrl.value && passwordLength() >= 3) {
+          <div class="password-requirements">
+            @for (req of getPasswordRequirementsStatus(); track req.label) {
+              <div class="requirement-item" [class.met]="req.met">
+                <ion-icon 
+                  [name]="req.met ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                  [color]="req.met ? 'success' : 'danger'"
+                  size="small"
+                ></ion-icon>
+                <ion-text [color]="req.met ? 'success' : 'medium'">
+                  <small>{{ req.label }}</small>
+                </ion-text>
+              </div>
+            }
+          </div>
+        }
+
+        @if (passwordCtrl.invalid && (passwordCtrl.dirty || passwordCtrl.touched)) {
+          <div class="error-container">
+            <ion-text color="danger">
+              <small>
+                <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+                {{ getPasswordErrors() }}
+              </small>
+            </ion-text>
+          </div>
+        }
+      </div>
+
+      <div class="form-options">
+        <ion-item lines="none" class="remember-item">
+          <ion-checkbox formControlName="rememberMe" slot="start"></ion-checkbox>
+          <ion-label>Recordarme</ion-label>
+        </ion-item>
+        <ion-button fill="clear" class="forgot-link" (click)="goToForgotPassword()">
+          ¿Olvidaste tu contraseña?
+        </ion-button>
+      </div>
+
+      @if (showError() && errorMessage()) {
+        <div class="error-message" role="alert">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <ion-button
+        type="submit"
+        expand="block"
+        class="login-btn"
+        [disabled]="loginForm.invalid || isLoading()">
+        @if (isLoading()) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <span>ENVIAR</span>
+        }
+      </ion-button>
+    </form>
+
+    <div class="register-section">
+      <p>¿No tienes cuenta? 
+        <ion-button fill="clear" class="register-link" (click)="goToRegister()">
+          Regístrate gratis
+        </ion-button>
+      </p>
+    </div>
+
+    <div class="legal-links">
+      <a routerLink="/privacy">Privacidad</a>
+      <span class="separator">|</span>
+      <a routerLink="/terms">Condiciones</a>
+      <span class="separator">|</span>
+      <a routerLink="/help">Ayuda</a>
+    </div>
+  </div>
+</ion-content> -->
+
+
+
+
+
+
+
+<!-- src/app/features/auth/components/login/login.component.html -->
+
+<ion-content class="login-content">
+  <div class="login-container">
+    
+    <!-- ✅ CARD ÚNICA: TODO DENTRO -->
+    <div class="login-card">
+
+      <!-- Logo -->
+      <div class="logo-container">
+        <div class="logo-icon">🎤</div>
+        <h1 class="app-title">Voz<span class="highlight">Acción</span></h1>
+        <p class="app-subtitle">Identifícate para continuar</p>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        
+        <!-- ========================================================== -->
+        <!-- CAMPO USUARIO -->
+        <!-- ========================================================== -->
+        <div class="form-field-wrapper">
+          <ion-item 
+            class="form-item" 
+            lines="full" 
+            [class.has-error]="usernameOrEmailCtrl.invalid && usernameOrEmailCtrl.touched"
+            [class.has-success]="isUsernameValid() && usernameOrEmailCtrl.dirty">
+            <ion-icon name="person-outline" slot="start" class="input-icon"></ion-icon>
+            <ion-input
+              #usernameInput
+              #usernameInputEl
+              type="text"
+              placeholder="Usuario o correo electrónico"
+              formControlName="usernameOrEmail"
+              [class.invalid]="usernameOrEmailCtrl.invalid && usernameOrEmailCtrl.touched"
+              (ionBlur)="onUsernameBlur()"
+              (ionInput)="usernameOrEmailCtrl.markAsDirty(); usernameOrEmailCtrl.updateValueAndValidity()"
+              aria-label="Usuario o correo electrónico">
+            </ion-input>
+            @if (usernameOrEmailCtrl.dirty && usernameOrEmailCtrl.value) {
+              <ion-icon 
+                slot="end" 
+                [name]="isUsernameValid() ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                [color]="isUsernameValid() ? 'success' : 'danger'"
+                class="validation-icon"
+              ></ion-icon>
+            }
+          </ion-item>
+
+          <div class="input-hint">
+            <ion-text color="medium">
+              <small>Tu nombre de usuario o email</small>
+            </ion-text>
+            <ion-text 
+              [color]="usernameLength() >= 3 ? 'success' : 'medium'" 
+              class="char-counter"
+              [class.met]="usernameLength() >= 3">
+              <small>{{ usernameLength() }} / 3</small>
+            </ion-text>
+          </div>
+
+          @if (usernameOrEmailCtrl.invalid && (usernameOrEmailCtrl.dirty || usernameOrEmailCtrl.touched)) {
+            <div class="error-container">
+              <ion-text color="danger">
+                <small>
+                  <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+                  {{ getUsernameErrors() }}
+                </small>
+              </ion-text>
+            </div>
+          }
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- CAMPO CONTRASEÑA -->
+        <!-- ========================================================== -->
+        <div class="form-field-wrapper">
+          <ion-item 
+            class="form-item" 
+            lines="full" 
+            [class.has-error]="passwordCtrl.invalid && passwordCtrl.touched"
+            [class.has-success]="isPasswordValid() && passwordCtrl.dirty">
+            <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
+            <ion-input
+              #passwordInput
+              #passwordInputEl
+              [type]="hidePassword() ? 'password' : 'text'"
+              placeholder="Contraseña"
+              formControlName="password"
+              [class.invalid]="passwordCtrl.invalid && passwordCtrl.touched"
+              (ionBlur)="onPasswordBlur()"
+              (ionInput)="passwordCtrl.markAsDirty(); passwordCtrl.updateValueAndValidity()"
+              aria-label="Contraseña">
+            </ion-input>
+            <ion-button slot="end" fill="clear" (click)="togglePasswordVisibility()" class="toggle-password-btn">
+              <ion-icon [name]="hidePassword() ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+            </ion-button>
+            @if (passwordCtrl.dirty && passwordCtrl.value) {
+              <ion-icon 
+                slot="end" 
+                [name]="isPasswordValid() ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                [color]="isPasswordValid() ? 'success' : 'danger'"
+                class="validation-icon"
+              ></ion-icon>
+            }
+          </ion-item>
+
+          <div class="input-hint">
+            <ion-text color="medium">
+              <small>Requisitos: min 9 caracteres, mayúscula, minúscula, número y carácter especial</small>
+            </ion-text>
+            <ion-text 
+              [color]="passwordLength() >= 9 ? 'success' : 'medium'" 
+              class="char-counter"
+              [class.met]="passwordLength() >= 9">
+              <small>{{ passwordLength() }} / 9</small>
+            </ion-text>
+          </div>
+
+          @if (passwordCtrl.dirty && passwordCtrl.value && passwordLength() >= 3) {
+            <div class="password-strength-container">
+              <div class="strength-bars">
+                <div class="strength-bar" 
+                     [class.active]="passwordStrength() >= 1" 
+                     [class.weak]="passwordStrength() === 1"></div>
+                <div class="strength-bar" 
+                     [class.active]="passwordStrength() >= 2" 
+                     [class.medium]="passwordStrength() === 2"></div>
+                <div class="strength-bar" 
+                     [class.active]="passwordStrength() >= 3" 
+                     [class.strong]="passwordStrength() === 3"></div>
+                <div class="strength-bar" 
+                     [class.active]="passwordStrength() >= 4" 
+                     [class.very-strong]="passwordStrength() === 4"></div>
+              </div>
+              <ion-text [color]="passwordStrengthColor()" class="strength-text">
+                <small>
+                  <ion-icon [name]="passwordStrength() >= 3 ? 'checkmark-circle-outline' : 'warning-outline'"></ion-icon>
+                  {{ passwordStrengthText() }}
+                </small>
+              </ion-text>
+            </div>
+          }
+
+          @if (passwordCtrl.dirty && passwordCtrl.value && passwordLength() >= 3) {
+            <div class="password-requirements">
+              @for (req of getPasswordRequirementsStatus(); track req.label) {
+                <div class="requirement-item" [class.met]="req.met">
+                  <ion-icon 
+                    [name]="req.met ? 'checkmark-circle-outline' : 'close-circle-outline'"
+                    [color]="req.met ? 'success' : 'danger'"
+                    size="small"
+                  ></ion-icon>
+                  <ion-text [color]="req.met ? 'success' : 'medium'">
+                    <small>{{ req.label }}</small>
+                  </ion-text>
+                </div>
+              }
+            </div>
+          }
+
+          @if (passwordCtrl.invalid && (passwordCtrl.dirty || passwordCtrl.touched)) {
+            <div class="error-container">
+              <ion-text color="danger">
+                <small>
+                  <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+                  {{ getPasswordErrors() }}
+                </small>
+              </ion-text>
+            </div>
+          }
+        </div>
+
+        <!-- Opciones -->
+        <div class="form-options">
+          <ion-item lines="none" class="remember-item">
+            <ion-checkbox formControlName="rememberMe" slot="start"></ion-checkbox>
+            <ion-label>Recordarme</ion-label>
+          </ion-item>
+          <ion-button fill="clear" class="forgot-link" (click)="goToForgotPassword()">
+            ¿Olvidaste tu contraseña?
+          </ion-button>
+        </div>
+
+        @if (showError() && errorMessage()) {
+          <div class="error-message" role="alert">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <!-- ✅ FILA DE BOTONES: Volver + Enviar -->
+        <div class="form-actions">
+          <ion-button 
+            type="button"
+            fill="outline" 
+            class="back-btn"
+            (click)="goBack()">
+            <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+            Volver
+          </ion-button>
+
+          <ion-button
+            type="submit"
+            class="login-btn"
+            [disabled]="loginForm.invalid || isLoading()">
+            @if (isLoading()) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              <span>ENVIAR</span>
+            }
+          </ion-button>
+        </div>
+      </form>
+
+      <!-- ✅ Separador -->
+      <div class="card-divider"></div>
+
+      <!-- Registro -->
+      <div class="register-section">
+        <p>¿No tienes cuenta? 
+          <ion-button fill="clear" class="register-link" (click)="goToRegister()">
+            Regístrate gratis
+          </ion-button>
+        </p>
+      </div>
+
+      <!-- Enlaces legales -->
+      <div class="legal-links">
+        <a routerLink="/privacy">Privacidad</a>
+        <span class="separator">|</span>
+        <a routerLink="/terms">Condiciones</a>
+        <span class="separator">|</span>
+        <a routerLink="/help">Ayuda</a>
+      </div>
+
+    </div>
+    <!-- ✅ FIN CARD -->
+
+  </div>
+</ion-content>

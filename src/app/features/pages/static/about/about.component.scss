@@ -1,0 +1,899 @@
+// /* ============================================================ */
+// /* ABOUT - IONIC 9                                              */
+// /* ============================================================ */
+
+// .about-wrapper {
+//   position: relative;
+//   isolation: isolate;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   min-height: 100dvh;
+//   width: 100%;
+//   overflow: hidden;
+//   padding: clamp(12px, 3vh, 30px);
+//   box-sizing: border-box;
+//   background: var(--ion-background-color);
+
+//   &::before {
+//     content: '';
+//     position: absolute;
+//     inset: 0;
+//     background: 
+//       linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+//       url('/assets/img/pages/maintenance/maintenance.jpg');
+//     background-size: cover;
+//     background-position: center;
+//     filter: saturate(140%) contrast(110%);
+//     z-index: 0;
+//   }
+// }
+
+// .bg-blur-circle,
+// .bg-blur-circle-secondary {
+//   position: absolute;
+//   border-radius: 50%;
+//   pointer-events: none;
+//   z-index: 0;
+//   will-change: transform;
+//   opacity: 0.6;
+// }
+
+// .bg-blur-circle {
+//   width: min(600px, 80vw);
+//   height: min(600px, 80vw);
+//   top: -20%;
+//   left: -20%;
+//   background: rgba(56, 189, 248, 0.3);
+//   filter: blur(100px);
+// }
+
+// .bg-blur-circle-secondary {
+//   width: min(400px, 60vw);
+//   height: min(400px, 60vw);
+//   right: -15%;
+//   bottom: -25%;
+//   background: rgba(255, 255, 255, 0.15);
+//   filter: blur(80px);
+// }
+
+// /* ============================================================ */
+// /* TARJETA PRINCIPAL                                             */
+// /* ============================================================ */
+
+// .about-card {
+//   width: min(100%, 500px);
+//   padding: clamp(28px, 5vh, 45px) clamp(24px, 4vw, 40px);
+//   border-radius: clamp(24px, 4vw, 32px) !important;
+//   border: 1px solid rgba(255, 255, 255, 0.5);
+//   background: rgba(255, 255, 255, 0.85) !important;
+//   backdrop-filter: blur(25px);
+//   -webkit-backdrop-filter: blur(25px);
+//   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+//   z-index: 1;
+//   text-align: center;
+// }
+
+// /* ============================================================ */
+// /* HEADER                                                        */
+// /* ============================================================ */
+
+// .about-header {
+//   justify-content: center;
+//   padding: 0 !important;
+// }
+
+// .logo-container {
+//   width: 100%;
+//   margin-bottom: clamp(16px, 4vh, 35px);
+//   text-align: center;
+// }
+
+// .logo-icon {
+//   font-size: 3.5rem;
+//   line-height: 1;
+//   margin-bottom: 8px;
+//   display: block;
+//   animation: pulseLogo 2s ease-in-out infinite;
+// }
+
+// .app-title {
+//   margin: 0;
+//   color: #0c4a6e;
+//   font-size: clamp(2rem, 5vw, 2.8rem);
+//   font-weight: 900;
+//   line-height: 1.1;
+
+//   .highlight {
+//     color: #0284c7;
+//     position: relative;
+    
+//     &::after {
+//       content: '';
+//       position: absolute;
+//       bottom: -2px;
+//       left: 0;
+//       width: 100%;
+//       height: 3px;
+//       background: linear-gradient(90deg, #0284c7, #38bdf8);
+//       border-radius: 2px;
+//     }
+//   }
+// }
+
+// .app-subtitle {
+//   margin: 6px 0 0;
+//   color: #64748b;
+//   font-size: clamp(0.85rem, 2vw, 1.1rem);
+//   font-weight: 600;
+// }
+
+// /* ============================================================ */
+// /* CONTENIDO                                                     */
+// /* ============================================================ */
+
+// .content {
+//   padding: 0 !important;
+// }
+
+// .intro {
+//   color: #334155;
+//   line-height: 1.6;
+//   font-size: clamp(0.85rem, 2vw, 1.05rem);
+//   margin-bottom: 20px;
+//   font-weight: 500;
+
+//   strong {
+//     color: #0c4a6e;
+//     font-weight: 700;
+//   }
+// }
+
+// /* ============================================================ */
+// /* FEATURES - CON MAT-ICON                                       */
+// /* ============================================================ */
+
+// .features {
+//   display: flex;
+//   flex-direction: column;
+//   gap: clamp(8px, 1.5vh, 16px);
+//   margin-bottom: 20px;
+// }
+
+// .feature-item {
+//   display: flex;
+//   align-items: center;
+//   gap: 15px;
+//   color: #475569;
+//   text-align: left;
+//   padding: 10px 12px;
+//   border-radius: 12px;
+//   transition: background 0.2s;
+//   font-weight: 500;
+//   font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+
+//   &:hover {
+//     background: rgba(0, 0, 0, 0.03);
+//   }
+
+//   .icon-box {
+//     background: rgba(2, 132, 199, 0.08);
+//     color: #0284c7;
+//     width: 42px;
+//     height: 42px;
+//     border-radius: 12px;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     flex-shrink: 0;
+
+//     /* ✅ ESTILOS PARA MAT-ICON */
+//     mat-icon {
+//       font-size: 24px !important;
+//       width: 24px !important;
+//       height: 24px !important;
+//       color: inherit;
+//       display: flex;
+//       align-items: center;
+//       justify-content: center;
+//     }
+//   }
+// }
+
+// /* ============================================================ */
+// /* FOOTER - CON MAT-ICON                                         */
+// /* ============================================================ */
+
+// .about-footer {
+//   margin-top: 16px;
+//   padding-top: 16px;
+//   border-top: 1px dashed rgba(0, 0, 0, 0.08);
+//   display: flex;
+//   flex-direction: column;
+//   gap: 6px;
+// }
+
+// .contact-line {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   gap: 8px;
+//   color: #94a3b8;
+//   font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+
+//   /* ✅ ESTILOS PARA MAT-ICON */
+//   mat-icon {
+//     font-size: 20px !important;
+//     width: 20px !important;
+//     height: 20px !important;
+//     color: #0284c7;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//   }
+
+//   a {
+//     color: #0284c7;
+//     text-decoration: none;
+//     font-weight: 700;
+
+//     &:hover {
+//       color: #0c4a6e;
+//       text-decoration: underline;
+//     }
+//   }
+// }
+
+// /* ============================================================ */
+// /* BOTÓN VOLVER - CON MAT-ICON                                   */
+// /* ============================================================ */
+
+// .btn-back-secondary {
+//   width: 100%;
+//   margin-top: clamp(12px, 2.5vh, 24px);
+//   height: clamp(48px, 7vh, 56px);
+//   border-radius: clamp(16px, 2vw, 22px);
+//   font-size: clamp(0.8rem, 1.8vw, 1rem);
+//   font-weight: 800;
+//   letter-spacing: 0.5px;
+//   background-color: #0c4a6e !important;
+//   color: white !important;
+//   border: none;
+//   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+//   transition: all 0.3s ease;
+//   cursor: pointer;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   gap: 8px;
+
+//   /* ✅ ESTILOS PARA MAT-ICON */
+//   mat-icon {
+//     font-size: 22px !important;
+//     width: 22px !important;
+//     height: 22px !important;
+//     color: inherit !important;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//   }
+
+//   &:hover {
+//     transform: translateY(-2px);
+//     box-shadow: 0 8px 20px rgba(12, 74, 110, 0.3);
+//     filter: brightness(1.15);
+//   }
+
+//   &:active {
+//     transform: translateY(0);
+//   }
+// }
+
+// /* ============================================================ */
+// /* ANIMACIONES                                                   */
+// /* ============================================================ */
+
+// .fade-in {
+//   animation: fadeIn 0.4s ease-out forwards;
+// }
+
+// @keyframes fadeIn {
+//   from { opacity: 0; transform: translateY(10px); }
+//   to { opacity: 1; transform: translateY(0); }
+// }
+
+// @keyframes pulseLogo {
+//   0%, 100% { transform: scale(1); }
+//   50% { transform: scale(1.05); }
+// }
+
+// /* ============================================================ */
+// /* MODO OSCURO                                                   */
+// /* ============================================================ */
+
+// .about-wrapper.dark {
+//   &::before {
+//     background: 
+//       linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+//       url('/assets/img/pages/about/FondoAbout.webp');
+//   }
+
+//   .about-card {
+//     background: rgba(30, 30, 46, 0.92) !important;
+//     border-color: rgba(255, 255, 255, 0.08) !important;
+//     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
+//   }
+
+//   .app-title {
+//     color: #ffffff !important;
+
+//     .highlight {
+//       color: #38bdf8 !important;
+      
+//       &::after {
+//         background: linear-gradient(90deg, #38bdf8, #7dd3fc) !important;
+//       }
+//     }
+//   }
+
+//   .app-subtitle {
+//     color: rgba(255, 255, 255, 0.6) !important;
+//   }
+
+//   .intro {
+//     color: rgba(255, 255, 255, 0.8) !important;
+
+//     strong {
+//       color: #ffffff !important;
+//     }
+//   }
+
+//   .feature-item {
+//     color: rgba(255, 255, 255, 0.7) !important;
+
+//     .icon-box {
+//       background: rgba(56, 189, 248, 0.15) !important;
+//       color: #38bdf8 !important;
+//     }
+
+//     &:hover {
+//       background: rgba(255, 255, 255, 0.05) !important;
+//     }
+//   }
+
+//   .about-footer {
+//     border-top-color: rgba(255, 255, 255, 0.08) !important;
+
+//     .contact-line {
+//       color: rgba(255, 255, 255, 0.5) !important;
+
+//       mat-icon {
+//         color: #38bdf8 !important;
+//       }
+
+//       a {
+//         color: #38bdf8 !important;
+
+//         &:hover {
+//           color: #7dd3fc !important;
+//         }
+//       }
+//     }
+//   }
+
+//   .btn-back-secondary {
+//     background-color: rgba(56, 189, 248, 0.2) !important;
+//     color: #38bdf8 !important;
+//     border: 1px solid rgba(56, 189, 248, 0.25) !important;
+    
+//     &:hover {
+//       background-color: rgba(56, 189, 248, 0.3) !important;
+//       box-shadow: 0 8px 20px rgba(56, 189, 248, 0.2) !important;
+//     }
+//   }
+
+//   .bg-blur-circle {
+//     background: rgba(56, 189, 248, 0.2);
+//   }
+
+//   .bg-blur-circle-secondary {
+//     background: rgba(255, 255, 255, 0.05);
+//   }
+// }
+
+// /* ============================================================ */
+// /* RESPONSIVE                                                    */
+// /* ============================================================ */
+
+// @media (max-height: 700px) {
+//   .about-card { padding: 18px 20px !important; }
+//   .app-title { font-size: 1.8rem; }
+//   .logo-container { margin-bottom: 12px; }
+//   .app-subtitle { font-size: 0.8rem; }
+//   .intro { font-size: 0.85rem; margin-bottom: 14px; }
+//   .features { gap: 6px; margin-bottom: 14px; }
+//   .feature-item { font-size: 0.8rem; padding: 6px 10px; }
+//   .feature-item .icon-box { width: 34px; height: 34px; }
+//   .feature-item .icon-box mat-icon { font-size: 20px !important; width: 20px !important; height: 20px !important; }
+//   .about-footer { margin-top: 12px; padding-top: 12px; }
+//   .btn-back-secondary { height: 42px; font-size: 0.75rem; margin-top: 10px; }
+//   .btn-back-secondary mat-icon { font-size: 18px !important; width: 18px !important; height: 18px !important; }
+// }
+
+// @media (max-width: 480px) {
+//   .about-wrapper { padding: 10px; }
+//   .about-card { padding: 20px 16px !important; border-radius: 24px !important; }
+//   .app-title { font-size: 1.6rem; }
+//   .app-subtitle { font-size: 0.75rem; }
+//   .feature-item { font-size: 0.8rem; gap: 12px; }
+//   .feature-item .icon-box mat-icon { font-size: 18px !important; width: 18px !important; height: 18px !important; }
+//   .btn-back-secondary { height: 46px; font-size: 0.75rem; }
+// }
+
+// @media (max-width: 380px) {
+//   .about-card { padding: 14px 12px !important; }
+//   .app-title { font-size: 1.3rem; }
+//   .logo-icon { font-size: 2.5rem; }
+//   .btn-back-secondary { height: 38px; font-size: 0.65rem; }
+//   .btn-back-secondary mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; }
+// }
+
+
+
+
+
+
+
+
+
+
+/* ============================================================ */
+/* ABOUT - IONIC 9                                              */
+/* ============================================================ */
+
+.about-wrapper {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  padding: clamp(10px, 2.5vh, 25px);  /* ✅ SOLO REDUCIDO UN POCO */
+  box-sizing: border-box;
+  background: var(--ion-background-color);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+      url('/assets/img/pages/maintenance/maintenance.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: saturate(140%) contrast(110%);
+    z-index: 0;
+  }
+}
+
+.bg-blur-circle,
+.bg-blur-circle-secondary {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+  opacity: 0.6;
+}
+
+.bg-blur-circle {
+  width: min(600px, 80vw);
+  height: min(600px, 80vw);
+  top: -20%;
+  left: -20%;
+  background: rgba(56, 189, 248, 0.3);
+  filter: blur(100px);
+}
+
+.bg-blur-circle-secondary {
+  width: min(400px, 60vw);
+  height: min(400px, 60vw);
+  right: -15%;
+  bottom: -25%;
+  background: rgba(255, 255, 255, 0.15);
+  filter: blur(80px);
+}
+
+/* ============================================================ */
+/* TARJETA PRINCIPAL                                             */
+/* ============================================================ */
+
+.about-card {
+  width: min(100%, 500px);
+  max-height: 95vh;  /* ✅ NUEVO: límite suave */
+  padding: clamp(26px, 4.5vh, 40px) clamp(22px, 3.5vw, 35px);  /* ✅ SOLO REDUCIDO UN POCO */
+  border-radius: clamp(24px, 4vw, 32px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  z-index: 1;
+  text-align: center;
+  overflow-y: auto;  /* ✅ Scroll interno por si acaso */
+}
+
+/* ============================================================ */
+/* HEADER                                                        */
+/* ============================================================ */
+
+.about-header {
+  justify-content: center;
+  padding: 0 !important;
+}
+
+.logo-container {
+  width: 100%;
+  margin-bottom: clamp(14px, 3.5vh, 30px);  /* ✅ SOLO REDUCIDO UN POCO */
+  text-align: center;
+}
+
+.logo-icon {
+  font-size: 3.3rem;  /* ✅ SOLO REDUCIDO UN POCO */
+  line-height: 1;
+  margin-bottom: 6px;  /* ✅ SOLO REDUCIDO UN POCO */
+  display: block;
+  animation: pulseLogo 2s ease-in-out infinite;
+}
+
+.app-title {
+  margin: 0;
+  color: #0c4a6e;
+  font-size: clamp(1.9rem, 4.8vw, 2.6rem);  /* ✅ SOLO REDUCIDO UN POCO */
+  font-weight: 900;
+  line-height: 1.1;
+
+  .highlight {
+    color: #0284c7;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      border-radius: 2px;
+    }
+  }
+}
+
+.app-subtitle {
+  margin: 4px 0 0;  /* ✅ SOLO REDUCIDO UN POCO */
+  color: #64748b;
+  font-size: clamp(0.8rem, 1.8vw, 1rem);  /* ✅ SOLO REDUCIDO UN POCO */
+  font-weight: 600;
+}
+
+/* ============================================================ */
+/* CONTENIDO                                                     */
+/* ============================================================ */
+
+.content {
+  padding: 0 !important;
+}
+
+.intro {
+  color: #334155;
+  line-height: 1.55;  /* ✅ SOLO REDUCIDO UN POCO */
+  font-size: clamp(0.82rem, 1.8vw, 1rem);  /* ✅ SOLO REDUCIDO UN POCO */
+  margin-bottom: 16px;  /* ✅ SOLO REDUCIDO UN POCO */
+  font-weight: 500;
+
+  strong {
+    color: #0c4a6e;
+    font-weight: 700;
+  }
+}
+
+/* ============================================================ */
+/* FEATURES - CON MAT-ICON                                       */
+/* ============================================================ */
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;  /* ✅ SOLO REDUCIDO UN POCO */
+  margin-bottom: 16px;  /* ✅ SOLO REDUCIDO UN POCO */
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;  /* ✅ SOLO REDUCIDO UN POCO */
+  color: #475569;
+  text-align: left;
+  padding: 8px 10px;  /* ✅ SOLO REDUCIDO UN POCO */
+  border-radius: 12px;
+  transition: background 0.2s;
+  font-weight: 500;
+  font-size: clamp(0.82rem, 1.6vw, 0.9rem);  /* ✅ SOLO REDUCIDO UN POCO */
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .icon-box {
+    background: rgba(2, 132, 199, 0.08);
+    color: #0284c7;
+    width: 38px;  /* ✅ SOLO REDUCIDO UN POCO */
+    height: 38px;  /* ✅ SOLO REDUCIDO UN POCO */
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      font-size: 22px !important;  /* ✅ SOLO REDUCIDO UN POCO */
+      width: 22px !important;
+      height: 22px !important;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+/* ============================================================ */
+/* FOOTER - CON MAT-ICON                                         */
+/* ============================================================ */
+
+.about-footer {
+  margin-top: 14px;  /* ✅ SOLO REDUCIDO UN POCO */
+  padding-top: 14px;  /* ✅ SOLO REDUCIDO UN POCO */
+  border-top: 1px dashed rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;  /* ✅ SOLO REDUCIDO UN POCO */
+}
+
+.contact-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;  /* ✅ SOLO REDUCIDO UN POCO */
+  color: #94a3b8;
+  font-size: clamp(0.7rem, 1.5vw, 0.8rem);  /* ✅ SOLO REDUCIDO UN POCO */
+
+  mat-icon {
+    font-size: 17px !important;  /* ✅ SOLO REDUCIDO UN POCO */
+    width: 17px !important;
+    height: 17px !important;
+    color: #0284c7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  a {
+    color: #0284c7;
+    text-decoration: none;
+    font-weight: 700;
+
+    &:hover {
+      color: #0c4a6e;
+      text-decoration: underline;
+    }
+  }
+}
+
+/* ============================================================ */
+/* BOTÓN VOLVER                                                  */
+/* ============================================================ */
+
+.btn-back-secondary {
+  width: 100%;
+  margin-top: clamp(10px, 2vh, 18px);  /* ✅ SOLO REDUCIDO UN POCO */
+  height: clamp(44px, 6vh, 52px);  /* ✅ SOLO REDUCIDO UN POCO */
+  border-radius: clamp(14px, 2vw, 20px);
+  font-size: clamp(0.75rem, 1.6vw, 0.95rem);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background-color: #0c4a6e !important;
+  color: white !important;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  mat-icon {
+    font-size: 20px !important;  /* ✅ SOLO REDUCIDO UN POCO */
+    width: 20px !important;
+    height: 20px !important;
+    color: inherit !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(12, 74, 110, 0.3);
+    filter: brightness(1.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================ */
+/* ANIMACIONES                                                   */
+/* ============================================================ */
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseLogo {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* ============================================================ */
+/* MODO OSCURO                                                   */
+/* ============================================================ */
+
+.about-wrapper.dark {
+  &::before {
+    background: 
+      linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+      url('/assets/img/pages/about/FondoAbout.webp');
+  }
+
+  .about-card {
+    background: rgba(30, 30, 46, 0.92) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .app-title {
+    color: #ffffff !important;
+
+    .highlight {
+      color: #38bdf8 !important;
+      
+      &::after {
+        background: linear-gradient(90deg, #38bdf8, #7dd3fc) !important;
+      }
+    }
+  }
+
+  .app-subtitle {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .intro {
+    color: rgba(255, 255, 255, 0.8) !important;
+
+    strong {
+      color: #ffffff !important;
+    }
+  }
+
+  .feature-item {
+    color: rgba(255, 255, 255, 0.7) !important;
+
+    .icon-box {
+      background: rgba(56, 189, 248, 0.15) !important;
+      color: #38bdf8 !important;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+  }
+
+  .about-footer {
+    border-top-color: rgba(255, 255, 255, 0.08) !important;
+
+    .contact-line {
+      color: rgba(255, 255, 255, 0.5) !important;
+
+      mat-icon {
+        color: #38bdf8 !important;
+      }
+
+      a {
+        color: #38bdf8 !important;
+
+        &:hover {
+          color: #7dd3fc !important;
+        }
+      }
+    }
+  }
+
+  .btn-back-secondary {
+    background-color: rgba(56, 189, 248, 0.2) !important;
+    color: #38bdf8 !important;
+    border: 1px solid rgba(56, 189, 248, 0.25) !important;
+    
+    &:hover {
+      background-color: rgba(56, 189, 248, 0.3) !important;
+      box-shadow: 0 8px 20px rgba(56, 189, 248, 0.2) !important;
+    }
+  }
+
+  .bg-blur-circle {
+    background: rgba(56, 189, 248, 0.2);
+  }
+
+  .bg-blur-circle-secondary {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* ============================================================ */
+/* RESPONSIVE                                                    */
+/* ============================================================ */
+
+@media (max-height: 700px) {
+  .about-card { 
+    padding: 16px 18px !important; 
+    max-height: 90vh !important;
+  }
+  .app-title { font-size: 1.6rem !important; }
+  .logo-container { margin-bottom: 10px !important; }
+  .logo-icon { font-size: 2.6rem !important; }
+  .app-subtitle { font-size: 0.7rem !important; }
+  .intro { font-size: 0.8rem !important; margin-bottom: 12px !important; }
+  .features { gap: 5px !important; margin-bottom: 12px !important; }
+  .feature-item { font-size: 0.75rem !important; padding: 5px 8px !important; gap: 10px !important; }
+  .feature-item .icon-box { width: 30px !important; height: 30px !important; }
+  .feature-item .icon-box mat-icon { font-size: 18px !important; width: 18px !important; height: 18px !important; }
+  .about-footer { margin-top: 10px !important; padding-top: 10px !important; }
+  .btn-back-secondary { height: 38px !important; font-size: 0.7rem !important; margin-top: 8px !important; }
+  .btn-back-secondary mat-icon { font-size: 17px !important; width: 17px !important; height: 17px !important; }
+}
+
+@media (max-width: 480px) {
+  .about-wrapper { padding: 8px; }
+  .about-card { 
+    padding: 18px 14px !important; 
+    border-radius: 20px !important;
+    max-height: 92vh !important;
+  }
+  .app-title { font-size: 1.5rem !important; }
+  .app-subtitle { font-size: 0.7rem !important; }
+  .feature-item { font-size: 0.75rem !important; gap: 10px !important; }
+  .feature-item .icon-box mat-icon { font-size: 18px !important; width: 18px !important; height: 18px !important; }
+  .btn-back-secondary { height: 42px !important; font-size: 0.7rem !important; }
+}
+
+@media (max-width: 380px) {
+  .about-card { 
+    padding: 14px 10px !important; 
+    border-radius: 16px !important;
+    max-height: 94vh !important;
+  }
+  .app-title { font-size: 1.3rem !important; }
+  .logo-icon { font-size: 2.2rem !important; }
+  .btn-back-secondary { height: 36px !important; font-size: 0.6rem !important; }
+  .btn-back-secondary mat-icon { font-size: 15px !important; width: 15px !important; height: 15px !important; }
+}

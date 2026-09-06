@@ -1,0 +1,95 @@
+<!-- src/app/shared/components/footer/footer.component.html -->
+
+<footer 
+  [class]="footerClasses()" 
+  [style]="footerStyles()"
+  role="contentinfo"
+  aria-label="Pie de página">
+  
+  <div class="footer-row">
+    
+    <!-- ========================================================== -->
+    <!-- IZQUIERDA: LOGO + VERSIÓN + COPYRIGHT                      -->
+    <!-- ========================================================== -->
+    <div class="footer-left">
+      <ion-icon class="brand-icon" name="mic-outline"></ion-icon>
+      <span class="brand-name">Voz<span class="highlight">Acción</span></span>
+      
+      @if (showVersion) {
+        <span class="brand-version">v1.0.0</span>
+      }
+      
+      @if (showCopyright) {
+        <span class="separator">|</span>
+        <span class="copyright">
+          &copy; JLRN-Gamosa1956/{{ currentYear }}
+        </span>
+        <span class="separator">|</span>
+        <span class="footer-legal-text">Todos los derechos reservados</span>
+      }
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- CENTRO: NAVEGACIÓN                                         -->
+    <!-- ========================================================== -->
+    @if (showNav) {
+      <nav class="footer-nav">
+        @for (link of navLinks; track link.route) {
+          <a 
+            [routerLink]="link.route" 
+            routerLinkActive="active"
+            [attr.aria-label]="link.label"
+            [title]="link.label">
+            <ion-icon [name]="link.icon"></ion-icon>
+            <span class="nav-label">{{ link.label }}</span>
+          </a>
+        }
+      </nav>
+    }
+
+    <!-- ========================================================== -->
+    <!-- DERECHA: REDES SOCIALES + ENLACES LEGALES                  -->
+    <!-- ========================================================== -->
+    <div class="footer-right">
+      
+      <!-- Separador antes de redes -->
+      @if (showNav && showSocial) {
+        <span class="separator">|</span>
+      }
+
+      <!-- Redes Sociales -->
+      @if (showSocial) {
+        <div class="footer-social">
+          @for (social of socialLinks; track social.url) {
+            <a 
+              [href]="social.url" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              [attr.aria-label]="social.label"
+              [title]="social.label">
+              <ion-icon [name]="social.icon"></ion-icon>
+            </a>
+          }
+        </div>
+      }
+
+      <!-- Separador entre redes y legal -->
+      @if ((showNav || showSocial) && showLegal) {
+        <span class="separator">|</span>
+      }
+
+      <!-- Enlaces Legales -->
+      @if (showLegal) {
+        <div class="footer-legal">
+          @for (legal of legalLinks; track legal.url; let last = $last) {
+            <a [href]="legal.url">{{ legal.label }}</a>
+            @if (!last) {
+              <span class="separator">|</span>
+            }
+          }
+        </div>
+      }
+    </div>
+
+  </div>
+</footer>

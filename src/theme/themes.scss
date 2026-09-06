@@ -1,0 +1,133 @@
+// src/styles/themes.scss
+@use '@angular/material' as mat;
+@use 'theme-variables' as vars; // Importa los mapas de colores
+
+// ============================================================
+// TEMA CLARO
+// ============================================================
+html {
+  @include mat.theme((
+    color: (
+      primary: vars.$my-primary-palette,
+      tertiary: vars.$my-accent-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+  color-scheme: light;
+
+  // Variables nativas de Ionic para el tema claro
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: #0f172a;
+  --ion-text-color-rgb: 15, 23, 42;
+
+  // Variables CSS personalizadas (para tus componentes)
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #475569;
+  --text-inverse: #f1f5f9;
+  --accent: #f59e0b;
+  --accent-light: #fbbf24;
+  --accent-bg: rgba(245, 158, 11, 0.15);
+  --accent-hover: #d97706;
+  --border-color: #e2e8f0;
+  --border-light: rgba(255, 255, 255, 0.15);
+  --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.15);
+  --shadow-btn: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --card-bg: #ffffff;
+  --blur-bg: rgba(255, 255, 255, 0.9);
+
+  // ========== NUEVAS VARIABLES PARA WELCOME (valores originales) ==========
+  --btn-bg-light: rgba(255, 255, 255, 0.15);
+  --btn-bg-light-hover: rgba(255, 255, 255, 0.25);
+
+  --login-bg: rgba(144, 202, 249, 0.25);
+  --login-border: rgba(144, 202, 249, 0.6);
+  --login-bg-hover: rgba(144, 202, 249, 0.45);
+  --login-border-hover: #90caf9;
+  --login-glow: rgba(144, 202, 249, 0.4);
+
+  --shadow-text: rgba(0, 0, 0, 1);
+  --shadow-text-light: rgba(0, 0, 0, 0.7);
+  --shadow-icon: rgba(0, 0, 0, 0.5);
+
+  --nav-mobile-bg: rgba(0, 0, 0, 0.5);
+
+  // ========== NUEVAS VARIABLES PARA BOTÓN DE MICRÓFONO ==========
+  --mic-bg: var(--accent-bg);
+  --mic-border: var(--accent);
+  --mic-color: var(--accent);
+  --mic-active-bg: var(--accent-bg);
+  --mic-active-border: var(--accent);
+  --mic-shadow: var(--accent);
+  --mic-dot-bg: var(--text-muted);
+}
+
+// ============================================================
+// TEMA OSCURO
+// ============================================================
+html.dark-theme,
+body.dark-theme,
+.ion-palette-dark {
+  @include mat.theme((
+    color: (
+      primary: vars.$my-primary-palette,
+      tertiary: vars.$my-accent-palette,
+    ),
+    typography: Roboto,
+    density: -1,
+  ));
+  color-scheme: dark;
+
+  // Variables nativas de Ionic para el tema oscuro
+  --ion-background-color: #0f172a;
+  --ion-background-color-rgb: 15, 23, 42;
+  --ion-text-color: #f1f5f9;
+  --ion-text-color-rgb: 241, 245, 249;
+
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-overlay: rgba(0, 0, 0, 0.85);
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-inverse: #0f172a;
+  --accent: #fbbf24;
+  --accent-light: #fcd34d;
+  --accent-bg: rgba(251, 191, 36, 0.2);
+  --accent-hover: #f59e0b;
+  --border-color: #334155;
+  --border-light: rgba(255, 255, 255, 0.1);
+  --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.6);
+  --shadow-btn: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --card-bg: #1e293b;
+  --blur-bg: rgba(30, 41, 59, 0.95);
+
+  // ========== NUEVAS VARIABLES PARA WELCOME (mismos valores que en claro) ==========
+  --btn-bg-light: rgba(255, 255, 255, 0.15);
+  --btn-bg-light-hover: rgba(255, 255, 255, 0.25);
+  --login-bg: rgba(144, 202, 249, 0.25);
+  --login-border: rgba(144, 202, 249, 0.6);
+  --login-bg-hover: rgba(144, 202, 249, 0.45);
+  --login-border-hover: #90caf9;
+  --login-glow: rgba(144, 202, 249, 0.4);
+  --shadow-text: rgba(0, 0, 0, 1);
+  --shadow-text-light: rgba(0, 0, 0, 0.7);
+  --shadow-icon: rgba(0, 0, 0, 0.5);
+  --nav-mobile-bg: rgba(0, 0, 0, 0.5);
+
+  // ========== NUEVAS VARIABLES PARA BOTÓN DE MICRÓFONO ==========
+  --mic-bg: var(--accent-bg);
+  --mic-border: var(--accent);
+  --mic-color: var(--accent);
+  --mic-active-bg: var(--accent-bg);
+  --mic-active-border: var(--accent);
+  --mic-shadow: var(--accent);
+  --mic-dot-bg: var(--text-muted);
+}

@@ -1,0 +1,42 @@
+INSTALAR IONIC
+npm install @ionic/angular@latest
+
+CREAR APP
+
+
+
+CREAR UN COMPONENTE
+ionic g component features/components/voice-toggle --skip-tests
+
+SINCRONIZAR CAMBIOS CON TU ENTORNO NATIVO ANDROID
+ionic cap sync android
+
+EJECUTAR APLICACION
+ionic serve
+
+CREAR ENVIRONMENTS
+New-Item -ItemType Directory -Force -Path "src/environments"
+Set-Content -Path "src/environments/environment.ts" -Value "export const environment = { production: false };"
+Set-Content -Path "src/environments/environment.prod.ts" -Value "export const environment = { production: true };"
+
+CREAR SERVICIO
+ionic g service services/theme
+
+
+
+
+<!-- # This file is used by the build system to adjust CSS and JS output to support the specified browsers below.
+# For additional information regarding the format and rule options, please see:
+# https://github.com/browserslist/browserslist#queries
+
+# For the full list of supported browsers by the Angular framework, please see:
+# https://angular.dev/reference/versions#browser-support
+
+# You can see what browsers were selected by your queries by running:
+#   npx browserslist
+
+Chrome >=107
+Firefox >=106
+Edge >=107
+Safari >=16.1
+iOS >=16.1 -->
