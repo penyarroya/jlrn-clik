@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { guestGuard } from './core/guards/guest/guest.guard';
 
 export const routes: Routes = [
   {
@@ -11,20 +12,37 @@ export const routes: Routes = [
     redirectTo: 'home',
     pathMatch: 'full'
   },
+  // ✅ AÑADIR: Página About
+  {
+    path: 'about',
+    loadComponent: () => import('./features/pages/static/about/about.component').then(m => m.AboutComponent),
+    data: { showTheme: false }
+  },
+  {
+    path: 'server-down',
+    loadComponent: () => import('./features/pages/static/maintenance/maintenance.component').then(m => m.MaintenanceComponent),
+    title: 'Servidor no disponible - VozAcction',
+    data: { showTheme: false }
+  },
   {
     path: 'login',
     loadComponent: () => import('./features/auth/components/login/login-component').then(m => m.LoginComponent),
+    canActivate: [guestGuard],
+    title: 'Inicio de sesión - VozAcción',
     data: { showTheme: true }
   },
   {
     path: 'register',
     loadComponent: () => import('./features/auth/components/register/register-component/register-component.component').then(m => m.RegisterComponent),
+    canActivate: [guestGuard],
+    title: 'Nuevo usuario - VozAcction',
     data: { showTheme: true }
   },
-  // ✅ AÑADIR: Página About
   {
-    path: 'about',
-    loadComponent: () => import('./features/pages/static/about/about.component').then(m => m.AboutComponent),
+    path: 'forgot-password',
+    loadComponent: () => import('./features/auth/components/password/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+    canActivate: [guestGuard],
+    title: 'Recuperar Contraseña - VozAcction',
     data: { showTheme: false }
   },
   // ✅ AÑADIR: Página Not Found

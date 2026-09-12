@@ -1,0 +1,97 @@
+<!-- maintenance.component.html -->
+<ion-content
+  class="maintenance-content"
+  [fullscreen]="true"
+  [class.light]="currentTheme === 'light'"
+  [class.dark]="currentTheme === 'dark'"
+  [scrollY]="false">
+
+  <div class="maintenance-container">
+    <div class="error-card">
+
+      <!-- 🔥 PANTALLA 1: Servidor caído -->
+      @if (showServerDown) {
+        <ion-icon
+          name="cloud-offline-outline"
+          class="error-icon"
+          aria-hidden="true">
+        </ion-icon>
+
+        <h1 tabindex="0" role="status" aria-live="polite">Conexión interrumpida</h1>
+        <p tabindex="0">Estamos teniendo problemas para conectar con nuestros servidores en este momento.</p>
+
+        <div class="status-box" role="status" aria-live="polite">
+          <span class="dot" [class.pulse]="!isRetrying" aria-hidden="true"></span>
+          <span class="status-text">{{ statusMessage }}</span>
+        </div>
+
+        <ion-button
+          (click)="retry()"
+          [disabled]="isRetrying"
+          class="retry-button"
+          aria-label="Reintentar conexión con el servidor">
+          <ion-icon
+            slot="start"
+            aria-hidden="true"
+            [name]="isRetrying ? 'hourglass-outline' : 'refresh-outline'">
+          </ion-icon>
+          {{ isRetrying ? 'Reintentando...' : 'Reintentar ahora' }}
+        </ion-button>
+      }
+
+      <!-- 🔥 PANTALLA 2: Eureka iniciando -->
+      @if (showEurekaTimer) {
+        <ion-icon
+          name="cloud-upload-outline"
+          class="timer-icon"
+          aria-hidden="true">
+        </ion-icon>
+
+        <h1 tabindex="0" role="status" aria-live="polite">Servidor disponible</h1>
+        <p tabindex="0">El servidor ya está funcionando. Estamos preparando todos los servicios...</p>
+
+        <div class="timer-container" role="status" aria-live="polite" aria-label="Temporizador de configuración">
+          <div class="timer-circle">
+            <svg class="progress-ring" width="120" height="120" aria-hidden="true">
+              <circle
+                class="progress-ring-circle-bg"
+                stroke="#e0e0e0"
+                stroke-width="4"
+                fill="transparent"
+                r="54"
+                cx="60"
+                cy="60"
+              />
+              <circle
+                class="progress-ring-circle"
+                stroke="#4caf50"
+                stroke-width="4"
+                fill="transparent"
+                r="54"
+                cx="60"
+                cy="60"
+                [style.strokeDasharray]="2 * Math.PI * 54"
+                [style.strokeDashoffset]="2 * Math.PI * 54 * (1 - progressPercent / 100)"
+              />
+            </svg>
+            <div class="timer-text" aria-hidden="true">
+              <span class="seconds">{{ remainingSeconds }}</span>
+              <span class="label">segundos</span>
+            </div>
+          </div>
+
+          <!-- 🔥 TEXTO ACCESIBLE CON EL TIEMPO RESTANTE -->
+          <div class="timer-submessage" tabindex="0" aria-live="polite">
+            Tiempo restante: {{ remainingSeconds }} segundos
+          </div>
+        </div>
+
+        <ion-button disabled class="disabled-button" aria-disabled="true">
+          <ion-icon slot="start" aria-hidden="true" name="time-outline"></ion-icon>
+          Finalizando configuración...
+        </ion-button>
+      }
+
+    </div>
+  </div>
+</ion-content>

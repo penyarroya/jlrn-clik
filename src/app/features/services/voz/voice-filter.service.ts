@@ -228,78 +228,6 @@ export class VoiceFilterService {
   // ============================================================
   // MÉTODOS DE FILTRADO
   // ============================================================
-  
-  // filterTranscript(transcript: string, isMuted: boolean): FilterResult {
-  //   const trimmed = transcript.toLowerCase().trim();
-
-  //   // ✅ EXCEPCIÓN: "ayuda" nunca debe ser ignorada por muteo
-  //   if (trimmed === 'ayuda' || 
-  //       trimmed === 'help' || 
-  //       trimmed.includes('ayuda') ||
-  //       trimmed.includes('help')) {
-  //     return { valid: true, text: trimmed, isWakeWord: false };
-  //   }
-
-  //   if (isMuted) {
-  //     if (this.isWakeWord(trimmed)) {
-  //       return { valid: true, text: trimmed, isWakeWord: true };
-  //     }
-  //     return { valid: false, reason: 'muted' };
-  //   }
-
-  //   if (trimmed.length < 3) {
-  //     this.logger.debug(`⏭️ Texto demasiado corto (${trimmed.length}):`, trimmed);
-  //     return { valid: false, reason: 'too_short' };
-  //   }
-
-  //   if (!/[a-záéíóú]/.test(trimmed)) {
-  //     this.logger.debug('⏭️ Texto sin letras:', trimmed);
-  //     return { valid: false, reason: 'no_letters' };
-  //   }
-
-  //   const isDictationCommand = this.isDictationCommand(trimmed);
-
-  //   if (!isDictationCommand && /^[0-9\s.,;:!?]+$/.test(trimmed)) {
-  //     this.logger.debug('⏭️ Texto numérico/simbólico:', trimmed);
-  //     return { valid: false, reason: 'numeric_only' };
-  //   }
-
-  //   const words = trimmed.split(/\s+/);
-  //   const meaningfulWords = words.filter(w => w.length > 2 && !this.stopWords.has(w));
-
-  //   if (!isDictationCommand && meaningfulWords.length === 0) {
-  //     this.logger.debug('⏭️ Sin palabras significativas:', trimmed);
-  //     return { valid: false, reason: 'no_meaningful_words' };
-  //   }
-
-  //   if (!isDictationCommand && words.length <= 2 && words.every(w => this.stopWords.has(w))) {
-  //     this.logger.debug('⏭️ Solo stopwords:', trimmed);
-  //     return { valid: false, reason: 'only_stopwords' };
-  //   }
-
-  //   const now = Date.now();
-  //   const duplicateCheck = this.checkDuplicates(trimmed, now);
-  //   if (!duplicateCheck.valid) {
-  //     this.logger.debug(`⏳ Duplicado (${duplicateCheck.reason}):`, trimmed);
-  //     return { valid: false, reason: duplicateCheck.reason, similarity: duplicateCheck.similarity };
-  //   }
-
-  //   this.lastProcessedText = trimmed;
-  //   this.lastProcessedTime = now;
-
-  //   return { valid: true, text: trimmed };
-  // }
-
-
-
-
-
-
-
-
-
-
-
   filterTranscript(transcript: string, isMuted: boolean): FilterResult {
     const trimmed = transcript.toLowerCase().trim();
 
@@ -482,46 +410,7 @@ export class VoiceFilterService {
 
     return text;
   }
-
-
-  //
-  // convertPhraseToText(phrase: string, capitalizeFirst = true): string {
-  //   const processedPhrase = this.processSpacedLetters(phrase);
-  //   if (processedPhrase !== phrase) {
-  //     let finalText = processedPhrase;
-  //     if (capitalizeFirst && finalText.length > 0) {
-  //       finalText = finalText.charAt(0).toUpperCase() + finalText.slice(1);
-  //     }
-  //     return finalText;
-  //   }
-
-  //   const words = phrase.trim().split(/\s+/);
-  //   const result: string[] = [];
-
-  //   for (const word of words) {
-  //     const converted = this.convertVoiceToText(word);
-  //     if (converted === word) {
-  //       const combinedMap = { ...this.letterMap, ...this.numberMap, ...this.specialMap };
-  //       if (combinedMap[word.toLowerCase()]) {
-  //         result.push(combinedMap[word.toLowerCase()]);
-  //       } else {
-  //         result.push(word);
-  //       }
-  //     } else {
-  //       result.push(converted);
-  //     }
-  //   }
-
-  //   let finalText = result.join(' ');
-  //   if (capitalizeFirst && finalText.length > 0) {
-  //     finalText = finalText.charAt(0).toUpperCase() + finalText.slice(1);
-  //   }
-
-  //   return finalText;
-  // }
-
-
-
+  
   //
   convertPhraseToText(phrase: string, capitalizeFirst = true): string {
     // Primero, separar letras sueltas
@@ -622,6 +511,62 @@ export class VoiceFilterService {
     }
 
     return result.join(' ');
+  }
+
+  /**
+   * ✅ Fusiona números en español:
+   *   - "cincuenta y siete" → "57"
+   *   - "cincuentaysiete"   → "57"
+   *   - "veintisiete"       → "27"
+   *   - "cuarenta y dos"    → "42"
+   */
+  private fuseSpanishNumbers(text: string): string {
+    const decenas: Record<string, number> = {
+      'veinte': 20, 'treinta': 30, 'cuarenta': 40, 'cincuenta': 50,
+      'sesenta': 60, 'setenta': 70, 'ochenta': 80, 'noventa': 90
+    };
+
+    const unidades: Record<string, number> = {
+      'uno': 1, 'un': 1, 'dos': 2, 'tres': 3, 'cuatro': 4, 'cinco': 5,
+      'seis': 6, 'siete': 7, 'ocho': 8, 'nueve': 9
+    };
+
+    // ✅ 1. Fusionar "decena y unidad" con espacios (ej: "cincuenta y siete" → "57")
+    text = text.replace(
+      /(veinte|treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa)\s+y\s+(uno|un|dos|tres|cuatro|cinco|seis|siete|ocho|nueve)/gi,
+      (_, dec, uni) => {
+        const d = decenas[dec.toLowerCase()];
+        const u = unidades[uni.toLowerCase()];
+        return (d !== undefined && u !== undefined) ? String(d + u) : `${dec} y ${uni}`;
+      }
+    );
+
+    // ✅ 2. Fusionar "decenaYunidad" sin espacios (ej: "cincuentaysiete" → "57")
+    text = text.replace(
+      /(veinte|treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa)y(uno|un|dos|tres|cuatro|cinco|seis|siete|ocho|nueve)/gi,
+      (_, dec, uni) => {
+        const d = decenas[dec.toLowerCase()];
+        const u = unidades[uni.toLowerCase()];
+        return (d !== undefined && u !== undefined) ? String(d + u) : `${dec}y${uni}`;
+      }
+    );
+
+    // ✅ 3. Fusionar "veintiX" (ej: "veintisiete" → "27")
+    const veinti: Record<string, number> = {
+      'veintiuno': 21, 'veintiun': 21, 'veintidos': 22, 'veintitres': 23,
+      'veinticuatro': 24, 'veinticinco': 25, 'veintiseis': 26,
+      'veintisiete': 27, 'veintiocho': 28, 'veintinueve': 29
+    };
+    text = text.replace(
+      /veinti(uno|un|dos|tres|cuatro|cinco|seis|siete|ocho|nueve)/gi,
+      (match) => {
+        const key = match.toLowerCase().replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i').replace(/ó/g, 'o').replace(/ú/g, 'u');
+        const value = veinti[key];
+        return value !== undefined ? String(value) : match;
+      }
+    );
+
+    return text;
   }
 
   /**
@@ -732,297 +677,6 @@ export class VoiceFilterService {
   // ============================================================
   // MÉTODO PRINCIPAL DE PROCESAMIENTO DE DICTADO (CORREGIDO)
   // ============================================================
-  // processDictationPhrase(text: string, context?: 'username' | 'password' | 'email' | 'text' | 'fullName', capitalize = true): DictationResult {
-  //   let effectiveContext = context;
-  //   if (context === 'fullName') effectiveContext = 'username';
-
-  //   let processed = text.toLowerCase().trim();
-  //   const original = processed;
-
-  //   console.log('🔍 processDictationPhrase - Original:', original);
-
-  //   // ✅ PROCESAR ESPACIOS PARA EMAIL
-  //   if (effectiveContext === 'email') {
-  //     processed = this.processSpacedLetters(processed);
-  //   }
-
-  //   processed = this.spellingService.applyCorrections(processed);
-  //   console.log(`🔍 Después de correcciones del backend: "${processed}"`);
-
-  //   processed = this.removeFinishWords(processed);
-  //   processed = this.correctPhoneticErrors(processed);
-
-  //   // ============================================================
-  //   // 🔥 FILTRAR PALABRAS DE RELLENO (ANTES DE CAPITALIZAR)
-  //   // ============================================================
-  //   const removeWords = ['con', 'de', 'el', 'la', 'los', 'las', 'un', 'una', 'y', 'o', 'pero', 'en', 'por', 'sin', 'para', 'a', 'ante', 'bajo', 'cabe', 'contra', 'desde', 'durante', 'entre', 'hacia', 'hasta', 'mediante', 'para', 'según', 'sobre', 'tras', 'versus', 'vía'];
-
-  //   const hasMayuscula = /mayúscula|mayuscula/i.test(processed);
-  //   const hasMinuscula = /minúscula|minuscula/i.test(processed);
-
-  //   if (hasMayuscula || hasMinuscula) {
-  //     const words = processed.split(' ');
-  //     let commandFound = false;
-  //     const filtered: string[] = [];
-
-  //     for (const word of words) {
-  //       const lowerWord = word.toLowerCase();
-  //       if (/^mayúscula$|^mayuscula$|^minúscula$|^minuscula$/i.test(lowerWord)) {
-  //         commandFound = true;
-  //         filtered.push(word);
-  //       } else if (commandFound) {
-  //         if (!removeWords.includes(lowerWord) && lowerWord.length > 0) {
-  //           filtered.push(word);
-  //         }
-  //         if (!removeWords.includes(lowerWord)) {
-  //           commandFound = false;
-  //         }
-  //       } else {
-  //         filtered.push(word);
-  //       }
-  //     }
-
-  //     processed = filtered.join(' ');
-  //     console.log(`🔤 Después de filtrar palabras de relleno: "${processed}"`);
-  //   }
-
-  //   // ============================================================
-  //   // CAPITALIZACIÓN MANUAL (AHORA DESPUÉS DEL FILTRO)
-  //   // ============================================================
-  //   processed = this.processCapitalizationCommands(processed);
-
-  //   // ============================================================
-  //   // 🔥 CORREGIR "d e v" → "dev" - UNA SOLA VEZ
-  //   // ============================================================
-  //   if (effectiveContext === 'email') {
-  //     processed = processed.replace(/\bde\s+(?=[a-z])/gi, 'd ');
-  //     processed = processed.replace(/\bde\b(?=\s+[a-z])/gi, 'd');
-  //     processed = processed.replace(/\bde\s+v\b/gi, 'd v');
-  //     processed = processed.replace(/\bd\s+e\s+v\b/gi, 'dev');
-  //     processed = processed.replace(/\bde\s+ev\b/gi, 'dev');
-  //     processed = processed.replace(/\bdeev\b/gi, 'dev');
-  //     processed = processed.replace(/\bde\s+v\b/gi, 'dev');
-  //     processed = processed.replace(/\bd e v\b/gi, 'dev');
-  //   }
-
-  //   // ============================================================
-  //   // REEMPLAZOS DE NÚMEROS, ESPECIALES Y LETRAS
-  //   // ============================================================
-  //   const sortedNumberKeys = Object.keys(this.numberMap).sort((a, b) => b.length - a.length);
-  //   for (const key of sortedNumberKeys) {
-  //     processed = processed.replace(new RegExp(key, 'g'), this.numberMap[key]);
-  //   }
-  //   for (const [key, value] of Object.entries(this.specialMap)) {
-  //     processed = processed.replace(new RegExp(key, 'g'), value);
-  //   }
-  //   for (const [key, value] of Object.entries(this.letterMap)) {
-  //     processed = processed.replace(new RegExp(key, 'g'), value);
-  //   }
-  //   processed = this.processSpecialCharsFallback(processed);
-
-  //   // ============================================================
-  //   // LIMPIAR ACENTOS Y ESPACIOS
-  //   // ============================================================
-  //   processed = processed
-  //     .replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i').replace(/ó/g, 'o').replace(/ú/g, 'u')
-  //     .replace(/Á/g, 'A').replace(/É/g, 'E').replace(/Í/g, 'I').replace(/Ó/g, 'O').replace(/Ú/g, 'U')
-  //     .replace(/\s+/g, ' ')
-  //     .trim();
-
-  //   // ============================================================
-  //   // UNIR SOLO SECUENCIAS DE LETRAS SUELTAS
-  //   // ============================================================
-  //   const words = processed.split(/\s+/);
-  //   const resultParts: string[] = [];
-  //   let i = 0;
-
-  //   while (i < words.length) {
-  //     const current = words[i];
-  //     if (current.length === 1 && /[a-zA-Z0-9]/.test(current)) {
-  //       let letters = current;
-  //       let j = i + 1;
-  //       while (j < words.length && words[j].length === 1 && /[a-zA-Z0-9]/.test(words[j])) {
-  //         letters += words[j];
-  //         j++;
-  //       }
-  //       if (letters.length > 1) {
-  //         resultParts.push(letters);
-  //         i = j;
-  //         continue;
-  //       }
-  //     }
-  //     resultParts.push(current);
-  //     i++;
-  //   }
-  //   processed = resultParts.join(' ');
-
-  //   // ============================================================
-  //   // REEMPLAZAR SIGNOS DE PUNTUACIÓN AL FINAL
-  //   // ============================================================
-  //   const punctuationWords: { [key: string]: string } = {
-  //     'admiración': '!', 'exclamación': '!', 'admiracion': '!', 'exclamacion': '!',
-  //     'interrogación': '?', 'interrogacion': '?',
-  //     'punto': '.', 'puno': '.',
-  //     'coma': ',', 'punto y coma': ';', 'dos puntos': ':',
-  //     'guion': '-', 'guion bajo': '_',
-  //   };
-  //   for (const [word, symbol] of Object.entries(punctuationWords)) {
-  //     const regex = new RegExp(`\\s*${word}\\s*$`, 'i');
-  //     if (regex.test(processed)) {
-  //       processed = processed.replace(regex, symbol);
-  //       console.log(`🔤 Reemplazo final: "${word}" → "${symbol}"`);
-  //     }
-  //   }
-
-  //   let finalText = processed;
-
-  //   // ============================================================
-  //   // CAPITALIZACIÓN MANUAL (marcador §)
-  //   // ============================================================
-  //   let hasManualCapitalization = false;
-  //   if (finalText.includes('§')) {
-  //     finalText = finalText.replace(/§([a-zA-Záéíóúüñ])/g, (match, letter) => letter.toUpperCase());
-  //     finalText = finalText.replace(/§/g, '');
-  //     hasManualCapitalization = true;
-  //     console.log(`🔤 Después de capitalización manual: "${finalText}"`);
-  //   }
-
-  //   // ============================================================
-  //   // FILTROS POR CONTEXTO
-  //   // ============================================================
-  //   if (effectiveContext === 'username') {
-  //     finalText = finalText.replace(/[^a-zA-Z0-9._@!?-]/g, '');
-  //     finalText = finalText.replace(/\s/g, '');
-  //     if (!hasManualCapitalization) {
-  //       finalText = finalText.toLowerCase();
-  //     }
-  //   }
-
-  //   if (effectiveContext === 'password') {
-  //     finalText = finalText.replace(/\s/g, '');
-  //   }
-
-  //   // ============================================================
-  //   // 🔥 EMAIL - PROCESAMIENTO CORREGIDO (sin duplicar .com)
-  //   // ============================================================
-  //   if (effectiveContext === 'email') {
-  //     let email = this.processSpacedLetters(finalText);
-
-  //     // Correcciones específicas
-  //     email = email.replace(/\bde\s+ev\b/gi, 'dev');
-  //     email = email.replace(/\bde\s+v\b/gi, 'dev');
-  //     email = email.replace(/\bdeev\b/gi, 'dev');
-  //     email = email.replace(/\bd\s+e\s+v\b/gi, 'dev');
-
-  //     // Convertir palabras clave
-  //     email = email
-  //       .toLowerCase()
-  //       .replace(/arroba/g, '@')
-  //       .replace(/guion bajo/g, '_')
-  //       .replace(/guion/g, '-')
-  //       .replace(/espacio/g, ' ');
-
-  //     // 🔥 CONVERTIR "punto [extension]" ANTES de cualquier otra cosa
-  //     email = email
-  //       .replace(/punto\s+com\b/gi, '.com')
-  //       .replace(/punto\s+es\b/gi, '.es')
-  //       .replace(/punto\s+cat\b/gi, '.cat')
-  //       .replace(/punto\s+org\b/gi, '.org')
-  //       .replace(/punto\s+net\b/gi, '.net')
-  //       .replace(/punto\s+info\b/gi, '.info')
-  //       .replace(/punto\s+eu\b/gi, '.eu')
-  //       .replace(/punto\s+([a-z]{2,3})\b/gi, '.$1');
-
-  //     // Ahora reemplazar "punto" suelto por "."
-  //     email = email.replace(/\bpunto\b/gi, '.');
-
-  //     // Limpiar espacios múltiples
-  //     email = email.replace(/\s+/g, ' ').trim();
-
-  //     // Normalizar dominios CONOCIDOS SOLO si NO tienen extensión
-  //     email = email
-  //       .replace(/\bgmail\b(?![.\s]*\w+)/gi, 'gmail.com')
-  //       .replace(/\bhotmail\b(?![.\s]*\w+)/gi, 'hotmail.com')
-  //       .replace(/\boutlook\b(?![.\s]*\w+)/gi, 'outlook.com')
-  //       .replace(/\byahoo\b(?![.\s]*\w+)/gi, 'yahoo.com');
-
-  //     // Eliminar espacios restantes
-  //     email = email.replace(/\s/g, '');
-
-  //     // Eliminar duplicados de extensión
-  //     let previousEmail = '';
-  //     let maxIterations = 10;
-  //     while (previousEmail !== email && maxIterations > 0) {
-  //       previousEmail = email;
-  //       email = email
-  //         .replace(/\.com\.com/g, '.com')
-  //         .replace(/\.es\.es/g, '.es')
-  //         .replace(/\.cat\.cat/g, '.cat')
-  //         .replace(/\.org\.org/g, '.org')
-  //         .replace(/\.net\.net/g, '.net')
-  //         .replace(/\.info\.info/g, '.info')
-  //         .replace(/\.eu\.eu/g, '.eu')
-  //         .replace(/\.com\.es/g, '.es')
-  //         .replace(/\.es\.com/g, '.es')
-  //         .replace(/\.com\.org/g, '.org')
-  //         .replace(/\.org\.com/g, '.org')
-  //         .replace(/\.com\.net/g, '.net')
-  //         .replace(/\.net\.com/g, '.net');
-  //       maxIterations--;
-  //     }
-
-  //     // Eliminar puntos dobles
-  //     email = email.replace(/\.\.+/g, '.');
-
-  //     // Asegurar que solo hay un @
-  //     const parts = email.split('@');
-  //     if (parts.length > 2) {
-  //       email = parts[0] + '@' + parts.slice(1).join('');
-  //     }
-
-  //     // Si hay @ pero no dominio, añadir .com
-  //     if (email.includes('@') && !email.includes('.')) {
-  //       email = email + '.com';
-  //     }
-
-  //     console.log(`🔤 Email final: "${email}"`);
-  //     finalText = email;
-  //   }
-
-  //   // CONTEXTO 'text' (nombre propio y apellidos): separar apellidos compuestos
-  //   if (!hasManualCapitalization && effectiveContext === 'text' && finalText.length > 0) {
-  //     finalText = this.correctCompoundName(finalText);
-  //     finalText = this.capitalizeWords(finalText);
-  //   }
-
-  //   const resultPartsArray = finalText.split(/\s+/);
-
-  //   const result: DictationResult = {
-  //     success: finalText.length > 0,
-  //     text: finalText,
-  //     originalText: original,
-  //     processedText: finalText,
-  //     parts: resultPartsArray.length > 1 ? resultPartsArray : undefined
-  //   };
-
-  //   console.log(`🔤 Dictado procesado: "${original}" → "${finalText}"`);
-  //   return result;
-  // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   processDictationPhrase(text: string, context?: 'username' | 'password' | 'email' | 'text' | 'fullName', capitalize = true): DictationResult {
     let effectiveContext = context;
     if (context === 'fullName') effectiveContext = 'username';
@@ -1099,6 +753,9 @@ export class VoiceFilterService {
     // ============================================================
     // REEMPLAZOS DE NÚMEROS, ESPECIALES Y LETRAS
     // ============================================================
+    
+    processed = this.fuseSpanishNumbers(processed);
+
     const sortedNumberKeys = Object.keys(this.numberMap).sort((a, b) => b.length - a.length);
     for (const key of sortedNumberKeys) {
       processed = processed.replace(new RegExp(key, 'g'), this.numberMap[key]);

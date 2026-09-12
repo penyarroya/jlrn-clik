@@ -2073,117 +2073,6 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   //
-  // ngOnInit(): void {
-  //   console.log('✅ LoginComponent inicializado');
-
-  //   this.voiceContext.setContext({
-  //     activationMessage: this.WELCOME_MESSAGE,
-  //     availableCommands: [
-  //       'usuario', 'contraseña', 'enviar', 'limpiar', 'mostrar contraseña',
-  //       'ocultar contraseña', 'registro', 'recuperar', 'volver',
-  //       'silenciar micrófono', 'ayuda', 'leer campos',
-  //       'privacidad', 'condiciones'
-  //     ],
-  //     preventBackend: true
-  //   });
-
-  //   this.voiceService.getTranscript()
-  //     .pipe(takeUntil(this.destroy$))
-  //     .subscribe((text: string) => {
-  //       this.ngZone.run(() => {
-  //         if (this.isDestroyed) return;
-  //         if (text && text.trim().length >= 1 && /[a-záéíóú]/.test(text)) {
-  //           this.handleVoiceCommand(text);
-  //         }
-  //       });
-  //     });
-
-  //     // ✅ NUEVO: Escuchar navegaciones para aplicar foco al entrar a /login
-  //   this.router.events
-  //     .pipe(
-  //       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-  //       takeUntil(this.destroy$)
-  //     )
-  //     .subscribe((event) => {
-  //       const url = event.urlAfterRedirects;
-  //       if (url === '/login' || url.startsWith('/login?')) {
-  //         console.log('🎯 [Login] Navegación a /login detectada');
-  //         this.focusFirstInput();
-  //       }
-  //     });
-
-  //   // ✅ NUEVO: Aplicar foco en la primera carga (si ya estamos en /login)
-  //   setTimeout(() => {
-  //     if (this.router.url === '/login' || this.router.url.startsWith('/login?')) {
-  //       this.focusFirstInput();
-  //     }
-  //   }, 800);
-
-
-  //   this.orchestrator.status$
-  //     .pipe(takeUntil(this.destroy$))
-  //     .subscribe((status) => {
-  //       this.ngZone.run(() => {
-  //         if (this.isDestroyed) return;
-  //         this.isProcessing.set(status === 'processing' || status === 'listening');
-  //         this.cdr.markForCheck();
-  //       });
-  //     });
-
-  //   this.orchestrator.response$
-  //     .pipe(takeUntil(this.destroy$))
-  //     .subscribe((response) => {
-  //       this.ngZone.run(() => {
-  //         if (this.isDestroyed || !response) return;
-  //         this.lastReply.set(response.reply);
-  //         if (!response.audioBase64) {
-  //           this.voiceService.speak(response.reply);
-  //         }
-  //         this.handleAction(response);
-  //         this.cdr.markForCheck();
-  //       });
-  //     });
-
-  //   this.orchestrator.error$
-  //     .pipe(takeUntil(this.destroy$))
-  //     .subscribe((err) => {
-  //       this.ngZone.run(() => {
-  //         if (this.isDestroyed || !err) return;
-  //         console.error('Error en orchestrator:', err);
-  //         this.errorMessage.set(err);
-  //         this.cdr.markForCheck();
-  //       });
-  //     });
-
-  //   this.voiceService.getMutedState()
-  //     .pipe(takeUntil(this.destroy$))
-  //     .subscribe((muted) => {
-  //       this.ngZone.run(() => {
-  //         if (this.isDestroyed) return;
-  //         this.isListening.set(!muted);
-  //         this.cdr.markForCheck();
-  //       });
-  //     });
-
-  //   this.registerFieldsForCleanup();
-  //   this.updateSignals();
-
-  //   setTimeout(() => {
-  //     this.showWelcomeMessage();
-  //   }, 1000);
-
-  //   setTimeout(() => {
-  //     if (!this.isDestroyed && !this.voiceService.isRecognitionActive()) {
-  //       this.voiceService.startListening();
-  //     }
-  //   }, 1500);
-  // }
-
-
-
-
-
-
   ngOnInit(): void {
     console.log('✅ LoginComponent inicializado');
 
@@ -3123,29 +3012,61 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
     speakNext();
   }
 
+  // private showHelp(): void {
+  //   if (this.isDestroyed) return;
+  //   if (this.voiceService.isCurrentlyMuted()) {
+  //     this.voiceService.speak('El micrófono está desactivado. Di "hola" para activarlo.');
+  //     return;
+  //   }
+  //   const helpMessages = [
+  //     'Puedes decir: "usuario" para escribir tu usuario.',
+  //     '"contraseña" para tu clave.',
+  //     '"enviar" para iniciar sesión.',
+  //     '"limpiar" para borrar los campos.',
+  //     '"leer campos" para escuchar el contenido.',
+  //     '"mostrar contraseña" u "ocultar contraseña" para ver u ocultar tu clave.',
+  //     '"registrar" para crear una cuenta.',
+  //     '"recuperar" para recuperar tu contraseña.',
+  //     '"volver" para regresar a la página anterior.',
+  //     '"silenciar micrófono" para apagar el micrófono.',
+  //     '"privacidad" para ver la política de privacidad.',
+  //     '"condiciones" para ver los términos y condiciones.',
+  //     'o "ayuda" para ver todas las opciones.'
+  //   ];
+  //   this.speakWithPauses(helpMessages, 100);
+  // }
+
+
+
   private showHelp(): void {
     if (this.isDestroyed) return;
     if (this.voiceService.isCurrentlyMuted()) {
       this.voiceService.speak('El micrófono está desactivado. Di "hola" para activarlo.');
       return;
     }
-    const helpMessages = [
-      'Puedes decir: "usuario" para escribir tu usuario.',
-      '"contraseña" para tu clave.',
-      '"enviar" para iniciar sesión.',
-      '"limpiar" para borrar los campos.',
-      '"leer campos" para escuchar el contenido.',
-      '"mostrar contraseña" u "ocultar contraseña" para ver u ocultar tu clave.',
-      '"registrar" para crear una cuenta.',
-      '"recuperar" para recuperar tu contraseña.',
-      '"volver" para regresar a la página anterior.',
-      '"silenciar micrófono" para apagar el micrófono.',
-      '"privacidad" para ver la política de privacidad.',
-      '"condiciones" para ver los términos y condiciones.',
-      'o "ayuda" para ver todas las opciones.'
-    ];
-    this.speakWithPauses(helpMessages, 100);
+
+    // ✅ UNA SOLA emisión con el texto completo
+    const helpText =
+      'Puedes decir: ' +
+      '"usuario" para escribir tu usuario. ' +
+      '"contraseña" para tu clave. ' +
+      '"enviar" para iniciar sesión. ' +
+      '"limpiar" para borrar los campos. ' +
+      '"leer campos" para escuchar el contenido. ' +
+      '"mostrar contraseña" u "ocultar contraseña" para ver u ocultar tu clave. ' +
+      '"registrar" para crear una cuenta. ' +
+      '"recuperar" para recuperar tu contraseña. ' +
+      '"volver" para regresar a la página anterior. ' +
+      '"silenciar micrófono" para apagar el micrófono. ' +
+      '"privacidad" para ver la política de privacidad. ' +
+      '"condiciones" para ver los términos y condiciones. ' +
+      'o "ayuda" para ver todas las opciones.';
+
+    this.voiceService.speak(helpText);
   }
+
+
+
 
   getUsernameErrors(): string | null {
     const ctrl = this.usernameOrEmailCtrl;

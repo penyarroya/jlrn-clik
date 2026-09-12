@@ -435,81 +435,7 @@ export class HomePage implements OnInit, OnDestroy {
     console.log('🎯 [Home] Comandos disponibles:', this.voiceContext.getAvailableCommands());
   }
 
-  /**
-   * ✅ MANEJAR COMANDOS DE VOZ DE HOME
-   */
-  // private handleVoiceCommand(transcript: string): void {
-  //   const lower = transcript.toLowerCase().trim();
-
-  //   // ✅ Debounce local (defensa en profundidad)
-  //   const now = Date.now();
-  //   if (lower === this.lastProcessedCommand && (now - this.lastProcessedTime) < this.COMMAND_DEBOUNCE) {
-  //     console.log(`⏭️ [Home] Comando duplicado ignorado: "${lower}"`);
-  //     return;
-  //   }
-  //   this.lastProcessedCommand = lower;
-  //   this.lastProcessedTime = now;
-
-  //   console.log('📝 [Home] Comando de voz recibido:', lower);
-
-  //   // ✅ Comando "login"
-  //   if (lower === 'login' || lower === 'iniciar sesion' || lower === 'inicio de sesion') {
-  //     if (this.isNavigating) return;
-  //     this.isNavigating = true;
-  //     console.log('🔐 [Home] Navegando a login');
-  //     this.voiceService.clearTranscript();
-  //     this.router.navigate(['/login']).finally(() => {
-  //       setTimeout(() => { this.isNavigating = false; }, 1000);
-  //     });
-  //     return;
-  //   }
-
-  //   // ✅ Comando "acerca de"
-  //   if (lower === 'acerca de' || lower === 'acerca') {
-  //     if (this.isNavigating) return;
-  //     this.isNavigating = true;
-  //     console.log('ℹ️ [Home] Navegando a About');
-  //     this.voiceService.clearTranscript();
-  //     this.router.navigate(['/about']).finally(() => {
-  //       setTimeout(() => { this.isNavigating = false; }, 1000);
-  //     });
-  //     return;
-  //   }
-
-  //   // ✅ Comando "registro"
-  //   if (lower === 'registro' || lower === 'registrar') {
-  //     if (this.isNavigating) return;
-  //     this.isNavigating = true;
-  //     console.log('📝 [Home] Navegando a registro');
-  //     this.voiceService.clearTranscript();
-  //     this.router.navigate(['/register']).finally(() => {
-  //       setTimeout(() => { this.isNavigating = false; }, 1000);
-  //     });
-  //     return;
-  //   }
-
-  //   // ✅ Comando "ayuda"
-  //   if (lower === 'ayuda' || lower === 'help') {
-  //     console.log('❓ [Home] Mostrando ayuda');
-  //     const commands = this.voiceContext.getAvailableCommands();
-  //     const helpMessage = `Comandos: ${commands.join(', ')}.`;
-  //     this.voiceService.speakAlways(helpMessage);
-  //     return;
-  //   }
-
-  //   // ❌ Comando "volver" ELIMINADO
-  //   // Home es la página raíz, no tiene sentido "volver" desde aquí.
-  //   // Este comando era el causante del bucle Home → Login → Home.
-
-  //   // ✅ Comandos no reconocidos en Home
-  //   console.log('⏭️ [Home] Comando no reconocido en esta página:', lower);
-  // }
-
-
-
-
-
-
+  //
   private handleVoiceCommand(transcript: string): void {
     const lower = transcript.toLowerCase().trim();
 
@@ -576,9 +502,7 @@ export class HomePage implements OnInit, OnDestroy {
     // ✅ Comandos no reconocidos en Home
     console.log('⏭️ [Home] Comando no reconocido en esta página:', lower);
   }
-
-
-
+ 
 
   /**
    * ✅ VERIFICAR AURICULARES AL INICIAR
@@ -650,22 +574,41 @@ export class HomePage implements OnInit, OnDestroy {
    */
   private showWelcomeSequence(): void {
     console.log('📢 [Home] EJECUTANDO BIENVENIDA');
-    
+
     const isMuted = this.voiceService.isCurrentlyMuted();
-    
+
     let message = 'Bienvenido. ';
-    
+
     if (isMuted) {
       message += 'Micrófono desactivado. Di "hola" para activarlo.';
     } else {
       message += 'Micrófono activado. Puedes decir "login", "acerca de", "registro" o "ayuda".';
     }
-    
+
     console.log('📢 [Home] Mensaje a emitir:', message);
+
     // ✅ Pequeño retraso para que el reconocimiento no capture el eco
     setTimeout(() => {
-      this.voiceService.speakAlways(message);
-      console.log('✅ [Home] Mensaje emitido');
+      // ✅ Pasar `true` para que speakAlways active pendingPostTTSRestart
+      //    y programe el reinicio del micro automáticamente
+      this.voiceService.speakAlways(message, true)
+        .then(() => {
+          console.log('✅ [Home] Mensaje emitido');
+
+          // ✅ Reinicio explícito del micro tras el TTS
+          setTimeout(() => {
+            if (!this.voiceService.isRecognitionActive() && !this.voiceService.isCurrentlyMuted()) {
+              console.log('🎤 [Home] Bienvenida terminada → arrancando micro');
+              this.voiceService.startListening();
+            }
+          }, 400);
+        })
+        .catch((err) => {
+          console.warn('⚠️ [Home] speakAlways falló, arrancando micro igualmente', err);
+          if (!this.voiceService.isRecognitionActive() && !this.voiceService.isCurrentlyMuted()) {
+            this.voiceService.startListening();
+          }
+        });
     }, 500);
   }
 

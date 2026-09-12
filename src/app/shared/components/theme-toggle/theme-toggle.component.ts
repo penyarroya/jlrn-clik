@@ -43,41 +43,6 @@ export class ThemeToggleComponent implements OnInit, OnDestroy {
   isVisible = input<boolean>(false);
   size = input<'small' | 'default' | 'large'>('default');
 
-  // ngOnInit(): void {
-  //   console.log('🌗 [ThemeToggle] Inicializado');
-    
-  //   // ✅ Verificar visibilidad por ruta (showTheme)
-  //   this.checkRouteVisibility();
-    
-  //   // ✅ Escuchar cambios de ruta
-  //   this.routerSubscription = this.router.events
-  //     .pipe(filter(event => event instanceof NavigationEnd))
-  //     .subscribe(() => {
-  //       this.checkRouteVisibility();
-  //     });
-
-  //   // ✅ Si tienes autenticación en Ionic, descomenta:
-  //   /*
-  //   const userId = this.userPreferences.getUserId();
-    
-  //   if (userId) {
-  //     console.log('🔄 [ThemeToggle] Cargando theme del backend para usuario:', userId);
-  //     this.userPreferences.syncThemeWithBackend(userId);
-  //   } else {
-  //     console.log('ℹ️ [ThemeToggle] Usuario no autenticado, usando theme LIGHT por defecto');
-  //     this.themeService.setTheme('light');
-      
-  //     this.authSubscription = this.authService.currentUser$.subscribe(user => {
-  //       if (user?.id) {
-  //         console.log('🔄 [ThemeToggle] Usuario autenticado, cargando theme del backend');
-  //         this.userPreferences.syncThemeWithBackend(user.id);
-  //       }
-  //     });
-  //   }
-  //   */
-  // }
-
-
   ngOnInit(): void {
     console.log('🌗 [ThemeToggle] Inicializado');
     

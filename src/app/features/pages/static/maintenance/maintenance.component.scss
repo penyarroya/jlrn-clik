@@ -1,0 +1,580 @@
+// src/app/features/pages/static/maintenance/maintenance.component.scss
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// ============================================================
+// ION-CONTENT (ocupa toda la pantalla)
+// ============================================================
+.maintenance-content {
+  --background: transparent;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+// ============================================================
+// CONTENEDOR PRINCIPAL
+// ============================================================
+.maintenance-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  min-height: 100%;
+  height: 100%;
+
+  overflow: hidden;
+  box-sizing: border-box;
+
+  // 🖼️ IMAGEN DE FONDO
+  // background-image: url('/img/pages/maintenance/maintenance.jpg');
+  background-image: url('/src/assets/img/pages/maintenance/maintenance.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.05); // Casi transparente
+    z-index: 0;
+    transition: background 0.3s ease;
+  }
+
+  text-align: center;
+  padding: clamp(1rem, 5vw, 2rem);
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  contain: layout paint;
+
+  .error-card {
+    position: relative;
+    z-index: 1;
+
+    max-width: min(500px, 90%);
+    width: 100%;
+    max-height: calc(100vh - 2rem);
+    overflow: hidden;
+    padding: clamp(2rem, 8vw, 4rem) clamp(1.5rem, 5vw, 3rem);
+
+    // Fondo de la tarjeta según tema
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border-radius: clamp(20px, 5vw, 32px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+
+    // Tema claro: tarjeta más clara
+    .light & {
+      background: rgba(255, 255, 255, 0.92);
+      border-color: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    // Tema oscuro: tarjeta más oscura
+    .dark & {
+      background: rgba(30, 30, 30, 0.92);
+      border-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .error-icon {
+      font-size: clamp(60px, 15vw, 90px);
+      width: clamp(60px, 15vw, 90px);
+      height: clamp(60px, 15vw, 90px);
+      color: #d32f2f;
+      margin-bottom: clamp(1rem, 4vw, 2rem);
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    }
+
+    .timer-icon {
+      font-size: clamp(60px, 15vw, 90px);
+      width: clamp(60px, 15vw, 90px);
+      height: clamp(60px, 15vw, 90px);
+      color: #4caf50;
+      margin-bottom: clamp(1rem, 4vw, 2rem);
+      animation: pulse-green 1.5s infinite;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 8vw, 2.5rem);
+      margin-bottom: clamp(0.8rem, 3vw, 1.2rem);
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.2;
+      word-break: break-word;
+
+      color: #000000;
+
+      .dark & {
+        color: #ffffff;
+      }
+    }
+
+    p {
+      margin-bottom: clamp(1.5rem, 5vw, 2.5rem);
+      line-height: 1.5;
+      font-size: clamp(1.1rem, 4vw, 1.3rem);
+      font-weight: 600;
+      text-wrap: balance;
+
+      color: #1a1a1a;
+
+      .dark & {
+        color: #e0e0e0;
+      }
+    }
+
+    // ============================================================
+    // BOTONES IONIC
+    // ============================================================
+    ion-button.retry-button,
+    ion-button.disabled-button {
+      --background: #000000;
+      --background-hover: #333333;
+      --background-activated: #000000;
+      --color: #ffffff;
+      --border-radius: clamp(12px, 4vw, 16px);
+      --padding-start: clamp(1.5rem, 5vw, 2.5rem);
+      --padding-end: clamp(1.5rem, 5vw, 2.5rem);
+      --padding-top: clamp(0.8rem, 3vw, 1.2rem);
+      --padding-bottom: clamp(0.8rem, 3vw, 1.2rem);
+      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+      font-weight: 800;
+      font-size: clamp(0.9rem, 4vw, 1.1rem);
+      text-transform: none;
+      min-height: 48px;
+      letter-spacing: 0;
+      margin: 0 auto;
+      display: block;
+
+      .dark & {
+        --background: #4f46e5;
+        --background-hover: #6366f1;
+        --background-activated: #4f46e5;
+      }
+
+      ion-icon {
+        font-size: clamp(18px, 5vw, 24px);
+        margin-right: 8px;
+      }
+
+      &[disabled] {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+    }
+
+    ion-button.disabled-button {
+      --background: #4caf50;
+      --background-hover: #4caf50;
+      --background-activated: #4caf50;
+      opacity: 0.8;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ============================================================
+// STATUS BOX
+// ============================================================
+.status-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: clamp(8px, 3vw, 12px) clamp(16px, 5vw, 24px);
+  border-radius: 50px;
+  margin-bottom: clamp(1.5rem, 5vw, 2.5rem);
+  flex-wrap: wrap;
+
+  background: rgba(255, 243, 224, 0.9);
+  border: 1px solid rgba(255, 152, 0, 0.4);
+
+  .dark & {
+    background: rgba(50, 50, 50, 0.9);
+    border: 1px solid rgba(255, 152, 0, 0.2);
+  }
+
+  .status-text {
+    font-size: clamp(0.85rem, 3.5vw, 1rem);
+    font-weight: 700;
+    color: #e65100;
+
+    .dark & {
+      color: #ffb74d;
+    }
+  }
+}
+
+.dot {
+  display: inline-block;
+  width: clamp(10px, 3vw, 12px);
+  height: clamp(10px, 3vw, 12px);
+  background-color: #ff9800;
+  border-radius: 50%;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.dot.pulse {
+  animation: pulse-animation 1.5s infinite;
+}
+
+// ============================================================
+// TEMPORIZADOR
+// ============================================================
+.timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.timer-circle {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 1rem;
+}
+
+.progress-ring-circle-bg {
+  stroke: rgba(224, 224, 224, 0.5);
+
+  .dark & {
+    stroke: rgba(100, 100, 100, 0.5);
+  }
+}
+
+.progress-ring-circle {
+  transition: stroke-dashoffset 0.35s;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.timer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+
+  .seconds {
+    display: block;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #4caf50;
+    line-height: 1;
+  }
+
+  .label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #666;
+
+    .dark & {
+      color: #aaa;
+    }
+  }
+}
+
+.timer-submessage {
+  margin-top: 0.5rem;
+  color: #888;
+  font-size: 0.75rem;
+
+  .dark & {
+    color: #aaa;
+  }
+}
+
+// ============================================================
+// ANIMACIONES
+// ============================================================
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse-animation {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 12px rgba(255, 152, 0, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+  }
+}
+
+@keyframes pulse-green {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+@media (prefers-reduced-motion: reduce) {
+  .error-card {
+    animation: none;
+  }
+
+  .dot.pulse {
+    animation: none;
+  }
+
+  .timer-icon {
+    animation: none;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+  .maintenance-container {
+    .error-card {
+      max-width: 80%;
+      padding: 3rem 2.5rem;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .maintenance-container {
+    padding: 1rem;
+    align-items: center;
+
+    .error-card {
+      padding: 2rem 1.5rem;
+      border-radius: 24px;
+
+      h1 {
+        margin-bottom: 1rem;
+      }
+
+      p {
+        margin-bottom: 1.8rem;
+      }
+    }
+  }
+
+  .status-box {
+    margin-bottom: 1.8rem;
+  }
+
+  .timer-circle {
+    width: 100px;
+    height: 100px;
+  }
+
+  .timer-text .seconds {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .maintenance-container {
+    .error-card {
+      padding: 1.8rem 1.2rem;
+      border-radius: 20px;
+
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      p {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+      }
+    }
+  }
+
+  .status-box {
+    padding: 6px 14px;
+    margin-bottom: 1.5rem;
+
+    .status-text {
+      font-size: 0.8rem;
+    }
+  }
+
+  .timer-circle {
+    width: 80px;
+    height: 80px;
+  }
+
+  .timer-text .seconds {
+    font-size: 1.3rem;
+  }
+
+  .timer-text .label {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .maintenance-container {
+    .error-card {
+      padding: 1.5rem 1rem;
+
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      .error-icon, .timer-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 1rem;
+      }
+    }
+  }
+
+  .status-box {
+    padding: 4px 12px;
+
+    .status-text {
+      font-size: 0.75rem;
+    }
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .timer-circle {
+    width: 70px;
+    height: 70px;
+  }
+
+  .timer-text .seconds {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .maintenance-container {
+    min-height: 100vh;
+    padding: 1rem;
+
+    .error-card {
+      padding: 1.5rem 2rem;
+
+      .error-icon, .timer-icon {
+        font-size: 50px;
+        width: 50px;
+        height: 50px;
+        margin-bottom: 0.8rem;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+      }
+    }
+  }
+
+  .status-box {
+    margin-bottom: 1rem;
+  }
+
+  .timer-container {
+    margin-bottom: 1rem;
+  }
+
+  .timer-circle {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+@media (min-width: 2560px) {
+  .maintenance-container {
+    .error-card {
+      max-width: 700px;
+
+      .error-icon, .timer-icon {
+        font-size: 120px;
+        width: 120px;
+        height: 120px;
+      }
+
+      h1 {
+        font-size: 3rem;
+      }
+
+      p {
+        font-size: 1.6rem;
+      }
+
+      ion-button {
+        --padding-top: 1.5rem;
+        --padding-bottom: 1.5rem;
+        font-size: 1.3rem;
+      }
+    }
+  }
+
+  .status-text {
+    font-size: 1.2rem;
+  }
+
+  .timer-circle {
+    width: 160px;
+    height: 160px;
+  }
+
+  .timer-text .seconds {
+    font-size: 2.5rem;
+  }
+
+  .timer-text .label {
+    font-size: 0.9rem;
+  }
+}

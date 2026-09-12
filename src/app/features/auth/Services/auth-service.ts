@@ -33,7 +33,7 @@ export class AuthService {
   // ============================================================
   private readonly AUTH_URL = `${environment.apiGateway}${environment.authEndpoint}`;
   private readonly USER_INFO_KEY = 'user_info';
-  private readonly TAB_SESSION_KEY = 'app_session_active';
+  // private readonly TAB_SESSION_KEY = 'app_session_active';
   private readonly API_V1_URL = `${environment.apiGateway}${environment.apiV1}`;
   private readonly httpOptions = { withCredentials: true };
 
@@ -64,21 +64,63 @@ export class AuthService {
   // MÉTODOS DE INICIALIZACIÓN
   // ============================================================
 
+  // private getInitialUser(): LoginResponse | null {
+  //   if (!isPlatformBrowser(this.platformId)) return null;
+
+  //   const isTabActive = sessionStorage.getItem(this.TAB_SESSION_KEY);
+  //   if (!isTabActive) {
+  //     sessionStorage.setItem(this.TAB_SESSION_KEY, 'true');
+  //     return null;
+  //   }
+    
+  //   const savedUser = localStorage.getItem(this.USER_INFO_KEY);
+  //   if (!savedUser) return null;
+
+  //   try {
+  //     const storedUser = JSON.parse(savedUser);
+      
+  //     const user: LoginResponse = {
+  //       id: storedUser.id,
+  //       username: storedUser.username,
+  //       email: storedUser.email || '',
+  //       roles: storedUser.roles || [],
+  //       type: 'Bearer',
+  //       accessToken: '',
+  //       refreshToken: null,
+  //       token: '',
+  //       permissions: storedUser.permissions || []
+  //     };
+      
+  //     if (isPlatformBrowser(this.platformId)) {
+  //       const token = localStorage.getItem('access_token');
+  //       if (token) {
+  //         user.accessToken = token;
+  //         user.token = token;
+  //       }
+  //     }
+      
+  //     console.log('✅ Sesión restaurada con roles:', user.roles);
+  //     console.log('📧 Email restaurado:', user.email);
+  //     return user;
+  //   } catch (e) {
+  //     console.error('Error parseando usuario:', e);
+  //     return null;
+  //   }
+  // }
+
+
+
+
   private getInitialUser(): LoginResponse | null {
     if (!isPlatformBrowser(this.platformId)) return null;
 
-    const isTabActive = sessionStorage.getItem(this.TAB_SESSION_KEY);
-    if (!isTabActive) {
-      sessionStorage.setItem(this.TAB_SESSION_KEY, 'true');
-      return null;
-    }
-    
+    // ✅ Leer directamente de localStorage (sin depender de sessionStorage)
     const savedUser = localStorage.getItem(this.USER_INFO_KEY);
     if (!savedUser) return null;
 
     try {
       const storedUser = JSON.parse(savedUser);
-      
+
       const user: LoginResponse = {
         id: storedUser.id,
         username: storedUser.username,
@@ -90,7 +132,7 @@ export class AuthService {
         token: '',
         permissions: storedUser.permissions || []
       };
-      
+
       if (isPlatformBrowser(this.platformId)) {
         const token = localStorage.getItem('access_token');
         if (token) {
@@ -98,7 +140,7 @@ export class AuthService {
           user.token = token;
         }
       }
-      
+
       console.log('✅ Sesión restaurada con roles:', user.roles);
       console.log('📧 Email restaurado:', user.email);
       return user;
@@ -107,6 +149,9 @@ export class AuthService {
       return null;
     }
   }
+
+
+
 
   // ============================================================
   // GETTERS
@@ -166,8 +211,14 @@ export class AuthService {
           console.log('📧 Email recibido:', response.email);
           console.log('🆔 ID recibido:', response.id);
           
+          // if (isPlatformBrowser(this.platformId)) {
+          //   sessionStorage.setItem(this.TAB_SESSION_KEY, 'true');
+          //   if (response.email) {
+          //     localStorage.setItem('userEmail', response.email);
+          //   }
+          // }
+
           if (isPlatformBrowser(this.platformId)) {
-            sessionStorage.setItem(this.TAB_SESSION_KEY, 'true');
             if (response.email) {
               localStorage.setItem('userEmail', response.email);
             }
@@ -329,34 +380,86 @@ export class AuthService {
   // REFRESH TOKEN
   // ============================================================
 
+  // refreshToken(): Observable<LoginResponse> {
+  //   const url = `${environment.apiGateway}${environment.authEndpoint}/refresh`;
+  //   console.log('🔄 Llamando a refresh endpoint:', url);
+    
+  //   const refreshToken = localStorage.getItem('refreshToken');
+    
+  //   return this.http.post<LoginResponse>(url, { refreshToken }, {
+  //     withCredentials: true
+  //   })
+  //   .pipe(
+  //     tap((response) => {
+  //       console.log('✅ Refresh exitoso');
+  //       console.log('📦 Respuesta del refresh:', response);
+        
+  //       if (response?.accessToken) {
+  //         localStorage.setItem('accessToken', response.accessToken);
+  //         console.log('✅ Access token guardado en localStorage');
+  //       }
+  //       if (response?.refreshToken) {
+  //         localStorage.setItem('refreshToken', response.refreshToken);
+  //         console.log('✅ Refresh token guardado en localStorage');
+  //       }
+        
+  //       if (response) {
+  //         this.currentUser.set(response);
+  //         console.log('✅ Usuario actualizado en memoria');
+  //       }
+        
+  //       this.userPreferences.loadPreferences().subscribe({
+  //         next: (prefs) => {
+  //           console.log('✅ Preferencias recargadas después de refresh');
+  //         },
+  //         error: (error) => {
+  //           console.error('❌ Error recargando preferencias:', error);
+  //         }
+  //       });
+  //     }),
+  //     catchError((error: HttpErrorResponse) => {
+  //       console.error('❌ Error en refresh:', error.status, error.message);
+        
+  //       if (error.status === 401) {
+  //         console.warn('🔴 Refresh token expirado o inválido, cerrando sesión');
+  //         this.fullLocalLogout();
+  //         this.userPreferences.clearPreferences();
+  //         this.router.navigate(['/login']);
+  //       } else if (error.status === 500) {
+  //         console.error('🚨 Error interno del servidor (500) en refresh');
+  //       }
+        
+  //       return throwError(() => error);
+  //     })
+  //   );
+  // }
+
+
+
+
   refreshToken(): Observable<LoginResponse> {
     const url = `${environment.apiGateway}${environment.authEndpoint}/refresh`;
     console.log('🔄 Llamando a refresh endpoint:', url);
-    
-    const refreshToken = localStorage.getItem('refreshToken');
-    
-    return this.http.post<LoginResponse>(url, { refreshToken }, {
+
+    // ✅ El refresh token va en la cookie HttpOnly (withCredentials: true)
+    //    Ya NO lo leemos de localStorage
+    return this.http.post<LoginResponse>(url, {}, {
       withCredentials: true
     })
     .pipe(
       tap((response) => {
         console.log('✅ Refresh exitoso');
         console.log('📦 Respuesta del refresh:', response);
-        
-        if (response?.accessToken) {
-          localStorage.setItem('accessToken', response.accessToken);
-          console.log('✅ Access token guardado en localStorage');
-        }
-        if (response?.refreshToken) {
-          localStorage.setItem('refreshToken', response.refreshToken);
-          console.log('✅ Refresh token guardado en localStorage');
-        }
-        
+
+        // ❌ ELIMINADO: guardar accessToken en localStorage
+        // ❌ ELIMINADO: guardar refreshToken en localStorage
+        // Los tokens ya vienen en las cookies HttpOnly del backend
+
         if (response) {
           this.currentUser.set(response);
           console.log('✅ Usuario actualizado en memoria');
         }
-        
+
         this.userPreferences.loadPreferences().subscribe({
           next: (prefs) => {
             console.log('✅ Preferencias recargadas después de refresh');
@@ -368,7 +471,7 @@ export class AuthService {
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('❌ Error en refresh:', error.status, error.message);
-        
+
         if (error.status === 401) {
           console.warn('🔴 Refresh token expirado o inválido, cerrando sesión');
           this.fullLocalLogout();
@@ -377,11 +480,15 @@ export class AuthService {
         } else if (error.status === 500) {
           console.error('🚨 Error interno del servidor (500) en refresh');
         }
-        
+
         return throwError(() => error);
       })
     );
   }
+
+
+
+
 
   // ============================================================
   // REGISTER
@@ -492,9 +599,13 @@ export class AuthService {
       this.currentUser.set(null);
     }
     
+    // if (isPlatformBrowser(this.platformId)) {
+    //   localStorage.removeItem(this.USER_INFO_KEY);
+    //   sessionStorage.removeItem(this.TAB_SESSION_KEY);
+    // }
+
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.USER_INFO_KEY);
-      sessionStorage.removeItem(this.TAB_SESSION_KEY);
     }
     
     this.userPreferences.clearPreferences();

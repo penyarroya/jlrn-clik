@@ -2533,10 +2533,50 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       });
 
+    // ✅ BIENVENIDA ENCADENADA CON REINICIO DEL MICRÓFONO
     setTimeout(() => {
-      if (!this.isDestroyed && !this.voiceService.isCurrentlyMuted() && !this.isVerifying()) {
-        this.voiceService.speakAlways(this.WELCOME_MESSAGE);
+      if (this.isDestroyed) return;
+
+      const isMuted = this.voiceService.isCurrentlyMuted();
+
+      // Si está muteado, no hablamos, pero arrancamos micro igual
+      if (isMuted) {
+        console.log('🔇 [Register] Micrófono muteado, bienvenida omitida');
+        if (!this.voiceService.isRecognitionActive()) {
+          this.voiceService.startListening();
+        }
+        return;
       }
+
+      // Si estamos en verificación OTP, no hablamos la bienvenida principal
+      if (this.isVerifying()) {
+        console.log('⏭️ [Register] En verificación OTP, bienvenida principal omitida');
+        if (!this.voiceService.isRecognitionActive()) {
+          this.voiceService.startListening();
+        }
+        return;
+      }
+
+      console.log('🗣️ [Register] Iniciando bienvenida encadenada con micro');
+
+      this.voiceService.speakAlways(this.WELCOME_MESSAGE, true)
+        .then(() => {
+          if (this.isDestroyed) return;
+          setTimeout(() => {
+            if (this.isDestroyed) return;
+            if (!this.voiceService.isRecognitionActive()) {
+              console.log('🎤 [Register] Bienvenida terminada → arrancando micro');
+              this.voiceService.startListening();
+            }
+          }, 400);
+        })
+        .catch((err) => {
+          console.warn('⚠️ [Register] speakAlways falló, arrancando micro igualmente', err);
+          if (this.isDestroyed) return;
+          if (!this.voiceService.isRecognitionActive()) {
+            this.voiceService.startListening();
+          }
+        });
     }, 1000);
 
     this.registerFieldsForCleanup();
@@ -2554,6 +2594,9 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.resetOtpVisuals();
   }
+
+
+
 
   //
   private focusByQuerySelectorRegister(): void {
@@ -3157,7 +3200,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    if (lower.includes('leer campos') || lower === 'leer' || lower.includes('leer todo') ||
+    if (lower.includes('leer campos') || lower.includes('leer todo') ||
         lower.includes('qué tengo') || lower.includes('qué hay') || lower.includes('mostrar campos') ||
         lower.includes('qué he escrito') || lower.includes('revisar campos') ||
         lower.includes('comprobar campos') || lower.includes('ver campos')) {

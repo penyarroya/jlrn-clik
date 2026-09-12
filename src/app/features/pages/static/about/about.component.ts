@@ -257,7 +257,7 @@
 import { Location } from '@angular/common';
 import { Component, inject, OnInit, OnDestroy, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { 
   IonIcon, 
@@ -303,18 +303,18 @@ import { ThemeService } from '../../../../shared/services/theme/theme';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AboutComponent implements OnInit, OnDestroy {
-  private readonly location = inject(Location);
   private ngZone = inject(NgZone);
   public themeService = inject(ThemeService);
   private voiceContext = inject(VoiceContextService);
   private voiceService = inject(VoiceService);
-  private voiceHandler = inject(VoiceCommandHandlerService);
 
   private isNavigating = false;
   private welcomeShown = false;
   private isDestroyed = false;
   private destroy$ = new Subject<void>();
 
+  private router = inject(Router);
+  
   private lastProcessedCommand = '';
   private lastProcessedTime = 0;
   private readonly COMMAND_DEBOUNCE = 2000;
@@ -471,9 +471,11 @@ export class AboutComponent implements OnInit, OnDestroy {
   goBack(): void {
     if (this.isNavigating) return;
     this.isNavigating = true;
-    setTimeout(() => {
-      this.location.back();
-    }, 500);
+    console.log('🔙 [About] Volviendo a /home');
+
+    this.router.navigate(['/home']).finally(() => {
+      this.isNavigating = false;
+    });
   }
 
   readInfo(): void {

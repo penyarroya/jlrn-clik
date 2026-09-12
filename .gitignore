@@ -75,3 +75,16 @@ testem.log
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# src/environments/environment.ts
+# src/environments/environment.prod.ts
+
+
+# ============================================
+# Environment variables (NUNCA subir)
+# ============================================
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
