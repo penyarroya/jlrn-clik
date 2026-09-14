@@ -1,0 +1,203 @@
+<ion-content id="main-content" [fullscreen]="true">
+  <div class="dashboard-wrapper" [class.dark]="isDarkTheme()">
+
+    <!-- HEADER / TOOLBAR -->
+    <app-transparent-toolbar
+      [config]="toolbarConfig()"
+      [greeting]="greeting()"
+      [userNameDisplay]="userName"
+      [userEmailDisplay]="userEmail"
+      [currentTimeDisplay]="formattedCurrentTime"
+      [showUserGreeting]="true"
+      (helpEvent)="showHelp()"
+      (loginEvent)="goToLogin()">
+    </app-transparent-toolbar>
+
+    <div class="dashboard-container">
+      <div class="dashboard-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="dashboard-sidebar">
+          <div class="sidebar-profile">
+            <div class="profile-avatar">
+              {{ (userName | slice:0:1) || 'U' | uppercase }}
+            </div>
+            <div class="profile-info">
+              <span class="profile-name">{{ userName }}</span>
+              <span class="profile-email">{{ userEmail }}</span>
+              <span class="profile-role">Usuario</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <nav class="sidebar-nav">
+            @for (item of sidebarItems(); track item.id) {
+              <a class="nav-item" [class.active]="activeSection() === item.id" (click)="onSidebarItemClick(item)">
+                <ion-icon [name]="item.icon"></ion-icon>
+                <span>{{ item.label }}</span>
+              </a>
+            }
+          </nav>
+
+          <div class="divider"></div>
+
+          <button class="sidebar-logout" (click)="logout()">
+            <ion-icon name="log-out-outline"></ion-icon>
+            <span>Cerrar Sesión</span>
+          </button>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="main-wrapper">
+          <main class="dashboard-main">
+
+            <!-- CARGA -->
+            @if (isLoading()) {
+              <div class="loading-state">
+                <ion-icon name="hourglass-outline"></ion-icon>
+                <p>Cargando configuración...</p>
+              </div>
+            }
+
+            <!-- 1. PANEL PRINCIPAL -->
+            @if (!isLoading() && activeSection() === 'dashboard') {
+              <section class="content-section">
+                <div class="section-header">
+                  <h1>
+                    <ion-icon [name]="projectConfig()?.projectIcon || 'grid-outline'"></ion-icon>
+                    {{ projectConfig()?.projectName || 'Panel Principal' }}
+                  </h1>
+                  <p class="section-description">{{ projectConfig()?.projectDescription || 'Bienvenido a tu panel' }}</p>
+                </div>
+
+                @if (statsCards().length > 0) {
+                  <div class="stats-grid">
+                    @for (stat of statsCards(); track stat.label) {
+                      <div class="stat-card">
+                        <div class="stat-icon" [style.background]="stat.gradient">
+                          <ion-icon [name]="stat.icon"></ion-icon>
+                        </div>
+                        <div class="stat-info">
+                          <span class="stat-value">{{ stat.value }}</span>
+                          <span class="stat-label">{{ stat.label }}</span>
+                          @if (stat.change) {
+                            <span class="stat-change" [class]="stat.trend || 'neutral'">
+                              <ion-icon [name]="stat.trendIcon || 'trending-up-outline'"></ion-icon>
+                              {{ stat.change }}
+                            </span>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+
+                @if (quickActions().length > 0) {
+                  <div class="quick-actions-section">
+                    <h3><ion-icon name="flash-outline"></ion-icon> Acciones Rápidas</h3>
+                    <div class="quick-actions-grid">
+                      @for (action of quickActions(); track action.label) {
+                        <div class="quick-action-card" (click)="router.navigate([action.route])">
+                          <div class="action-icon">
+                            <ion-icon [name]="action.icon"></ion-icon>
+                          </div>
+                          <span class="action-label">{{ action.label }}</span>
+                          @if (action.badge) {
+                            <span class="action-badge" [class]="action.badge">{{ action.badge }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </section>
+            }
+
+            <!-- 2. GUÍAS / CURSOS -->
+            @if (!isLoading() && activeSection() === 'courses') {
+              <section class="content-section">
+                <div class="section-header">
+                  <h1><ion-icon name="book-outline"></ion-icon> Guías Prácticas</h1>
+                  <p class="section-description">Aprende paso a paso con estas guías</p>
+                </div>
+
+                <div class="course-grid">
+                  @for (course of myCourses(); track course.id) {
+                    <div class="course-card">
+                      <div class="course-header">
+                        <span class="course-category">{{ course.category }}</span>
+                        <span class="course-status-badge" [class]="course.status">
+                          {{ course.status === 'completed' ? 'Completado' :
+                             course.status === 'in-progress' ? 'En progreso' :
+                             'Por comenzar' }}
+                        </span>
+                      </div>
+                      <h3>{{ course.title }}</h3>
+                      <p class="course-instructor">{{ course.instructor }}</p>
+                      <div class="course-progress">
+                        <div class="progress-bar">
+                          <div class="progress-fill" [style.width.%]="course.progress"></div>
+                        </div>
+                        <span>{{ course.progress }}%</span>
+                      </div>
+                      <button class="course-action-btn" (click)="router.navigate(['/course', course.id])">
+                        {{ course.status === 'completed' ? 'Revisar' :
+                           course.status === 'in-progress' ? 'Continuar' :
+                           'Comenzar' }}
+                      </button>
+                    </div>
+                  }
+                  @if (myCourses().length === 0) {
+                    <div class="empty-state">
+                      <ion-icon name="book-outline"></ion-icon>
+                      <p>No hay guías disponibles</p>
+                      <span>Vuelve más tarde</span>
+                    </div>
+                  }
+                </div>
+              </section>
+            }
+
+            <!-- 3. CONFIGURACIÓN -->
+            @if (!isLoading() && activeSection() === 'settings') {
+              <section class="content-section">
+                <div class="section-header">
+                  <h1><ion-icon name="settings-outline"></ion-icon> Configuración</h1>
+                  <p class="section-description">Personaliza tu experiencia</p>
+                </div>
+
+                <div class="settings-grid">
+                  <!-- TEMA -->
+                  <div class="setting-card">
+                    <div class="setting-icon"><ion-icon name="moon-outline"></ion-icon></div>
+                    <div class="setting-info">
+                      <h4>Tema</h4>
+                      <p>Alternar entre modo claro y oscuro</p>
+                      <button class="setting-btn" (click)="toggleTheme()">
+                        {{ isDarkTheme() ? '☀️ Modo claro' : '🌙 Modo oscuro' }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- MICRÓFONO -->
+                  <div class="setting-card">
+                    <div class="setting-icon"><ion-icon name="mic-outline"></ion-icon></div>
+                    <div class="setting-info">
+                      <h4>Micrófono</h4>
+                      <p>Activar o desactivar comandos de voz</p>
+                      <button class="setting-btn" (click)="toggleMic()">
+                        {{ micButtonText }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            }
+
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

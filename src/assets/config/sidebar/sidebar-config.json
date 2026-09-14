@@ -1,0 +1,10 @@
+{
+  "sidebarItems": [
+    { "id": "dashboard", "label": "Dashboard", "icon": "dashboard", "roles": ["SUPER_ADMIN", "USER", "MANAGER"] },
+    { "id": "stats", "label": "Estadísticas", "icon": "analytics", "roles": ["SUPER_ADMIN", "USER", "MANAGER"] },
+    { "id": "actions", "label": "Acciones", "icon": "flash_on", "roles": ["SUPER_ADMIN", "USER", "MANAGER"] },
+    { "id": "activity", "label": "Actividad", "icon": "history", "roles": ["SUPER_ADMIN", "USER", "MANAGER"] },
+    { "id": "voice", "label": "Comandos Voz", "icon": "mic", "roles": ["SUPER_ADMIN", "USER", "MANAGER"] },
+    { "id": "settings", "label": "Configuración", "icon": "settings", "roles": ["SUPER_ADMIN", "USER", "MANAGER"] }
+  ]
+}

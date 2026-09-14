@@ -1,0 +1,90 @@
+{
+  "projectId": "informatica",
+  "projectName": "Centro de Ayuda Digital",
+  "projectDescription": "Resuelve tus dudas informáticas de forma sencilla",
+  "projectIcon": "grid-outline",
+  "themeColor": "#6366f1",
+  "backgroundImage": "/assets/img/pages/dashboard/AtarecerEnElPuerto.jpg",
+  "welcomeMessage": "Hola, bienvenido a tu centro de ayuda digital.",
+  "greetingMessage": "¡Hola! ¿En qué puedo ayudarte hoy?",
+  "statsCards": [
+    {
+      "icon": "checkbox-outline",
+      "label": "Dudas Resueltas",
+      "value": 23,
+      "change": "+5",
+      "trend": "up",
+      "trendIcon": "trending-up-outline",
+      "gradient": "linear-gradient(135deg, #6366f1, #8b5cf6)"
+    },
+    {
+      "icon": "school-outline",
+      "label": "Guías Completadas",
+      "value": 5,
+      "change": "+2",
+      "trend": "up",
+      "trendIcon": "trending-up-outline",
+      "gradient": "linear-gradient(135deg, #10b981, #059669)"
+    }
+  ],
+  "courses": [
+    {
+      "id": "1",
+      "title": "📁 Cómo organizar tus archivos",
+      "instructor": "Guía Visual",
+      "progress": 75,
+      "status": "in-progress",
+      "category": "Organización"
+    },
+    {
+      "id": "2",
+      "title": "🔒 Crear contraseñas seguras",
+      "instructor": "Guía Práctica",
+      "progress": 100,
+      "status": "completed",
+      "category": "Seguridad"
+    }
+  ],
+  "quickActions": [
+    {
+      "label": "🔍 Resolver una Duda",
+      "icon": "help-circle-outline",
+      "route": "/resolve-doubt",
+      "voiceCommand": ["duda", "pregunta", "resolver"],
+      "description": "Pregunta lo que necesites",
+      "badge": "popular"
+    },
+    {
+      "label": "📚 Guías Prácticas",
+      "icon": "book-outline",
+      "route": "/guides",
+      "voiceCommand": ["guías", "manuales", "tutoriales"],
+      "description": "Aprende paso a paso",
+      "badge": "new"
+    }
+  ],
+  "voiceCommands": [
+    {
+      "command": "dashboard",
+      "keywords": ["dashboard", "inicio", "panel"],
+      "action": "dashboard",
+      "description": "Ir al panel principal"
+    },
+    {
+      "command": "guides",
+      "keywords": ["guías", "cursos", "manuales"],
+      "action": "guides",
+      "description": "Ver guías prácticas"
+    }
+  ],
+  "messages": [
+    {
+      "id": 1,
+      "sender": "Sistema",
+      "avatar": "S",
+      "content": "Bienvenido a la plataforma",
+      "time": "Hace 1 hora",
+      "unread": 1
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "sidebarItems": [
+    { "id": "dashboard", "label": "Panel Principal", "icon": "dashboard", "roles": ["SUPER_ADMIN", "USER"] },
+    { "id": "courses", "label": "Mis Cursos", "icon": "menu_book", "roles": ["SUPER_ADMIN", "USER"] },
+    { "id": "activities", "label": "Tareas", "icon": "assignment", "roles": ["SUPER_ADMIN", "USER"] },
+    { "id": "progress", "label": "Progreso", "icon": "trending_up", "roles": ["SUPER_ADMIN", "USER"] },
+    { "id": "calendar", "label": "Calendario", "icon": "calendar_month", "roles":["SUPER_ADMIN", "USER"] },
+    { "id": "messages", "label": "Mensajes", "icon": "message", "roles": ["SUPER_ADMIN", "USER"] },
+    { "id": "settings", "label": "Configuración", "icon": "settings", "roles": ["SUPER_ADMIN", "USER"] }
+  ]
+}
