@@ -3049,31 +3049,7 @@ export class VoiceService implements OnDestroy {
   private isNavigationLocked(): boolean {
     return Date.now() < this.navigationLockedUntil;
   }
-
-  // ngOnDestroy(): void {
-  //   if (this.headphonesCheckInterval) {
-  //     clearInterval(this.headphonesCheckInterval);
-  //     this.headphonesCheckInterval = null;
-  //   }
-  //   this.destroy();
-  // }
-
-  //
-  // ngOnDestroy(): void {
-  //   if (this.headphonesCheckInterval) {
-  //     clearInterval(this.headphonesCheckInterval);
-  //     this.headphonesCheckInterval = null;
-  //   }
-
-  //   // ✅ NUEVO: limpiar debounce también aquí
-  //   if (this.deviceChangeDebounce) {
-  //     clearTimeout(this.deviceChangeDebounce);
-  //     this.deviceChangeDebounce = null;
-  //   }
-
-  //   this.destroy();
-  // }
-
+  
   ngOnDestroy(): void {
     this.destroy();
   }
@@ -3206,24 +3182,207 @@ export class VoiceService implements OnDestroy {
   // ============================================================
   // MANEJO DE EVENTOS
   // ============================================================
-  private handleResult(event: SpeechRecognitionEvent): void {
+  // private handleResult(event: SpeechRecognitionEvent): void {
+  //   if (window.speechSynthesis.speaking) {
+  //     try {
+  //       const result = event.results[event.results.length - 1];
+  //       if (result && result[0]) {
+  //         const transcript = result[0].transcript.toLowerCase().trim();
+  //         if (transcript === 'hola' || transcript.includes('hola')) {
+  //           console.log('🔊 [VoiceService] "hola" detectado durante el habla, procesando...');
+  //         } else {
+  //           console.log('🔇 [VoiceService] Sistema hablando, ignorando resultado');
+  //           return;
+  //         }
+  //       } else {
+  //         console.log('🔇 [VoiceService] Sistema hablando, ignorando resultado');
+  //         return;
+  //       }
+  //     } catch {
+  //       console.log('🔇 [VoiceService] Sistema hablando, ignorando resultado');
+  //       return;
+  //     }
+  //   }
+
+  //   if (!event.results || event.results.length === 0) return;
+
+  //   const result = event.results[event.results.length - 1];
+  //   if (!result || !result[0]) return;
+
+  //   const transcript = result[0].transcript.toLowerCase().trim();
+
+  //   if (this.enableLogs) {
+  //     console.log('🎤 Reconocido:', transcript, 'Final:', result.isFinal);
+  //   }
+
+  //   if (transcript === 'hola' || transcript === 'hola hola') {
+  //     this.handleWakeWord(transcript, result.isFinal);
+  //     return;
+  //   }
+
+  //   if (transcript === 'silenciar' || transcript === 'mute' ||
+  //       transcript.includes('silenciar micrófono') || transcript.includes('apagar micrófono')) {
+  //     this.handleMute();
+  //     return;
+  //   }
+
+  //   if (this.isMuted) {
+  //     const allowed = ['ayuda', 'help', 'hola', 'asistente'];
+  //     if (!allowed.includes(transcript)) {
+  //       console.log('🔇 [VoiceService] Muteado, ignorando:', transcript);
+  //       return;
+  //     }
+  //   }
+
+  //   if (this.isNavigationCommand(transcript) && Date.now() < this.ignoreNavCommandsUntil) {
+  //     console.log(`⏭️ [VoiceService] Comando de navegación ignorado tras navegación: "${transcript}"`);
+  //     return;
+  //   }
+
+  //   const now = Date.now();
+  //   if (
+  //     transcript === this.lastProcessedTranscript &&
+  //     (now - this.lastProcessedTime) < this.GLOBAL_COMMAND_DEBOUNCE
+  //   ) {
+  //     console.log(`⏭️ [VoiceService] Comando duplicado ignorado globalmente: "${transcript}"`);
+  //     return;
+  //   }
+  //   this.lastProcessedTranscript = transcript;
+  //   this.lastProcessedTime = now;
+
+  //   console.log('📤 [VoiceService] Emitiendo comando:', transcript);
+  //   this.transcriptSubject.next(transcript);
+  //   this.transcriptWithFinalSubject.next({ text: transcript, isFinal: result.isFinal });
+  // }
+
+
+
+
+//   private handleResult(event: SpeechRecognitionEvent): void {
+//     if (window.speechSynthesis.speaking) {
+//       try {
+//         const result = event.results[event.results.length - 1];
+//         if (result && result[0]) {
+//           const transcript = result[0].transcript.toLowerCase().trim();
+//           if (transcript === 'hola' || transcript.includes('hola')) {
+//             console.log('🔊 [VoiceService] "hola" detectado durante el habla, procesando...');
+//           } else {
+//             console.log('🔇 [VoiceService] Sistema hablando, ignorando resultado');
+//             return;
+//           }
+//         } else {
+//           console.log('🔇 [VoiceService] Sistema hablando, ignorando resultado');
+//           return;
+//         }
+//       } catch {
+//         console.log('🔇 [VoiceService] Sistema hablando, ignorando resultado');
+//         return;
+//       }
+//     }
+
+//     if (!event.results || event.results.length === 0) return;
+
+//     const result = event.results[event.results.length - 1];
+//     if (!result || !result[0]) return;
+
+//     const transcript = result[0].transcript.toLowerCase().trim();
+
+//     if (this.enableLogs) {
+//       console.log('🎤 Reconocido:', transcript, 'Final:', result.isFinal);
+//     }
+
+//     if (transcript === 'hola' || transcript === 'hola hola') {
+//       this.handleWakeWord(transcript, result.isFinal);
+//       return;
+//     }
+
+//     if (transcript === 'silenciar' || transcript === 'mute' ||
+//         transcript.includes('silenciar micrófono') || transcript.includes('apagar micrófono')) {
+//       this.handleMute();
+//       return;
+//     }
+
+//     if (this.isMuted) {
+//       const allowed = ['ayuda', 'help', 'hola', 'asistente'];
+//       if (!allowed.includes(transcript)) {
+//         console.log('🔇 [VoiceService] Muteado, ignorando:', transcript);
+//         return;
+//       }
+//     }
+
+//     if (this.isNavigationCommand(transcript) && Date.now() < this.ignoreNavCommandsUntil) {
+//       console.log(`⏭️ [VoiceService] Comando de navegación ignorado tras navegación: "${transcript}"`);
+//       return;
+//     }
+
+//     const now = Date.now();
+//     if (
+//       transcript === this.lastProcessedTranscript &&
+//       (now - this.lastProcessedTime) < this.GLOBAL_COMMAND_DEBOUNCE
+//     ) {
+//       console.log(`⏭️ [VoiceService] Comando duplicado ignorado globalmente: "${transcript}"`);
+//       return;
+//     }
+//     this.lastProcessedTranscript = transcript;
+//     this.lastProcessedTime = now;
+
+//     // ✅ LOG MEJORADO: muestra isFinal explícitamente
+//     console.log('📤 [VoiceService] Emitiendo comando:', transcript, '(final:', result.isFinal + ')');
+    
+//     this.transcriptSubject.next(transcript);
+//     this.transcriptWithFinalSubject.next({ text: transcript, isFinal: result.isFinal });
+//  }
+
+
+
+
+
+private handleResult(event: SpeechRecognitionEvent): void {
     if (window.speechSynthesis.speaking) {
       try {
         const result = event.results[event.results.length - 1];
         if (result && result[0]) {
           const transcript = result[0].transcript.toLowerCase().trim();
-          if (transcript === 'hola' || transcript.includes('hola')) {
-            console.log('🔊 [VoiceService] "hola" detectado durante el habla, procesando...');
-          } else {
+
+          // ✅ Comandos que SÍ se procesan aunque el TTS esté hablando
+          const canInterrupt =
+            transcript === 'hola' ||
+            transcript.includes('hola') ||
+            transcript.includes('ayuda') ||
+            transcript.includes('para') ||
+            transcript.includes('silencio') ||
+            transcript.includes('silenciar') ||
+            transcript.includes('stop') ||
+            transcript.includes('calla');
+
+          if (!canInterrupt) {
             console.log('🔇 [VoiceService] Sistema hablando, ignorando resultado');
             return;
           }
+
+          // ✅ NUEVO: solo procesar el comando prioritario si es FINAL
+          //    Evita que los parciales (ayu, ayud, ayuda) repitan el TTS
+          if (!result.isFinal) {
+            console.log('⏭️ [VoiceService] Comando prioritario parcial, esperando final:', transcript);
+            return;
+          }
+
+          console.log('🔊 [VoiceService] Comando prioritario FINAL detectado durante el habla:', transcript);
+
+          // ✅ Si es un comando de parada o ayuda, cortamos el TTS ya
+          if (transcript.includes('para') ||
+              transcript.includes('silencio') ||
+              transcript.includes('silenciar') ||
+              transcript.includes('stop') ||
+              transcript.includes('calla') ||
+              transcript.includes('ayuda')) {
+            window.speechSynthesis.cancel();
+            console.log('🛑 [VoiceService] TTS interrumpido por comando prioritario');
+          }
         } else {
-          console.log('🔇 [VoiceService] Sistema hablando, ignorando resultado');
           return;
         }
       } catch {
-        console.log('🔇 [VoiceService] Sistema hablando, ignorando resultado');
         return;
       }
     }
@@ -3263,21 +3422,45 @@ export class VoiceService implements OnDestroy {
       return;
     }
 
+    // ✅ Debounce global — NO aplica a comandos repetibles
     const now = Date.now();
-    if (
-      transcript === this.lastProcessedTranscript &&
-      (now - this.lastProcessedTime) < this.GLOBAL_COMMAND_DEBOUNCE
-    ) {
+    const isRepeatable =
+      transcript.includes('ayuda') ||
+      transcript.includes('hola') ||
+      transcript.includes('para') ||
+      transcript.includes('silencio') ||
+      transcript.includes('calla');
+
+    if (!isRepeatable &&
+        transcript === this.lastProcessedTranscript &&
+        (now - this.lastProcessedTime) < this.GLOBAL_COMMAND_DEBOUNCE) {
       console.log(`⏭️ [VoiceService] Comando duplicado ignorado globalmente: "${transcript}"`);
       return;
     }
     this.lastProcessedTranscript = transcript;
     this.lastProcessedTime = now;
 
-    console.log('📤 [VoiceService] Emitiendo comando:', transcript);
+    // ✅ NUEVO: no emitir comandos prioritarios hasta que sean FINALES
+    const isPriority =
+      transcript.includes('ayuda') ||
+      transcript.includes('para') ||
+      transcript.includes('silencio') ||
+      transcript.includes('calla') ||
+      transcript.includes('stop');
+
+    if (isPriority && !result.isFinal) {
+      console.log('⏭️ [VoiceService] Comando prioritario ignorado (aún no es final):', transcript);
+      return;
+    }
+
+    console.log('📤 [VoiceService] Emitiendo comando:', transcript, '(final:', result.isFinal + ')');
+
     this.transcriptSubject.next(transcript);
     this.transcriptWithFinalSubject.next({ text: transcript, isFinal: result.isFinal });
   }
+
+
+
 
   private handleWakeWord(transcript: string, isFinal: boolean): void {
     if (this.isMuted) {
@@ -3327,35 +3510,7 @@ export class VoiceService implements OnDestroy {
     }
   }
 
-  // private handleError(event: SpeechRecognitionErrorEvent): void {
-  //   this.ngZone.run(() => {
-  //     if (event.error === 'no-speech') {
-  //       return;
-  //     }
-
-  //     console.log('🔍 [VoiceService] handleError:', { error: event.error, timestamp: new Date().toISOString() });
-  //     this.logger.error('Error en reconocimiento:', event.error);
-  //     this.errorSubject.next(event.error);
-
-  //     this.readySubject.next(false);
-  //     this.recognitionActive = false;
-
-  //     if (event.error === 'audio-capture') {
-  //       this.handleRecoverableError();
-  //     } else if (event.error === 'not-allowed') {
-  //       this.logger.error('❌ Permiso de micrófono denegado');
-  //       this.stopListening();
-  //       this.errorSubject.next(this.voiceContext.getMessage('permissionDenied'));
-  //       this.speakAlways(this.voiceContext.getMessage('permissionDenied'));
-  //     } else {
-  //       this.logger.warn(`⚠️ Error recuperable (${event.error}), reintentando...`);
-  //       this.handleRecoverableError();
-  //     }
-  //   });
-  // }
-
-
-
+  //
   private handleError(event: SpeechRecognitionErrorEvent): void {
     this.ngZone.run(() => {
       if (event.error === 'no-speech') return;
@@ -3396,238 +3551,7 @@ export class VoiceService implements OnDestroy {
     });
   }
 
-
-
-
-  //  NO SE USA
-  // private handleRecoverableError(): void {
-  //   const delay = Math.min(500 * Math.pow(1.2, this.reconnectAttempts), 5000);
-  //   this.reconnectAttempts++;
-
-  //   if (this.enableLogs) {
-  //     this.logger.log(`⏳ Reintentando en ${delay}ms (intento #${this.reconnectAttempts})`);
-  //   }
-
-  //   if (this.reconnectTimeout) {
-  //     clearTimeout(this.reconnectTimeout);
-  //   }
-
-  //   this.reconnectTimeout = setTimeout(() => {
-  //     if (this.isSpeaking) {
-  //       console.log('⏸️ [VoiceService] reconnectTimeout → TTS activo, reprogramando');
-  //       this.handleRecoverableError();
-  //       return;
-  //     }
-  //     if (this.pendingPostTTSRestart) {
-  //       console.log('⏸️ [VoiceService] reconnectTimeout → pendiente reinicio del componente');
-  //       return;
-  //     }
-  //     if (this.isMuted) {
-  //       console.log('🔇 [VoiceService] reconnectTimeout → micrófono muteado');
-  //       return;
-  //     }
-  //     if (this.recognitionActive) {
-  //       console.log('ℹ️ [VoiceService] reconnectTimeout → reconocimiento ya activo');
-  //       return;
-  //     }
-
-  //     console.log('🔄 [VoiceService] reconnectTimeout → reiniciando reconocimiento tras error');
-  //     this.reconnectAttempts = 0;
-  //     this.startListening();
-  //   }, delay);
-  // }
-
-
-
-  // private handleEnd(): void {
-  //   console.log('🔍 [VoiceService] handleEnd:', {
-  //     isListening: this.isListening,
-  //     isStarting: this.isStarting,
-  //     recognitionActive: this.recognitionActive,
-  //     isSpeaking: this.isSpeaking,
-  //     msSinceTTSEnd: Date.now() - this.lastTTSEndTime,
-  //     pendingPostTTSRestart: this.pendingPostTTSRestart,
-  //     timestamp: new Date().toISOString()
-  //   });
-
-  //   this.isStarting = false;
-  //   this.isListening = false;
-  //   this.recognitionActive = false;
-  //   this.readySubject.next(false);
-  //   this.listeningSubject.next(false);
-
-  //   if (this.enableLogs) {
-  //     this.logger.log('🔴 Reconocimiento finalizado');
-  //   }
-
-  //   // ✅ 1. TTS activo → no reiniciar (con reintento diferido)
-  //   if (this.isSpeaking) {
-  //     console.log('⏸️ [VoiceService] handleEnd → TTS activo, NO se reinicia automáticamente');
-
-  //     setTimeout(() => {
-  //       if (this.isSpeaking) return;
-  //       if (this.pendingPostTTSRestart) return;
-  //       if (this.isMuted) return;
-  //       if (this.recognitionActive) return;
-
-  //       console.log('🔄 [VoiceService] handleEnd diferido → reiniciando tras TTS');
-  //       this.startListening();
-  //     }, 1500);
-
-  //     return;
-  //   }
-
-  //   // ✅ 2. Pendiente reinicio del componente
-  //   if (this.pendingPostTTSRestart) {
-  //     console.log('⏸️ [VoiceService] handleEnd → pendiente reinicio del componente, NO se reinicia automáticamente');
-  //     return;
-  //   }
-
-  //   // ✅ 3. Bloqueo por navegación
-  //   if (this.isNavigationLocked()) {
-  //     console.log('🔇 [VoiceService] handleEnd → navegación reciente, reinicio diferido');
-  //     setTimeout(() => {
-  //       if (this.isSpeaking) return;
-  //       if (this.pendingPostTTSRestart) return;
-  //       if (!this.isNavigationLocked() && !this.recognitionActive) {
-  //         this.startListening();
-  //         console.log('🎤 [VoiceService] Reconocimiento reiniciado tras bloqueo');
-  //       }
-  //     }, 3100);
-  //     return;
-  //   }
-
-  //   // ✅ 4. Muteado
-  //   if (this.isMuted) {
-  //     console.log('🔇 [VoiceService] handleEnd → micrófono muteado, NO se reinicia');
-  //     return;
-  //   }
-
-  //   console.log('🔄 [VoiceService] Reiniciando reconocimiento automáticamente...');
-
-  //   setTimeout(() => {
-  //     if (this.isSpeaking) {
-  //       console.log('⏸️ [VoiceService] reinicio cancelado: TTS sigue activo');
-  //       return;
-  //     }
-  //     if (this.pendingPostTTSRestart) {
-  //       console.log('⏸️ [VoiceService] reinicio cancelado: pendiente reinicio del componente');
-  //       return;
-  //     }
-  //     if (!this.isMuted && !this.recognitionActive) {
-  //       this.startListening();
-  //       console.log('🎤 [VoiceService] Reconocimiento reiniciado');
-  //     }
-  //   }, 500);
-  // }
-
-
-
-
-
-
-
-
-
-  // private handleEnd(): void {
-  //   console.log('🔍 [VoiceService] handleEnd:', {
-  //     isListening: this.isListening,
-  //     isStarting: this.isStarting,
-  //     recognitionActive: this.recognitionActive,
-  //     isSpeaking: this.isSpeaking,
-  //     msSinceTTSEnd: Date.now() - this.lastTTSEndTime,
-  //     pendingPostTTSRestart: this.pendingPostTTSRestart,
-  //     timestamp: new Date().toISOString()
-  //   });
-
-  //   // ✅ FIX: si el reconocimiento se cortó por el TTS, NO emitir
-  //   //    listeningSubject/readySubject → el icono del toggle no gira
-  //   if (this.isSpeaking) {
-  //     this.isStarting = false;
-  //     this.isListening = false;
-  //     this.recognitionActive = false;
-
-  //     console.log('⏸️ [VoiceService] handleEnd → TTS activo, estado visual intacto');
-
-  //     if (this.enableLogs) {
-  //       this.logger.log('🔴 Reconocimiento pausado por TTS');
-  //     }
-
-  //     setTimeout(() => {
-  //       if (this.isSpeaking) return;
-  //       if (this.pendingPostTTSRestart) return;
-  //       if (this.isMuted) return;
-  //       if (this.recognitionActive) return;
-
-  //       console.log('🔄 [VoiceService] handleEnd diferido → reiniciando tras TTS');
-  //       this.startListening();
-  //     }, 1500);
-
-  //     return;
-  //   }
-
-  //   // ─────────────────────────────────────────────────────────
-  //   // A partir de aquí, el reconocimiento se ha cortado
-  //   // por causas NO relacionadas con el TTS
-  //   // ─────────────────────────────────────────────────────────
-  //   this.isStarting = false;
-  //   this.isListening = false;
-  //   this.recognitionActive = false;
-  //   this.readySubject.next(false);
-  //   this.listeningSubject.next(false);
-
-  //   if (this.enableLogs) {
-  //     this.logger.log('🔴 Reconocimiento finalizado');
-  //   }
-
-  //   // ✅ 1. Pendiente reinicio del componente
-  //   if (this.pendingPostTTSRestart) {
-  //     console.log('⏸️ [VoiceService] handleEnd → pendiente reinicio del componente, NO se reinicia automáticamente');
-  //     return;
-  //   }
-
-  //   // ✅ 2. Bloqueo por navegación
-  //   if (this.isNavigationLocked()) {
-  //     console.log('🔇 [VoiceService] handleEnd → navegación reciente, reinicio diferido');
-  //     setTimeout(() => {
-  //       if (this.isSpeaking) return;
-  //       if (this.pendingPostTTSRestart) return;
-  //       if (!this.isNavigationLocked() && !this.recognitionActive) {
-  //         this.startListening();
-  //         console.log('🎤 [VoiceService] Reconocimiento reiniciado tras bloqueo');
-  //       }
-  //     }, 3100);
-  //     return;
-  //   }
-
-  //   // ✅ 3. Muteado
-  //   if (this.isMuted) {
-  //     console.log('🔇 [VoiceService] handleEnd → micrófono muteado, NO se reinicia');
-  //     return;
-  //   }
-
-  //   console.log('🔄 [VoiceService] Reiniciando reconocimiento automáticamente...');
-
-  //   setTimeout(() => {
-  //     if (this.isSpeaking) {
-  //       console.log('⏸️ [VoiceService] reinicio cancelado: TTS sigue activo');
-  //       return;
-  //     }
-  //     if (this.pendingPostTTSRestart) {
-  //       console.log('⏸️ [VoiceService] reinicio cancelado: pendiente reinicio del componente');
-  //       return;
-  //     }
-  //     if (!this.isMuted && !this.recognitionActive) {
-  //       this.startListening();
-  //       console.log('🎤 [VoiceService] Reconocimiento reiniciado');
-  //     }
-  //   }, 500);
-  // }
-
-
-
-
-
+  //
   private handleEnd(): void {
     console.log('🔍 [VoiceService] handleEnd:', {
       isListening: this.isListening,
@@ -3741,14 +3665,7 @@ export class VoiceService implements OnDestroy {
     }, delay);
   }
 
-
-
-
-
-
-
-
-
+  //
   private restart(): void {
     console.log('🔍 [VoiceService] restart() llamado:', {
       isStarting: this.isStarting,
@@ -3795,31 +3712,6 @@ export class VoiceService implements OnDestroy {
   // ============================================================
   // DETECCIÓN DE AURICULARES
   // ============================================================
-
-  /**
-   * ✅ PÚBLICO: cache TTL. Llama con force=true para ignorar el cache.
-   */
-  // public async isHeadphonesConnected(force: boolean = false): Promise<boolean> {
-  //   const now = Date.now();
-
-  //   if (!force && (now - this.headphonesCache.timestamp) < this.headphonesCache.ttlMs) {
-  //     if (this.enableLogs) {
-  //       console.log(`🔍 [VoiceService] isHeadphonesConnected → cache HIT (${now - this.headphonesCache.timestamp}ms)`);
-  //     }
-  //     return this.headphonesCache.result;
-  //   }
-
-  //   const result = await this.detectHeadphonesInternal();
-
-  //   this.headphonesCache.result = result;
-  //   this.headphonesCache.timestamp = Date.now();
-
-  //   return result;
-  // }
-
-
-
-
   public async isHeadphonesConnected(force: boolean = false): Promise<boolean> {
     const now = Date.now();
 
@@ -3851,8 +3743,6 @@ export class VoiceService implements OnDestroy {
       this.headphonesDetectionInFlight = null;
     }
   }
-
-
 
   /**
    * ✅ PRIVADO: detección real (llama a enumerateDevices + getUserMedia).
@@ -4019,87 +3909,6 @@ export class VoiceService implements OnDestroy {
   // ============================================================
   // CONTROL DEL MICRÓFONO
   // ============================================================
-
-  // async startListening(): Promise<void> {
-  //   this.pendingPostTTSRestart = false;
-  //   console.log('🔍 [VoiceService] startListening() llamado:', {
-  //     isStarting: this.isStarting,
-  //     recognitionActive: this.recognitionActive,
-  //     isMuted: this.isMuted,
-  //     timestamp: new Date().toISOString()
-  //   });
-
-  //   const hasHeadphones = await this.isHeadphonesConnected();
-  //   if (!hasHeadphones) {
-  //     console.log('🔇 [VoiceService] No hay auriculares conectados');
-
-  //     if (!this.noHeadphonesMessageShown) {
-  //       this.noHeadphonesMessageShown = true;
-  //       this.speakAlways(this.voiceContext.getMessage('noHeadphones'));
-
-  //       if (this.noHeadphonesMessageTimeout) {
-  //         clearTimeout(this.noHeadphonesMessageTimeout);
-  //       }
-  //       this.noHeadphonesMessageTimeout = setTimeout(() => {
-  //         this.noHeadphonesMessageShown = false;
-  //         console.log('🔄 [VoiceService] Bandera de mensaje sin auriculares reseteda');
-  //       }, 5000);
-  //     } else {
-  //       console.log('🔇 [VoiceService] Mensaje ya mostrado, omitiendo repetición');
-  //     }
-
-  //     return;
-  //   }
-
-  //   if (this.isStarting) {
-  //     this.logger.log('🎤 Inicio en curso, omitiendo');
-  //     return;
-  //   }
-
-  //   if (this.recognitionActive) {
-  //     this.logger.log('🎤 Reconocimiento ya activo');
-  //     return;
-  //   }
-
-  //   if (!this.recognition) {
-  //     this.logger.error('Speech recognition no disponible');
-  //     this.errorSubject.next('Speech recognition no disponible');
-  //     return;
-  //   }
-
-  //   this.isStarting = true;
-  //   this.listeningSubject.next(true);
-
-  //   try {
-  //     if (this.reconnectTimeout) {
-  //       clearTimeout(this.reconnectTimeout);
-  //       this.reconnectTimeout = null;
-  //     }
-
-  //     this.recognition.start();
-  //   } catch (e: any) {
-  //     this.isStarting = false;
-
-  //     if (e.name === 'InvalidStateError') {
-  //       this.logger.warn('Reconocimiento ya iniciado, reiniciando...');
-  //       this.recognitionActive = true;
-  //       this.isListening = true;
-  //       this.readySubject.next(true);
-  //     } else {
-  //       this.logger.warn('Error al iniciar reconocimiento:', e);
-  //       this.errorSubject.next('Error al activar el micrófono');
-  //       this.listeningSubject.next(false);
-  //       this.readySubject.next(false);
-  //     }
-  //   }
-  // }
-
-
-
-
-
-
-
   async startListening(opts: { source?: string } = {}): Promise<void> {
     const now = Date.now();
 
@@ -4197,50 +4006,7 @@ export class VoiceService implements OnDestroy {
     }
   }
 
-
-
-
-
-
-
-  // /**
-  //  * ✅ MONITOREAR AURICULARES (polling + devicechange, emisión solo al cambiar)
-  //  */
-  // private monitorHeadphones(): void {
-  //   console.log('🔍 [VoiceService] monitorHeadphones() iniciado');
-
-  //   if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-  //     console.log('⚠️ [VoiceService] No se puede monitorear auriculares en este navegador');
-  //     return;
-  //   }
-
-  //   // ✅ 1. Detección inicial (una sola vez)
-  //   this.checkHeadphonesOnStart();
-
-  //   // ✅ 2. Polling cada 3s (con force=true, pero solo emite si cambió)
-  //   this.headphonesCheckInterval = setInterval(async () => {
-  //     const hasHeadphones = await this.isHeadphonesConnected(true);
-  //     this.applyHeadphonesChange(hasHeadphones);
-  //   }, 3000);
-
-  //   // ✅ 3. Listener reactivo del navegador (conectar/desconectar instantáneo)
-  //   if (typeof navigator.mediaDevices.addEventListener === 'function') {
-  //     this.deviceChangeListener = async () => {
-  //       console.log('🎧 [VoiceService] event devicechange detectado');
-  //       const hasHeadphones = await this.isHeadphonesConnected(true);
-  //       this.applyHeadphonesChange(hasHeadphones);
-  //     };
-  //     navigator.mediaDevices.addEventListener('devicechange', this.deviceChangeListener);
-  //     console.log('🎧 [VoiceService] Listener devicechange registrado');
-  //   }
-  // }
-
-
-
-
-
-
-
+  //
   private monitorHeadphones(): void {
     console.log('🔍 [VoiceService] monitorHeadphones() iniciado');
 
@@ -4278,12 +4044,6 @@ export class VoiceService implements OnDestroy {
       console.log('🎧 [VoiceService] Listener devicechange registrado (con debounce 1s)');
     }
   }
-
-
-
-
-
-  
 
   /**
    * ✅ ÚNICO punto donde se emite el cambio de estado de auriculares.
@@ -4353,10 +4113,7 @@ export class VoiceService implements OnDestroy {
     }
   }
 
-
-
-
-
+  //
   public restartRecognition(): void {
     console.log('🔄 [VoiceService] Reiniciando reconocimiento...');
     this.stopListening();
@@ -4626,92 +4383,7 @@ export class VoiceService implements OnDestroy {
     return this.cachedVoice;
   }
 
-
   //
-  // speak(text: string, lang: string = 'es-ES', rate: number = 0.9, pitch: number = 1.05): Promise<void> {
-  //   console.log('🔍 [VoiceService] speak() llamado:', {
-  //     text: text.substring(0, 50) + '...',
-  //     isMuted: this.isMuted,
-  //     timestamp: new Date().toISOString()
-  //   });
-
-  //   return new Promise((resolve) => {
-  //     if (this.isMuted) {
-  //       if (this.enableLogs) {
-  //         this.logger.debug(`🔇 Muteado, mensaje ignorado: "${text}"`);
-  //       }
-  //       resolve();
-  //       return;
-  //     }
-
-  //     // ✅ NUEVO: bloquear si no hay auriculares
-  //     if (!this.areHeadphonesConnected()) {
-  //       console.log('🔇 [VoiceService] → speak() CANCELADO: No hay auriculares');
-  //       resolve();
-  //       return;
-  //     }
-
-  //     if (!window.speechSynthesis) {
-  //       this.logger.warn('Speech Synthesis no soportada');
-  //       resolve();
-  //       return;
-  //     }
-
-  //     const myToken = ++this.speakToken;
-  //     this.isSpeaking = true;
-
-  //     if (window.speechSynthesis.speaking) {
-  //       window.speechSynthesis.cancel();
-  //     }
-
-  //     const utterance = new SpeechSynthesisUtterance(text);
-  //     utterance.lang = lang;
-  //     utterance.rate = rate;
-  //     utterance.pitch = pitch;
-  //     utterance.volume = 1;
-
-  //     const voice = this.getNaturalVoice(lang);
-  //     if (voice) {
-  //       utterance.voice = voice;
-  //     }
-
-  //     const finalize = () => {
-  //       if (myToken === this.speakToken) {
-  //         this.isSpeaking = false;
-  //         this.lastTTSEndTime = Date.now();
-  //       }
-  //       resolve();
-  //     };
-
-  //     utterance.onend = () => {
-  //       console.log('🔍 [VoiceService] → speak() onend, micrófono permanece activo');
-  //       finalize();
-  //     };
-
-  //     utterance.onerror = (event: any) => {
-  //       if (event?.error === 'interrupted') {
-  //         console.log('🔍 [VoiceService] → speak() interrumpido');
-  //       } else {
-  //         this.logger.warn('Error en síntesis de voz:', event);
-  //       }
-  //       finalize();
-  //     };
-
-  //     window.speechSynthesis.speak(utterance);
-
-  //     if (this.enableLogs) {
-  //       this.logger.log(`🗣️ Hablando: "${text}"`);
-  //     }
-  //   });
-  // }
-
-
-
-
-
-
-
-
   speak(text: string, lang: string = 'es-ES', rate: number = 0.9, pitch: number = 1.05): Promise<void> {
     console.log('🔍 [VoiceService] speak() llamado:', {
       text: text.substring(0, 50) + '...',
@@ -4810,102 +4482,7 @@ export class VoiceService implements OnDestroy {
     });
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // public speakAlways(text: string): Promise<void> {
-  //   console.log('🔍 [VoiceService] speakAlways() llamado:', {
-  //     text: text.substring(0, 50) + '...',
-  //     isMuted: this.isMuted,
-  //     hasHeadphones: this.areHeadphonesConnected(),
-  //     timestamp: new Date().toISOString()
-  //   });
-
-  //   if (!this.areHeadphonesConnected()) {
-  //     console.log('🔇 [VoiceService] → speakAlways() CANCELADO: No hay auriculares');
-  //     return Promise.resolve();
-  //   }
-
-  //   return new Promise((resolve) => {
-  //     if (!window.speechSynthesis) {
-  //       this.logger.warn('Speech Synthesis no soportada');
-  //       resolve();
-  //       return;
-  //     }
-
-  //     const myToken = ++this.speakToken;
-  //     this.isSpeaking = true;
-
-  //     if (window.speechSynthesis.speaking) {
-  //       window.speechSynthesis.cancel();
-  //     }
-
-  //     const utterance = new SpeechSynthesisUtterance(text);
-  //     utterance.lang = 'es-ES';
-  //     utterance.rate = 0.9;
-  //     utterance.pitch = 1.05;
-  //     utterance.volume = 1;
-
-  //     const voice = this.getNaturalVoice('es-ES');
-  //     if (voice) {
-  //       utterance.voice = voice;
-  //     }
-
-  //     const finalize = () => {
-  //       if (myToken === this.speakToken) {
-  //         this.isSpeaking = false;
-  //         this.lastTTSEndTime = Date.now();
-  //         this.pendingPostTTSRestart = true;
-
-  //         setTimeout(() => {
-  //           if (this.pendingPostTTSRestart && !this.isMuted && !this.recognitionActive) {
-  //             console.log('⏰ [VoiceService] Timeout esperando componente, reiniciando desde el servicio');
-  //             this.pendingPostTTSRestart = false;
-  //             this.startListening();
-  //           }
-  //         }, 3000);
-  //       }
-  //       resolve();
-  //     };
-
-  //     utterance.onend = () => {
-  //       console.log('🔍 [VoiceService] → speakAlways() onend');
-  //       finalize();
-  //     };
-
-  //     utterance.onerror = (event: any) => {
-  //       if (event?.error === 'interrupted') {
-  //         console.log('🔍 [VoiceService] → speakAlways() interrumpido');
-  //       } else {
-  //         this.logger.warn('Error en síntesis de voz:', event);
-  //       }
-  //       finalize();
-  //     };
-
-  //     window.speechSynthesis.speak(utterance);
-
-  //     if (this.enableLogs) {
-  //       this.logger.log(`🗣️ Hablando (siempre): "${text}"`);
-  //     }
-  //   });
-  // }
-
-
-
-
-
-
-
+  //
   public speakAlways(text: string, pauseRecognition: boolean = false): Promise<void> {
     console.log('🔍 [VoiceService] speakAlways() llamado:', {
       text: text.substring(0, 50) + '...',
@@ -4997,10 +4574,6 @@ export class VoiceService implements OnDestroy {
       }
     });
   }
-
-
-
-
 
   // ============================================================
   // MÉTODOS PARA ENVIAR RESPUESTAS
@@ -5127,121 +4700,6 @@ export class VoiceService implements OnDestroy {
   // ============================================================
   // LIMPIEZA
   // ============================================================
-
-  // destroy(): void {
-  //   if (this.enableLogs) {
-  //     this.logger.log('🧹 Destruyendo VoiceService...');
-  //   }
-
-  //   // ✅ Quitar listener devicechange
-  //   if (this.deviceChangeListener && typeof navigator.mediaDevices?.removeEventListener === 'function') {
-  //     navigator.mediaDevices.removeEventListener('devicechange', this.deviceChangeListener);
-  //     this.deviceChangeListener = null;
-  //   }
-
-  //   // ✅ Limpiar interval de polling
-  //   if (this.headphonesCheckInterval) {
-  //     clearInterval(this.headphonesCheckInterval);
-  //     this.headphonesCheckInterval = null;
-  //   }
-
-  //   if (this.reconnectTimeout) {
-  //     clearTimeout(this.reconnectTimeout);
-  //     this.reconnectTimeout = null;
-  //   }
-
-  //   this.stopListening();
-
-  //   if (window.speechSynthesis) {
-  //     window.speechSynthesis.cancel();
-  //   }
-
-  //   this.transcriptSubject.complete();
-  //   this.transcriptWithFinalSubject.complete();
-  //   this.responseSubject.complete();
-  //   this.mutedSubject.complete();
-  //   this.wakeWordSubject.complete();
-  //   this.errorSubject.complete();
-  //   this.listeningSubject.complete();
-  //   this.readySubject.complete();
-
-  //   this.filterService.reset();
-
-  //   if (this.recognition) {
-  //     this.recognition.onresult = null as any;
-  //     this.recognition.onerror = null as any;
-  //     this.recognition.onend = null as any;
-  //     this.recognition.onstart = null as any;
-  //     this.recognition = null as any;
-  //   }
-
-  //   if (this.enableLogs) {
-  //     this.logger.log('✅ VoiceService destruido correctamente');
-  //   }
-  // }
-
-
-
-  // destroy(): void {
-  //   if (this.enableLogs) {
-  //     this.logger.log('🧹 Destruyendo VoiceService...');
-  //   }
-
-  //   // ✅ NUEVO: limpiar debounce del devicechange
-  //   if (this.deviceChangeDebounce) {
-  //     clearTimeout(this.deviceChangeDebounce);
-  //     this.deviceChangeDebounce = null;
-  //   }
-
-  //   // ✅ Quitar listener devicechange
-  //   if (this.deviceChangeListener && typeof navigator.mediaDevices?.removeEventListener === 'function') {
-  //     navigator.mediaDevices.removeEventListener('devicechange', this.deviceChangeListener);
-  //     this.deviceChangeListener = null;
-  //   }
-
-  //   // ✅ Limpiar interval de polling
-  //   if (this.headphonesCheckInterval) {
-  //     clearInterval(this.headphonesCheckInterval);
-  //     this.headphonesCheckInterval = null;
-  //   }
-
-  //   if (this.reconnectTimeout) {
-  //     clearTimeout(this.reconnectTimeout);
-  //     this.reconnectTimeout = null;
-  //   }
-
-  //   this.stopListening();
-
-  //   if (window.speechSynthesis) {
-  //     window.speechSynthesis.cancel();
-  //   }
-
-  //   this.transcriptSubject.complete();
-  //   this.transcriptWithFinalSubject.complete();
-  //   this.responseSubject.complete();
-  //   this.mutedSubject.complete();
-  //   this.wakeWordSubject.complete();
-  //   this.errorSubject.complete();
-  //   this.listeningSubject.complete();
-  //   this.readySubject.complete();
-
-  //   this.filterService.reset();
-
-  //   if (this.recognition) {
-  //     this.recognition.onresult = null as any;
-  //     this.recognition.onerror = null as any;
-  //     this.recognition.onend = null as any;
-  //     this.recognition.onstart = null as any;
-  //     this.recognition = null as any;
-  //   }
-
-  //   if (this.enableLogs) {
-  //     this.logger.log('✅ VoiceService destruido correctamente');
-  //   }
-  // }
-
-
-
   destroy(): void {
     if (this.enableLogs) this.logger.log('🧹 Destruyendo VoiceService...');
 

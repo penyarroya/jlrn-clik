@@ -677,7 +677,730 @@ export class VoiceFilterService {
   // ============================================================
   // MÉTODO PRINCIPAL DE PROCESAMIENTO DE DICTADO (CORREGIDO)
   // ============================================================
-  processDictationPhrase(text: string, context?: 'username' | 'password' | 'email' | 'text' | 'fullName', capitalize = true): DictationResult {
+  // processDictationPhrase(text: string, context?: 'username' | 'password' | 'email' | 'text' | 'fullName', capitalize = true): DictationResult {
+  //   let effectiveContext = context;
+  //   if (context === 'fullName') effectiveContext = 'username';
+
+  //   let processed = text.toLowerCase().trim();
+  //   const original = processed;
+
+  //   console.log('🔍 processDictationPhrase - Original:', original);
+
+  //   // ✅ PROCESAR ESPACIOS PARA EMAIL
+  //   if (effectiveContext === 'email') {
+  //     processed = this.processSpacedLetters(processed);
+  //   }
+
+  //   processed = this.spellingService.applyCorrections(processed);
+  //   console.log(`🔍 Después de correcciones del backend: "${processed}"`);
+
+  //   processed = this.removeFinishWords(processed);
+  //   processed = this.correctPhoneticErrors(processed);
+
+  //   // ============================================================
+  //   // 🔥 FILTRAR PALABRAS DE RELLENO (ANTES DE CAPITALIZAR)
+  //   // ============================================================
+  //   const removeWords = ['con', 'de', 'el', 'la', 'los', 'las', 'un', 'una', 'y', 'o', 'pero', 'en', 'por', 'sin', 'para', 'a', 'ante', 'bajo', 'cabe', 'contra', 'desde', 'durante', 'entre', 'hacia', 'hasta', 'mediante', 'para', 'según', 'sobre', 'tras', 'versus', 'vía'];
+
+  //   const hasMayuscula = /mayúscula|mayuscula/i.test(processed);
+  //   const hasMinuscula = /minúscula|minuscula/i.test(processed);
+
+  //   if (hasMayuscula || hasMinuscula) {
+  //     const words = processed.split(' ');
+  //     let commandFound = false;
+  //     const filtered: string[] = [];
+
+  //     for (const word of words) {
+  //       const lowerWord = word.toLowerCase();
+  //       if (/^mayúscula$|^mayuscula$|^minúscula$|^minuscula$/i.test(lowerWord)) {
+  //         commandFound = true;
+  //         filtered.push(word);
+  //       } else if (commandFound) {
+  //         if (!removeWords.includes(lowerWord) && lowerWord.length > 0) {
+  //           filtered.push(word);
+  //         }
+  //         if (!removeWords.includes(lowerWord)) {
+  //           commandFound = false;
+  //         }
+  //       } else {
+  //         filtered.push(word);
+  //       }
+  //     }
+
+  //     processed = filtered.join(' ');
+  //     console.log(`🔤 Después de filtrar palabras de relleno: "${processed}"`);
+  //   }
+
+  //   // ============================================================
+  //   // CAPITALIZACIÓN MANUAL (AHORA DESPUÉS DEL FILTRO)
+  //   // ============================================================
+  //   processed = this.processCapitalizationCommands(processed);
+
+  //   // ============================================================
+  //   // 🔥 CORREGIR "d e v" → "dev" - UNA SOLA VEZ
+  //   // ============================================================
+  //   if (effectiveContext === 'email') {
+  //     processed = processed.replace(/\bde\s+(?=[a-z])/gi, 'd ');
+  //     processed = processed.replace(/\bde\b(?=\s+[a-z])/gi, 'd');
+  //     processed = processed.replace(/\bde\s+v\b/gi, 'd v');
+  //     processed = processed.replace(/\bd\s+e\s+v\b/gi, 'dev');
+  //     processed = processed.replace(/\bde\s+ev\b/gi, 'dev');
+  //     processed = processed.replace(/\bdeev\b/gi, 'dev');
+  //     processed = processed.replace(/\bde\s+v\b/gi, 'dev');
+  //     processed = processed.replace(/\bd e v\b/gi, 'dev');
+  //   }
+
+  //   // ============================================================
+  //   // REEMPLAZOS DE NÚMEROS, ESPECIALES Y LETRAS
+  //   // ============================================================
+    
+  //   processed = this.fuseSpanishNumbers(processed);
+
+  //   const sortedNumberKeys = Object.keys(this.numberMap).sort((a, b) => b.length - a.length);
+  //   for (const key of sortedNumberKeys) {
+  //     processed = processed.replace(new RegExp(key, 'g'), this.numberMap[key]);
+  //   }
+  //   for (const [key, value] of Object.entries(this.specialMap)) {
+  //     processed = processed.replace(new RegExp(key, 'g'), value);
+  //   }
+  //   for (const [key, value] of Object.entries(this.letterMap)) {
+  //     processed = processed.replace(new RegExp(key, 'g'), value);
+  //   }
+  //   processed = this.processSpecialCharsFallback(processed);
+
+  //   // ============================================================
+  //   // LIMPIAR ACENTOS Y ESPACIOS
+  //   // ============================================================
+  //   processed = processed
+  //     .replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i').replace(/ó/g, 'o').replace(/ú/g, 'u')
+  //     .replace(/Á/g, 'A').replace(/É/g, 'E').replace(/Í/g, 'I').replace(/Ó/g, 'O').replace(/Ú/g, 'U')
+  //     .replace(/\s+/g, ' ')
+  //     .trim();
+
+  //   // ============================================================
+  //   // UNIR SOLO SECUENCIAS DE LETRAS SUELTAS
+  //   // ============================================================
+  //   const words = processed.split(/\s+/);
+  //   const resultParts: string[] = [];
+  //   let i = 0;
+
+  //   while (i < words.length) {
+  //     const current = words[i];
+  //     if (current.length === 1 && /[a-zA-Z0-9]/.test(current)) {
+  //       let letters = current;
+  //       let j = i + 1;
+  //       while (j < words.length && words[j].length === 1 && /[a-zA-Z0-9]/.test(words[j])) {
+  //         letters += words[j];
+  //         j++;
+  //       }
+  //       if (letters.length > 1) {
+  //         resultParts.push(letters);
+  //         i = j;
+  //         continue;
+  //       }
+  //     }
+  //     resultParts.push(current);
+  //     i++;
+  //   }
+  //   processed = resultParts.join(' ');
+
+  //   // ============================================================
+  //   // REEMPLAZAR SIGNOS DE PUNTUACIÓN AL FINAL
+  //   // ============================================================
+  //   const punctuationWords: { [key: string]: string } = {
+  //     'admiración': '!', 'exclamación': '!', 'admiracion': '!', 'exclamacion': '!',
+  //     'interrogación': '?', 'interrogacion': '?',
+  //     'punto': '.', 'puno': '.',
+  //     'coma': ',', 'punto y coma': ';', 'dos puntos': ':',
+  //     'guion': '-', 'guion bajo': '_',
+  //   };
+  //   for (const [word, symbol] of Object.entries(punctuationWords)) {
+  //     const regex = new RegExp(`\\s*${word}\\s*$`, 'i');
+  //     if (regex.test(processed)) {
+  //       processed = processed.replace(regex, symbol);
+  //       console.log(`🔤 Reemplazo final: "${word}" → "${symbol}"`);
+  //     }
+  //   }
+
+  //   let finalText = processed;
+
+  //   // ============================================================
+  //   // CAPITALIZACIÓN MANUAL (marcador §)
+  //   // ============================================================
+  //   let hasManualCapitalization = false;
+  //   if (finalText.includes('§')) {
+  //     finalText = finalText.replace(/§([a-zA-Záéíóúüñ])/g, (match, letter) => letter.toUpperCase());
+  //     finalText = finalText.replace(/§/g, '');
+  //     hasManualCapitalization = true;
+  //     console.log(`🔤 Después de capitalización manual: "${finalText}"`);
+  //   }
+
+  //   // ============================================================
+  //   // FILTROS POR CONTEXTO
+  //   // ============================================================
+  //   // if (effectiveContext === 'username') {
+  //   //   finalText = finalText.replace(/[^a-zA-Z0-9._@!?-]/g, '');
+  //   //   finalText = finalText.replace(/\s/g, '');
+  //   //   if (!hasManualCapitalization) {
+  //   //     finalText = finalText.toLowerCase();
+  //   //   }
+  //   // }
+
+  //   // if (effectiveContext === 'password') {
+  //   //   finalText = finalText.replace(/\s/g, '');
+  //   // }
+
+
+
+  //   if (effectiveContext === 'username') {
+  //     finalText = finalText.replace(/[^a-zA-Z0-9._@!?-]/g, '');
+  //     finalText = finalText.replace(/\s/g, '');
+  //     if (!hasManualCapitalization) {
+  //       finalText = finalText.toLowerCase();
+  //     }
+  //   }
+
+  //   if (effectiveContext === 'password') {
+  //     // ✅ Eliminar guiones automáticos entre letra y número (ej. "Cornella-56" → "Cornella56")
+  //     finalText = finalText.replace(/([a-zA-Z])\-(\d)/g, '$1$2');
+  //     // ✅ Eliminar guiones automáticos entre número y letra (ej. "56-Cornella" → "56Cornella")
+  //     finalText = finalText.replace(/(\d)\-([a-zA-Z])/g, '$1$2');
+  //     // ✅ Eliminar espacios
+  //     finalText = finalText.replace(/\s/g, '');
+  //   }
+
+  //   // ============================================================
+  //   // 🔥 EMAIL - PROCESAMIENTO CORREGIDO (sin duplicar .com)
+  //   // ============================================================
+  //   if (effectiveContext === 'email') {
+  //     let email = this.processSpacedLetters(finalText);
+
+  //     // ✅ NUEVA CORRECCIÓN: "e uve" → "ev" (para gamosadev@gmail.com)
+  //     email = email
+  //       .replace(/e\s+uve/g, 'ev')
+  //       .replace(/e\s+ube/g, 'ev')
+  //       .replace(/eube/g, 'ev')
+  //       .replace(/é\s+uve/g, 'ev')
+  //       .replace(/e\s+v\b/g, 'ev');
+
+  //     // Correcciones específicas
+  //     email = email.replace(/\bde\s+ev\b/gi, 'dev');
+  //     email = email.replace(/\bde\s+v\b/gi, 'dev');
+  //     email = email.replace(/\bdeev\b/gi, 'dev');
+  //     email = email.replace(/\bd\s+e\s+v\b/gi, 'dev');
+
+  //     // Convertir palabras clave
+  //     email = email
+  //       .toLowerCase()
+  //       .replace(/arroba/g, '@')
+  //       .replace(/guion bajo/g, '_')
+  //       .replace(/guion/g, '-')
+  //       .replace(/espacio/g, ' ');
+
+  //     // 🔥 CONVERTIR "punto [extension]" ANTES de cualquier otra cosa
+  //     email = email
+  //       .replace(/punto\s+com\b/gi, '.com')
+  //       .replace(/punto\s+es\b/gi, '.es')
+  //       .replace(/punto\s+cat\b/gi, '.cat')
+  //       .replace(/punto\s+org\b/gi, '.org')
+  //       .replace(/punto\s+net\b/gi, '.net')
+  //       .replace(/punto\s+info\b/gi, '.info')
+  //       .replace(/punto\s+eu\b/gi, '.eu')
+  //       .replace(/punto\s+([a-z]{2,3})\b/gi, '.$1');
+
+  //     // Ahora reemplazar "punto" suelto por "."
+  //     email = email.replace(/\bpunto\b/gi, '.');
+
+  //     // Limpiar espacios múltiples
+  //     email = email.replace(/\s+/g, ' ').trim();
+
+  //     // Normalizar dominios CONOCIDOS SOLO si NO tienen extensión
+  //     email = email
+  //       .replace(/\bgmail\b(?![.\s]*\w+)/gi, 'gmail.com')
+  //       .replace(/\bhotmail\b(?![.\s]*\w+)/gi, 'hotmail.com')
+  //       .replace(/\boutlook\b(?![.\s]*\w+)/gi, 'outlook.com')
+  //       .replace(/\byahoo\b(?![.\s]*\w+)/gi, 'yahoo.com');
+
+  //     // Eliminar espacios restantes
+  //     email = email.replace(/\s/g, '');
+
+  //     // Eliminar duplicados de extensión
+  //     let previousEmail = '';
+  //     let maxIterations = 10;
+  //     while (previousEmail !== email && maxIterations > 0) {
+  //       previousEmail = email;
+  //       email = email
+  //         .replace(/\.com\.com/g, '.com')
+  //         .replace(/\.es\.es/g, '.es')
+  //         .replace(/\.cat\.cat/g, '.cat')
+  //         .replace(/\.org\.org/g, '.org')
+  //         .replace(/\.net\.net/g, '.net')
+  //         .replace(/\.info\.info/g, '.info')
+  //         .replace(/\.eu\.eu/g, '.eu')
+  //         .replace(/\.com\.es/g, '.es')
+  //         .replace(/\.es\.com/g, '.es')
+  //         .replace(/\.com\.org/g, '.org')
+  //         .replace(/\.org\.com/g, '.org')
+  //         .replace(/\.com\.net/g, '.net')
+  //         .replace(/\.net\.com/g, '.net');
+  //       maxIterations--;
+  //     }
+
+  //     // Eliminar puntos dobles
+  //     email = email.replace(/\.\.+/g, '.');
+
+  //     // Asegurar que solo hay un @
+  //     const parts = email.split('@');
+  //     if (parts.length > 2) {
+  //       email = parts[0] + '@' + parts.slice(1).join('');
+  //     }
+
+  //     // Si hay @ pero no dominio, añadir .com
+  //     if (email.includes('@') && !email.includes('.')) {
+  //       email = email + '.com';
+  //     }
+
+  //     console.log(`🔤 Email final: "${email}"`);
+  //     finalText = email;
+  //   }
+
+  //   if (effectiveContext === 'email') {
+  //     let email = this.processSpacedLetters(finalText);
+
+  //     // ✅ CORRECCIÓN: "e uve" → "ev" (para gamosadev@gmail.com)
+  //     email = email
+  //       .replace(/e\s+uve/g, 'ev')
+  //       .replace(/e\s+ube/g, 'ev')
+  //       .replace(/eube/g, 'ev')
+  //       .replace(/é\s+uve/g, 'ev')
+  //       .replace(/e\s+v\b/g, 'ev')
+  //       .replace(/ev+/g, 'ev');
+
+  //     // Correcciones específicas (de, ev, etc.)
+  //     email = email.replace(/\bde\s+ev\b/gi, 'dev');
+  //     email = email.replace(/\bde\s+v\b/gi, 'dev');
+  //     email = email.replace(/\bdeev\b/gi, 'dev');
+  //     email = email.replace(/\bd\s+e\s+v\b/gi, 'dev');
+
+  //     // Convertir palabras clave
+  //     email = email
+  //       .toLowerCase()
+  //       .replace(/arroba/g, '@')
+  //       .replace(/guion bajo/g, '_')
+  //       .replace(/guion/g, '-')
+  //       .replace(/espacio/g, ' ');
+
+  //     // 🔥 CONVERTIR "punto [extension]" SOLO si se dice explícitamente
+  //     email = email
+  //       .replace(/punto\s+com\b/gi, '.com')
+  //       .replace(/punto\s+es\b/gi, '.es')
+  //       .replace(/punto\s+cat\b/gi, '.cat')
+  //       .replace(/punto\s+org\b/gi, '.org')
+  //       .replace(/punto\s+net\b/gi, '.net')
+  //       .replace(/punto\s+info\b/gi, '.info')
+  //       .replace(/punto\s+eu\b/gi, '.eu')
+  //       .replace(/punto\s+([a-z]{2,3})\b/gi, '.$1');
+
+  //     // Ahora reemplazar "punto" suelto por "."
+  //     email = email.replace(/\bpunto\b/gi, '.');
+
+  //     // Limpiar espacios múltiples
+  //     email = email.replace(/\s+/g, ' ').trim();
+
+  //     // ❌ ELIMINADO: No normalizar dominios automáticamente
+  //     // email = email
+  //     //   .replace(/\bgmail\b(?![.\s]*\w+)/gi, 'gmail.com')
+  //     //   .replace(/\bhotmail\b(?![.\s]*\w+)/gi, 'hotmail.com')
+  //     //   .replace(/\boutlook\b(?![.\s]*\w+)/gi, 'outlook.com')
+  //     //   .replace(/\byahoo\b(?![.\s]*\w+)/gi, 'yahoo.com');
+
+  //     // Eliminar espacios restantes
+  //     email = email.replace(/\s/g, '');
+
+  //     // Eliminar duplicados de extensión (solo si el usuario dijo una extensión)
+  //     let previousEmail = '';
+  //     let maxIterations = 10;
+  //     while (previousEmail !== email && maxIterations > 0) {
+  //       previousEmail = email;
+  //       email = email
+  //         .replace(/\.com\.com/g, '.com')
+  //         .replace(/\.es\.es/g, '.es')
+  //         .replace(/\.cat\.cat/g, '.cat')
+  //         .replace(/\.org\.org/g, '.org')
+  //         .replace(/\.net\.net/g, '.net')
+  //         .replace(/\.info\.info/g, '.info')
+  //         .replace(/\.eu\.eu/g, '.eu')
+  //         .replace(/\.com\.es/g, '.es')
+  //         .replace(/\.es\.com/g, '.es')
+  //         .replace(/\.com\.org/g, '.org')
+  //         .replace(/\.org\.com/g, '.org')
+  //         .replace(/\.com\.net/g, '.net')
+  //         .replace(/\.net\.com/g, '.net');
+  //       maxIterations--;
+  //     }
+
+  //     // Eliminar puntos dobles
+  //     email = email.replace(/\.\.+/g, '.');
+
+  //     // Asegurar que solo hay un @
+  //     const parts = email.split('@');
+  //     if (parts.length > 2) {
+  //       email = parts[0] + '@' + parts.slice(1).join('');
+  //     }
+
+  //     // ❌ ELIMINADO: No añadir .com automáticamente
+  //     // if (email.includes('@') && !email.includes('.')) {
+  //     //   email = email + '.com';
+  //     // }
+
+  //     console.log(`🔤 Email final: "${email}"`);
+  //     finalText = email;
+  //   }
+
+  //   // CONTEXTO 'text' (nombre propio y apellidos): separar apellidos compuestos
+  //   if (!hasManualCapitalization && effectiveContext === 'text' && finalText.length > 0) {
+  //     finalText = this.correctCompoundName(finalText);
+  //     finalText = this.capitalizeWords(finalText);
+  //   }
+
+  //   const resultPartsArray = finalText.split(/\s+/);
+
+  //   const result: DictationResult = {
+  //     success: finalText.length > 0,
+  //     text: finalText,
+  //     originalText: original,
+  //     processedText: finalText,
+  //     parts: resultPartsArray.length > 1 ? resultPartsArray : undefined
+  //   };
+
+  //   console.log(`🔤 Dictado procesado: "${original}" → "${finalText}"`);
+  //   return result;
+  // }
+
+
+
+
+
+
+
+
+
+
+
+
+  // processDictationPhrase(
+  //   text: string,
+  //   context?: 'username' | 'password' | 'email' | 'text' | 'fullName',
+  //   capitalize = true
+  // ): DictationResult {
+  //   let effectiveContext = context;
+  //   if (context === 'fullName') effectiveContext = 'username';
+
+  //   let processed = text.toLowerCase().trim();
+  //   const original = processed;
+
+  //   console.log('🔍 processDictationPhrase - Original:', original);
+
+  //   // ✅ PROCESAR ESPACIOS PARA EMAIL
+  //   if (effectiveContext === 'email') {
+  //     processed = this.processSpacedLetters(processed);
+  //   }
+
+  //   processed = this.spellingService.applyCorrections(processed);
+  //   console.log(`🔍 Después de correcciones del backend: "${processed}"`);
+
+  //   processed = this.removeFinishWords(processed);
+  //   processed = this.correctPhoneticErrors(processed);
+
+  //   // ============================================================
+  //   // 🔥 FILTRAR PALABRAS DE RELLENO (ANTES DE CAPITALIZAR)
+  //   // ============================================================
+  //   const removeWords = [
+  //     'con', 'de', 'el', 'la', 'los', 'las', 'un', 'una', 'y', 'o', 'pero',
+  //     'en', 'por', 'sin', 'para', 'a', 'ante', 'bajo', 'cabe', 'contra',
+  //     'desde', 'durante', 'entre', 'hacia', 'hasta', 'mediante', 'para',
+  //     'según', 'sobre', 'tras', 'versus', 'vía'
+  //   ];
+
+  //   const hasMayuscula = /mayúscula|mayuscula/i.test(processed);
+  //   const hasMinuscula = /minúscula|minuscula/i.test(processed);
+
+  //   if (hasMayuscula || hasMinuscula) {
+  //     const words = processed.split(' ');
+  //     let commandFound = false;
+  //     const filtered: string[] = [];
+
+  //     for (const word of words) {
+  //       const lowerWord = word.toLowerCase();
+  //       if (/^mayúscula$|^mayuscula$|^minúscula$|^minuscula$/i.test(lowerWord)) {
+  //         commandFound = true;
+  //         filtered.push(word);
+  //       } else if (commandFound) {
+  //         if (!removeWords.includes(lowerWord) && lowerWord.length > 0) {
+  //           filtered.push(word);
+  //         }
+  //         if (!removeWords.includes(lowerWord)) {
+  //           commandFound = false;
+  //         }
+  //       } else {
+  //         filtered.push(word);
+  //       }
+  //     }
+
+  //     processed = filtered.join(' ');
+  //     console.log(`🔤 Después de filtrar palabras de relleno: "${processed}"`);
+  //   }
+
+  //   // ============================================================
+  //   // CAPITALIZACIÓN MANUAL (AHORA DESPUÉS DEL FILTRO)
+  //   // ============================================================
+  //   processed = this.processCapitalizationCommands(processed);
+
+  //   // ============================================================
+  //   // 🔥 CORREGIR "d e v" → "dev" - UNA SOLA VEZ
+  //   // ============================================================
+  //   if (effectiveContext === 'email') {
+  //     processed = processed.replace(/\bde\s+(?=[a-z])/gi, 'd ');
+  //     processed = processed.replace(/\bde\b(?=\s+[a-z])/gi, 'd');
+  //     processed = processed.replace(/\bde\s+v\b/gi, 'd v');
+  //     processed = processed.replace(/\bd\s+e\s+v\b/gi, 'dev');
+  //     processed = processed.replace(/\bde\s+ev\b/gi, 'dev');
+  //     processed = processed.replace(/\bdeev\b/gi, 'dev');
+  //     processed = processed.replace(/\bde\s+v\b/gi, 'dev');
+  //     processed = processed.replace(/\bd e v\b/gi, 'dev');
+  //   }
+
+  //   // ============================================================
+  //   // REEMPLAZOS DE NÚMEROS, ESPECIALES Y LETRAS
+  //   // ============================================================
+  //   processed = this.fuseSpanishNumbers(processed);
+
+  //   const sortedNumberKeys = Object.keys(this.numberMap).sort((a, b) => b.length - a.length);
+  //   for (const key of sortedNumberKeys) {
+  //     processed = processed.replace(new RegExp(key, 'g'), this.numberMap[key]);
+  //   }
+  //   for (const [key, value] of Object.entries(this.specialMap)) {
+  //     processed = processed.replace(new RegExp(key, 'g'), value);
+  //   }
+  //   for (const [key, value] of Object.entries(this.letterMap)) {
+  //     processed = processed.replace(new RegExp(key, 'g'), value);
+  //   }
+  //   processed = this.processSpecialCharsFallback(processed);
+
+  //   // ============================================================
+  //   // LIMPIAR ACENTOS Y ESPACIOS
+  //   // ============================================================
+  //   processed = processed
+  //     .replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i')
+  //     .replace(/ó/g, 'o').replace(/ú/g, 'u')
+  //     .replace(/Á/g, 'A').replace(/É/g, 'E').replace(/Í/g, 'I')
+  //     .replace(/Ó/g, 'O').replace(/Ú/g, 'U')
+  //     .replace(/\s+/g, ' ')
+  //     .trim();
+
+  //   // ============================================================
+  //   // UNIR SOLO SECUENCIAS DE LETRAS SUELTAS
+  //   // ============================================================
+  //   const words = processed.split(/\s+/);
+  //   const resultParts: string[] = [];
+  //   let i = 0;
+
+  //   while (i < words.length) {
+  //     const current = words[i];
+  //     if (current.length === 1 && /[a-zA-Z0-9]/.test(current)) {
+  //       let letters = current;
+  //       let j = i + 1;
+  //       while (j < words.length && words[j].length === 1 && /[a-zA-Z0-9]/.test(words[j])) {
+  //         letters += words[j];
+  //         j++;
+  //       }
+  //       if (letters.length > 1) {
+  //         resultParts.push(letters);
+  //         i = j;
+  //         continue;
+  //       }
+  //     }
+  //     resultParts.push(current);
+  //     i++;
+  //   }
+  //   processed = resultParts.join(' ');
+
+  //   // ============================================================
+  //   // REEMPLAZAR SIGNOS DE PUNTUACIÓN AL FINAL
+  //   // ============================================================
+  //   const punctuationWords: { [key: string]: string } = {
+  //     'admiración': '!', 'exclamación': '!', 'admiracion': '!', 'exclamacion': '!',
+  //     'interrogación': '?', 'interrogacion': '?',
+  //     'punto': '.', 'puno': '.',
+  //     'coma': ',', 'punto y coma': ';', 'dos puntos': ':',
+  //     'guion': '-', 'guion bajo': '_',
+  //   };
+  //   for (const [word, symbol] of Object.entries(punctuationWords)) {
+  //     const regex = new RegExp(`\\s*${word}\\s*$`, 'i');
+  //     if (regex.test(processed)) {
+  //       processed = processed.replace(regex, symbol);
+  //       console.log(`🔤 Reemplazo final: "${word}" → "${symbol}"`);
+  //     }
+  //   }
+
+  //   let finalText = processed;
+
+  //   // ============================================================
+  //   // CAPITALIZACIÓN MANUAL (marcador §)
+  //   // ============================================================
+  //   let hasManualCapitalization = false;
+  //   if (finalText.includes('§')) {
+  //     finalText = finalText.replace(/§([a-zA-Záéíóúüñ])/g, (match, letter) => letter.toUpperCase());
+  //     finalText = finalText.replace(/§/g, '');
+  //     hasManualCapitalization = true;
+  //     console.log(`🔤 Después de capitalización manual: "${finalText}"`);
+  //   }
+
+  //   // ============================================================
+  //   // FILTROS POR CONTEXTO
+  //   // ============================================================
+
+  //   if (effectiveContext === 'username') {
+  //     finalText = finalText.replace(/[^a-zA-Z0-9._@!?-]/g, '');
+  //     finalText = finalText.replace(/\s/g, '');
+  //     if (!hasManualCapitalization) {
+  //       finalText = finalText.toLowerCase();
+  //     }
+  //   }
+
+  //   if (effectiveContext === 'password') {
+  //     // ✅ Eliminar guiones automáticos entre letra y número (ej. "Cornella-56" → "Cornella56")
+  //     finalText = finalText.replace(/([a-zA-Z])\-(\d)/g, '$1$2');
+  //     // ✅ Eliminar guiones automáticos entre número y letra (ej. "56-Cornella" → "56Cornella")
+  //     finalText = finalText.replace(/(\d)\-([a-zA-Z])/g, '$1$2');
+  //     // ✅ Eliminar espacios
+  //     finalText = finalText.replace(/\s/g, '');
+  //   }
+
+  //   // ============================================================
+  //   // 🔥 EMAIL - PROCESAMIENTO CORREGIDO
+  //   // ============================================================
+  //   if (effectiveContext === 'email') {
+  //     let email = this.processSpacedLetters(finalText);
+
+  //     // ✅ CORRECCIÓN: "e uve" / "evv" → "ev" (para gamosadev@gmail.com)
+  //     email = email
+  //       .replace(/\bee?ube\b/g, 'ev')      // ✅ "eeube" y "eube" → "ev"
+  //       .replace(/\be\s+uve\b/g, 'ev')     // "e uve" → "ev"
+  //       .replace(/\be\s+ube\b/g, 'ev')     // "e ube" → "ev"
+  //       .replace(/\bé\s+uve\b/g, 'ev')     // "é uve" → "ev"
+  //       .replace(/\be\s+v\b/g, 'ev')       // "e v" → "ev"
+  //       .replace(/\beve\b/g, 'ev')         // ✅ "eve" → "ev"
+  //       // ✅ Solo normaliza "evv" cuando está antes de @ . - _ o al final
+  //       .replace(/evv+(?=[@.\-_]|$)/g, 'ev');
+
+  //     // Correcciones específicas: "de" + "ev" → "dev"
+  //     email = email.replace(/\bde\s+ev\b/gi, 'dev');
+  //     email = email.replace(/\bde\s+v\b/gi, 'dev');
+  //     email = email.replace(/\bdeev\b/gi, 'dev');
+  //     email = email.replace(/\bd\s+e\s+v\b/gi, 'dev');
+
+  //     // Convertir palabras clave
+  //     email = email
+  //       .toLowerCase()
+  //       .replace(/arroba/g, '@')
+  //       .replace(/guion bajo/g, '_')
+  //       .replace(/guion/g, '-')
+  //       .replace(/espacio/g, ' ');
+
+  //     // 🔥 CONVERTIR "punto [extension]" SOLO si se dice explícitamente
+  //     email = email
+  //       .replace(/punto\s+com\b/gi, '.com')
+  //       .replace(/punto\s+es\b/gi, '.es')
+  //       .replace(/punto\s+cat\b/gi, '.cat')
+  //       .replace(/punto\s+org\b/gi, '.org')
+  //       .replace(/punto\s+net\b/gi, '.net')
+  //       .replace(/punto\s+info\b/gi, '.info')
+  //       .replace(/punto\s+eu\b/gi, '.eu')
+  //       .replace(/punto\s+([a-z]{2,3})\b/gi, '.$1');
+
+  //     // Ahora reemplazar "punto" suelto por "."
+  //     email = email.replace(/\bpunto\b/gi, '.');
+
+  //     // Limpiar espacios múltiples
+  //     email = email.replace(/\s+/g, ' ').trim();
+
+  //     // ❌ NO normalizar dominios automáticamente (gmail → gmail.com)
+
+  //     // Eliminar espacios restantes
+  //     email = email.replace(/\s/g, '');
+
+  //     // Eliminar duplicados de extensión
+  //     let previousEmail = '';
+  //     let maxIterations = 10;
+  //     while (previousEmail !== email && maxIterations > 0) {
+  //       previousEmail = email;
+  //       email = email
+  //         .replace(/\.com\.com/g, '.com')
+  //         .replace(/\.es\.es/g, '.es')
+  //         .replace(/\.cat\.cat/g, '.cat')
+  //         .replace(/\.org\.org/g, '.org')
+  //         .replace(/\.net\.net/g, '.net')
+  //         .replace(/\.info\.info/g, '.info')
+  //         .replace(/\.eu\.eu/g, '.eu')
+  //         .replace(/\.com\.es/g, '.es')
+  //         .replace(/\.es\.com/g, '.es')
+  //         .replace(/\.com\.org/g, '.org')
+  //         .replace(/\.org\.com/g, '.org')
+  //         .replace(/\.com\.net/g, '.net')
+  //         .replace(/\.net\.com/g, '.net');
+  //       maxIterations--;
+  //     }
+
+  //     // Eliminar puntos dobles
+  //     email = email.replace(/\.\.+/g, '.');
+
+  //     // Asegurar que solo hay un @
+  //     const parts = email.split('@');
+  //     if (parts.length > 2) {
+  //       email = parts[0] + '@' + parts.slice(1).join('');
+  //     }
+
+  //     // ❌ NO añadir .com automáticamente
+
+  //     console.log(`🔤 Email final: "${email}"`);
+  //     finalText = email;
+  //   }
+
+  //   // CONTEXTO 'text' (nombre propio y apellidos): separar apellidos compuestos
+  //   if (!hasManualCapitalization && effectiveContext === 'text' && finalText.length > 0) {
+  //     finalText = this.correctCompoundName(finalText);
+  //     finalText = this.capitalizeWords(finalText);
+  //   }
+
+  //   const resultPartsArray = finalText.split(/\s+/);
+
+  //   const result: DictationResult = {
+  //     success: finalText.length > 0,
+  //     text: finalText,
+  //     originalText: original,
+  //     processedText: finalText,
+  //     parts: resultPartsArray.length > 1 ? resultPartsArray : undefined
+  //   };
+
+  //   console.log(`🔤 Dictado procesado: "${original}" → "${finalText}"`);
+  //   return result;
+  // }
+
+
+
+
+
+
+
+
+
+
+  processDictationPhrase(
+    text: string,
+    context?: 'username' | 'password' | 'email' | 'text' | 'fullName',
+    capitalize = true
+  ): DictationResult {
     let effectiveContext = context;
     if (context === 'fullName') effectiveContext = 'username';
 
@@ -700,7 +1423,12 @@ export class VoiceFilterService {
     // ============================================================
     // 🔥 FILTRAR PALABRAS DE RELLENO (ANTES DE CAPITALIZAR)
     // ============================================================
-    const removeWords = ['con', 'de', 'el', 'la', 'los', 'las', 'un', 'una', 'y', 'o', 'pero', 'en', 'por', 'sin', 'para', 'a', 'ante', 'bajo', 'cabe', 'contra', 'desde', 'durante', 'entre', 'hacia', 'hasta', 'mediante', 'para', 'según', 'sobre', 'tras', 'versus', 'vía'];
+    const removeWords = [
+      'con', 'de', 'el', 'la', 'los', 'las', 'un', 'una', 'y', 'o', 'pero',
+      'en', 'por', 'sin', 'para', 'a', 'ante', 'bajo', 'cabe', 'contra',
+      'desde', 'durante', 'entre', 'hacia', 'hasta', 'mediante', 'para',
+      'según', 'sobre', 'tras', 'versus', 'vía'
+    ];
 
     const hasMayuscula = /mayúscula|mayuscula/i.test(processed);
     const hasMinuscula = /minúscula|minuscula/i.test(processed);
@@ -753,7 +1481,6 @@ export class VoiceFilterService {
     // ============================================================
     // REEMPLAZOS DE NÚMEROS, ESPECIALES Y LETRAS
     // ============================================================
-    
     processed = this.fuseSpanishNumbers(processed);
 
     const sortedNumberKeys = Object.keys(this.numberMap).sort((a, b) => b.length - a.length);
@@ -772,8 +1499,10 @@ export class VoiceFilterService {
     // LIMPIAR ACENTOS Y ESPACIOS
     // ============================================================
     processed = processed
-      .replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i').replace(/ó/g, 'o').replace(/ú/g, 'u')
-      .replace(/Á/g, 'A').replace(/É/g, 'E').replace(/Í/g, 'I').replace(/Ó/g, 'O').replace(/Ú/g, 'U')
+      .replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i')
+      .replace(/ó/g, 'o').replace(/ú/g, 'u')
+      .replace(/Á/g, 'A').replace(/É/g, 'E').replace(/Í/g, 'I')
+      .replace(/Ó/g, 'O').replace(/Ú/g, 'U')
       .replace(/\s+/g, ' ')
       .trim();
 
@@ -838,19 +1567,6 @@ export class VoiceFilterService {
     // ============================================================
     // FILTROS POR CONTEXTO
     // ============================================================
-    // if (effectiveContext === 'username') {
-    //   finalText = finalText.replace(/[^a-zA-Z0-9._@!?-]/g, '');
-    //   finalText = finalText.replace(/\s/g, '');
-    //   if (!hasManualCapitalization) {
-    //     finalText = finalText.toLowerCase();
-    //   }
-    // }
-
-    // if (effectiveContext === 'password') {
-    //   finalText = finalText.replace(/\s/g, '');
-    // }
-
-
 
     if (effectiveContext === 'username') {
       finalText = finalText.replace(/[^a-zA-Z0-9._@!?-]/g, '');
@@ -870,115 +1586,23 @@ export class VoiceFilterService {
     }
 
     // ============================================================
-    // 🔥 EMAIL - PROCESAMIENTO CORREGIDO (sin duplicar .com)
+    // 🔥 EMAIL - PROCESAMIENTO CORREGIDO
     // ============================================================
-    // if (effectiveContext === 'email') {
-    //   let email = this.processSpacedLetters(finalText);
-
-    //   // ✅ NUEVA CORRECCIÓN: "e uve" → "ev" (para gamosadev@gmail.com)
-    //   email = email
-    //     .replace(/e\s+uve/g, 'ev')
-    //     .replace(/e\s+ube/g, 'ev')
-    //     .replace(/eube/g, 'ev')
-    //     .replace(/é\s+uve/g, 'ev')
-    //     .replace(/e\s+v\b/g, 'ev');
-
-    //   // Correcciones específicas
-    //   email = email.replace(/\bde\s+ev\b/gi, 'dev');
-    //   email = email.replace(/\bde\s+v\b/gi, 'dev');
-    //   email = email.replace(/\bdeev\b/gi, 'dev');
-    //   email = email.replace(/\bd\s+e\s+v\b/gi, 'dev');
-
-    //   // Convertir palabras clave
-    //   email = email
-    //     .toLowerCase()
-    //     .replace(/arroba/g, '@')
-    //     .replace(/guion bajo/g, '_')
-    //     .replace(/guion/g, '-')
-    //     .replace(/espacio/g, ' ');
-
-    //   // 🔥 CONVERTIR "punto [extension]" ANTES de cualquier otra cosa
-    //   email = email
-    //     .replace(/punto\s+com\b/gi, '.com')
-    //     .replace(/punto\s+es\b/gi, '.es')
-    //     .replace(/punto\s+cat\b/gi, '.cat')
-    //     .replace(/punto\s+org\b/gi, '.org')
-    //     .replace(/punto\s+net\b/gi, '.net')
-    //     .replace(/punto\s+info\b/gi, '.info')
-    //     .replace(/punto\s+eu\b/gi, '.eu')
-    //     .replace(/punto\s+([a-z]{2,3})\b/gi, '.$1');
-
-    //   // Ahora reemplazar "punto" suelto por "."
-    //   email = email.replace(/\bpunto\b/gi, '.');
-
-    //   // Limpiar espacios múltiples
-    //   email = email.replace(/\s+/g, ' ').trim();
-
-    //   // Normalizar dominios CONOCIDOS SOLO si NO tienen extensión
-    //   email = email
-    //     .replace(/\bgmail\b(?![.\s]*\w+)/gi, 'gmail.com')
-    //     .replace(/\bhotmail\b(?![.\s]*\w+)/gi, 'hotmail.com')
-    //     .replace(/\boutlook\b(?![.\s]*\w+)/gi, 'outlook.com')
-    //     .replace(/\byahoo\b(?![.\s]*\w+)/gi, 'yahoo.com');
-
-    //   // Eliminar espacios restantes
-    //   email = email.replace(/\s/g, '');
-
-    //   // Eliminar duplicados de extensión
-    //   let previousEmail = '';
-    //   let maxIterations = 10;
-    //   while (previousEmail !== email && maxIterations > 0) {
-    //     previousEmail = email;
-    //     email = email
-    //       .replace(/\.com\.com/g, '.com')
-    //       .replace(/\.es\.es/g, '.es')
-    //       .replace(/\.cat\.cat/g, '.cat')
-    //       .replace(/\.org\.org/g, '.org')
-    //       .replace(/\.net\.net/g, '.net')
-    //       .replace(/\.info\.info/g, '.info')
-    //       .replace(/\.eu\.eu/g, '.eu')
-    //       .replace(/\.com\.es/g, '.es')
-    //       .replace(/\.es\.com/g, '.es')
-    //       .replace(/\.com\.org/g, '.org')
-    //       .replace(/\.org\.com/g, '.org')
-    //       .replace(/\.com\.net/g, '.net')
-    //       .replace(/\.net\.com/g, '.net');
-    //     maxIterations--;
-    //   }
-
-    //   // Eliminar puntos dobles
-    //   email = email.replace(/\.\.+/g, '.');
-
-    //   // Asegurar que solo hay un @
-    //   const parts = email.split('@');
-    //   if (parts.length > 2) {
-    //     email = parts[0] + '@' + parts.slice(1).join('');
-    //   }
-
-    //   // Si hay @ pero no dominio, añadir .com
-    //   if (email.includes('@') && !email.includes('.')) {
-    //     email = email + '.com';
-    //   }
-
-    //   console.log(`🔤 Email final: "${email}"`);
-    //   finalText = email;
-    // }
-
-
-
-
     if (effectiveContext === 'email') {
       let email = this.processSpacedLetters(finalText);
 
-      // ✅ CORRECCIÓN: "e uve" → "ev" (para gamosadev@gmail.com)
+      // ✅ CORRECCIÓN: "e uve" / "evv" → "ev" (para gamosadev@gmail.com)
       email = email
-        .replace(/e\s+uve/g, 'ev')
-        .replace(/e\s+ube/g, 'ev')
-        .replace(/eube/g, 'ev')
-        .replace(/é\s+uve/g, 'ev')
-        .replace(/e\s+v\b/g, 'ev');
+        .replace(/\bee?ube\b/g, 'ev')      // ✅ "eeube" y "eube" → "ev"
+        .replace(/\be\s+uve\b/g, 'ev')     // "e uve" → "ev"
+        .replace(/\be\s+ube\b/g, 'ev')     // "e ube" → "ev"
+        .replace(/\bé\s+uve\b/g, 'ev')     // "é uve" → "ev"
+        .replace(/\be\s+v\b/g, 'ev')       // "e v" → "ev"
+        .replace(/\beve\b/g, 'ev')         // ✅ "eve" → "ev"
+        // ✅ Solo normaliza "evv" cuando está antes de @ . - _ o al final
+        .replace(/evv+(?=[@.\-_]|$)/g, 'ev');
 
-      // Correcciones específicas (de, ev, etc.)
+      // Correcciones específicas: "de" + "ev" → "dev"
       email = email.replace(/\bde\s+ev\b/gi, 'dev');
       email = email.replace(/\bde\s+v\b/gi, 'dev');
       email = email.replace(/\bdeev\b/gi, 'dev');
@@ -1009,17 +1633,12 @@ export class VoiceFilterService {
       // Limpiar espacios múltiples
       email = email.replace(/\s+/g, ' ').trim();
 
-      // ❌ ELIMINADO: No normalizar dominios automáticamente
-      // email = email
-      //   .replace(/\bgmail\b(?![.\s]*\w+)/gi, 'gmail.com')
-      //   .replace(/\bhotmail\b(?![.\s]*\w+)/gi, 'hotmail.com')
-      //   .replace(/\boutlook\b(?![.\s]*\w+)/gi, 'outlook.com')
-      //   .replace(/\byahoo\b(?![.\s]*\w+)/gi, 'yahoo.com');
+      // ❌ NO normalizar dominios automáticamente (gmail → gmail.com)
 
       // Eliminar espacios restantes
       email = email.replace(/\s/g, '');
 
-      // Eliminar duplicados de extensión (solo si el usuario dijo una extensión)
+      // Eliminar duplicados de extensión
       let previousEmail = '';
       let maxIterations = 10;
       while (previousEmail !== email && maxIterations > 0) {
@@ -1050,10 +1669,18 @@ export class VoiceFilterService {
         email = parts[0] + '@' + parts.slice(1).join('');
       }
 
-      // ❌ ELIMINADO: No añadir .com automáticamente
-      // if (email.includes('@') && !email.includes('.')) {
-      //   email = email + '.com';
-      // }
+      // ❌ NO añadir .com automáticamente
+
+      // ============================================================
+      // ✅ NUEVO: ELIMINAR MULETILLAS INICIALES (artefacto del reconocedor)
+      //    El usuario NO dice "un gamosa", es el reconocedor que antepone
+      //    la muletilla al inicio del dictado.
+      //    Ej: "ungamosadev@gmail.com" → "gamosadev@gmail.com"
+      // ============================================================
+      email = email.replace(/^un(?=[a-z]{3,})/i, (match) => {
+        console.log(`🧹 Eliminada muletilla inicial: "${match}"`);
+        return '';
+      });
 
       console.log(`🔤 Email final: "${email}"`);
       finalText = email;
@@ -1078,15 +1705,6 @@ export class VoiceFilterService {
     console.log(`🔤 Dictado procesado: "${original}" → "${finalText}"`);
     return result;
   }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1118,26 +1736,6 @@ export class VoiceFilterService {
   // ============================================================
   // MÉTODOS DE FINALIZACIÓN (VERSIÓN MEJORADA)
   // ============================================================
-
-  // removeFinishWords(text: string): string {
-  //   let clean = text;
-  //   for (const word of this.finishWords) {
-  //     // Eliminar la palabra al final de la frase
-  //     const regex = new RegExp(`\\s*${word}\\s*$`, 'gi');
-  //     clean = clean.replace(regex, '');
-  //     // También eliminar si está al principio o en medio (menos común)
-  //     const regexMiddle = new RegExp(`\\b${word}\\b`, 'gi');
-  //     clean = clean.replace(regexMiddle, '');
-  //   }
-  //   return clean.replace(/\s+/g, ' ').trim();
-  // }
-
-
-
-
-
-  // voice-filter.service.ts - removeFinishWords() MEJORADO
-
   removeFinishWords(text: string): string {
     let clean = text;
     
@@ -1158,41 +1756,6 @@ export class VoiceFilterService {
     
     return clean;
   }
-
-
-  
-  
-  
-  
-  // containsFinishWords(text: string): boolean {
-  //   const normalized = text.toLowerCase().trim();
-    
-  //   // ✅ Si el texto es exactamente una palabra de finalización
-  //   if (this.finishWords.includes(normalized)) {
-  //     return true;
-  //   }
-    
-  //   // ✅ Si el texto contiene una palabra de finalización como palabra completa
-  //   // en cualquier posición (principio, medio o final)
-  //   return this.finishWords.some(word => {
-  //     // Palabra exacta
-  //     if (normalized === word) return true;
-  //     // Empieza con "palabra "
-  //     if (normalized.startsWith(word + ' ')) return true;
-  //     // Termina con " palabra"
-  //     if (normalized.endsWith(' ' + word)) return true;
-  //     // Contiene " palabra " en medio
-  //     if (normalized.includes(' ' + word + ' ')) return true;
-  //     return false;
-  //   });
-  // }
-
-
-
-
-
-
-  // voice-filter.service.ts - containsFinishWords() CORREGIDO
 
   containsFinishWords(text: string): boolean {
     const normalized = text.toLowerCase().trim();
@@ -1474,9 +2037,407 @@ export class VoiceFilterService {
     };
   }
 
+  //
   reset(): void {
-    this.lastProcessedText = '';
-    this.lastProcessedTime = 0;
-    this.logger.debug('🔄 Filtro de voz reiniciado');
+      this.lastProcessedText = '';
+      this.lastProcessedTime = 0;
+      this.logger.debug('🔄 Filtro de voz reiniciado');
+   }
+
+
+
+    // ============================================================
+    // ✅ FUSIÓN GENÉRICA DE DICTADO (para cualquier campo y cualquier app)
+    // ============================================================
+
+    /**
+     * Fusiona el buffer previo con la nueva frase reconocida.
+     * Funciona para CUALQUIER campo y CUALQUIER idioma.
+     *
+     * Estrategia (5 casos):
+     *   1. Candidate CONTIENE previous → avance (usar candidate)
+     *   2. Previous CONTIENE candidate → repetición (mantener previous)
+     *   3. Similitud alta (>0.5) → misma frase evolucionando → la más larga
+     *   4. Overlap de caracteres → fusionar sin duplicar
+     *   5. Palabra/símbolo nuevo → unir con/sin espacio según contexto
+     *
+     * @param previous    Texto ya acumulado en el buffer
+     * @param candidate   Nueva frase reconocida
+     * @param tipoCampo   Tipo de campo (opcional): 'email' | 'password' | 'code' | 'text' | 'fullName' | 'number' | 'phone' | 'any'
+     * @returns           Buffer fusionado listo para mostrar en el input
+     */
+    // public fusionarFrase(previous: string, candidate: string, tipoCampo: string = 'text'): string {
+    //   if (!previous) return (candidate || '').trim();
+    //   if (!candidate) return previous.trim();
+
+    //   const prevTrim = previous.trim();
+    //   const candTrim = candidate.trim();
+    //   const prevNorm = prevTrim.toLowerCase();
+    //   const candNorm = candTrim.toLowerCase();
+
+    //   // --- Caso 1: candidate CONTIENE previous → avance claro ---
+    //   if (candNorm.includes(prevNorm)) return candTrim;
+
+    //   // --- Caso 2: previous CONTIENE candidate → repetición (ignorar) ---
+    //   if (prevNorm.includes(candNorm)) return prevTrim;
+
+    //   // ✅ NUEVO Caso 2.5: candidate ya está parcialmente en previous → ignorar
+    //   if (this.candidateYaEstaEnPrevious(prevTrim, candTrim)) {
+    //     console.log(`⏭️ [fusionarFrase] candidate "${candTrim}" ya está en "${prevTrim}" → se ignora`);
+    //     return prevTrim;
+    //   }
+
+    //   // --- Caso 3: similitud alta → misma frase evolucionando → la más larga ---
+    //   // const sim = this.calculateSimilarity(candNorm, prevNorm);
+    //   const sim = this.calculateSimilarity(candNorm, prevNorm);
+    //   if (sim > 0.5) {
+    //     console.log(`🔄 [fusionarFrase] similitud ${sim.toFixed(2)} → preferir candidate "${candTrim}"`);
+    //     return candTrim;
+    //   }
+
+    //   // --- Caso 4: overlap de caracteres → fusionar sin duplicar ---
+    //   const overlap = this.findOverlap(prevNorm, candNorm);
+    //   if (overlap > 0) return prevTrim + candTrim.slice(overlap);
+
+    //   // --- Caso 5: palabra/símbolo nuevo → unir según contexto ---
+    //   if (this.necesitaEspacioAntes(prevTrim, candTrim, tipoCampo)) {
+    //     return prevTrim + ' ' + candTrim;
+    //   }
+    //   return prevTrim + candTrim;
+    // }
+
+
+
+
+    public fusionarFrase(previous: string, candidate: string, tipoCampo: string = 'text'): string {
+      if (!previous) return (candidate || '').trim();
+      if (!candidate) return previous.trim();
+
+      const prevTrim = previous.trim();
+      const candTrim = candidate.trim();
+      const prevNorm = prevTrim.toLowerCase();
+      const candNorm = candTrim.toLowerCase();
+
+      // --- Caso 1: candidate CONTIENE previous → avance claro ---
+      if (candNorm.includes(prevNorm)) return candTrim;
+
+      // --- Caso 2: previous CONTIENE candidate → repetición (ignorar) ---
+      if (prevNorm.includes(candNorm)) return prevTrim;
+
+      // ✅ Caso 2.6: comparación normalizada completa
+      const prevNormalizado = this.normalizarParaComparar(prevTrim);
+      const candNormalizado = this.normalizarParaComparar(candTrim);
+
+      if (prevNormalizado && candNormalizado) {
+        if (prevNormalizado === candNormalizado) {
+          console.log(`⏭️ [fusionarFrase] normalizados iguales → preferir candidate "${candTrim}"`);
+          return candTrim;
+        }
+        if (prevNormalizado.includes(candNormalizado)) {
+          console.log(`⏭️ [fusionarFrase] candidate normalizado está en previous → preferir candidate "${candTrim}"`);
+          return candTrim;
+        }
+        if (candNormalizado.includes(prevNormalizado)) {
+          console.log(`⏭️ [fusionarFrase] previous normalizado está en candidate → preferir candidate "${candTrim}"`);
+          return candTrim;
+        }
+      }
+
+      // --- Caso 3: similitud alta → misma frase evolucionando → la más larga ---
+      const sim = this.calculateSimilarity(candNorm, prevNorm);
+      if (sim > 0.5) {
+        console.log(`🔄 [fusionarFrase] similitud ${sim.toFixed(2)} → preferir candidate "${candTrim}"`);
+        return candTrim;
+      }
+
+      // --- Caso 4: overlap de caracteres → fusionar sin duplicar ---
+      const overlap = this.findOverlap(prevNorm, candNorm);
+      if (overlap > 0) return prevTrim + candTrim.slice(overlap);
+
+      // --- Caso 5: palabra/símbolo nuevo → unir según contexto ---
+      if (this.necesitaEspacioAntes(prevTrim, candTrim, tipoCampo)) {
+        return prevTrim + ' ' + candTrim;
+      }
+      return prevTrim + candTrim;
+    }
+
+    /**
+     * Busca cuántos caracteres del final de `prev` coinciden
+     * con el inicio de `next`. Se usa para fusionar sin duplicar.
+     */
+    private findOverlap(prev: string, next: string): number {
+      const max = Math.min(prev.length, next.length);
+      for (let len = max; len > 0; len--) {
+        if (prev.slice(-len) === next.slice(0, len)) return len;
+      }
+      return 0;
+    }
+
+    /**
+     * Decide si hay que poner espacio entre el final del buffer
+     * y el principio del nuevo fragmento.
+     *
+     * Sin espacio:
+     *   - Campos sin espacios: email, password, code
+     *   - Si el nuevo empieza por símbolo (.,!?;:@#_\-+=...)
+     *   - Si el buffer acaba en símbolo
+     *   - Si el nuevo es una sola letra o dígito
+     *
+     * Con espacio:
+     *   - Campos de texto libre (nombre, apellido, dirección...)
+     *   - Palabra completa (>= 2 chars con letras)
+     */
+    public necesitaEspacioAntes(
+      prev: string,
+      cand: string,
+      tipoCampo: string = 'text'
+    ): boolean {
+      if (!prev || !cand) return false;
+
+      // ✅ NUEVO: Si el buffer contiene un comando de capitalización → SIEMPRE espacio
+      //    (para que "mayuscula cor" no se convierta en "mayusculacor")
+      if (/\bmay[uú]scula[s]?\b/i.test(prev) || /\bmin[uú]scula[s]?\b/i.test(prev)) {
+        return true;
+      }
+
+      // Campos que NO admiten espacios entre fragmentos
+      const camposSinEspacio = ['email', 'password', 'code', 'username'];
+      if (camposSinEspacio.includes(tipoCampo)) {
+        return false;
+      }
+
+      const ultimoChar = prev.slice(-1);
+      const primerChar = cand.slice(0, 1);
+
+      // Si el buffer ya acaba en espacio → no añadir otro
+      if (ultimoChar === ' ') return false;
+
+      // Si el nuevo empieza por símbolo → no añadir espacio
+      if (/^[.,!?;:@#_\-+=()\[\]{}'"]/.test(primerChar)) return false;
+
+      // Si el buffer acaba en símbolo → no añadir espacio
+      if (/[.,!?;:@#_\-+=()\[\]{}'"]$/.test(ultimoChar)) return false;
+
+      // Si el nuevo es una sola letra o dígito → unir sin espacio
+      if (/^[a-zA-Z0-9]$/.test(cand)) return false;
+
+      // Palabra completa (>= 2 chars) → espacio
+      return true;
+    }
+
+    // ============================================================
+    // ✅ LIMPIEZA GENÉRICA POR TIPO DE CAMPO
+    // ============================================================
+
+    /**
+     * Limpia y normaliza el valor final de un dictado antes de
+     * escribirlo en el campo. Se aplica según el tipo de campo.
+     *
+     * Funciona para cualquier campo de cualquier pantalla:
+     *   - email     → minúsculas, sin espacios, arregla @ y puntos
+     *   - password  → sin espacios, sin acentos, sin comandos
+     *   - code      → sin espacios, sin acentos
+     *   - username  → minúsculas, sin espacios, sin símbolos raros
+     *   - text      → capitalizado por palabras (nombres)
+     *   - any       → sin cambios
+     *
+     * @param value  Valor bruto a limpiar
+     * @param tipo   Tipo de campo
+     * @returns      Valor limpio listo para el input
+     */
+    public limpiarValorFinal(value: string, tipo: string = 'text'): string {
+      if (!value) return '';
+
+      let limpio = value.toString();
+
+      // ============================================================
+      // 🔹 PASO 1: quitar comandos de capitalización colados
+      //   ("mayuscula", "minuscula", "mayusculas"...)
+      // ============================================================
+      limpio = limpio
+        .replace(/may[uú]scula[s]?/gi, '')
+        .replace(/min[uú]scula[s]?/gi, '');
+
+      // ============================================================
+      // 🔹 PASO 2: quitar acentos y diacríticos (genérico)
+      // ============================================================
+      limpio = limpio
+        .replace(/[áàäâã]/g, 'a')
+        .replace(/[éèëê]/g, 'e')
+        .replace(/[íìïî]/g, 'i')
+        .replace(/[óòöôõ]/g, 'o')
+        .replace(/[úùüû]/g, 'u')
+        .replace(/[ÁÀÄÂÃ]/g, 'A')
+        .replace(/[ÉÈËÊ]/g, 'E')
+        .replace(/[ÍÌÏÎ]/g, 'I')
+        .replace(/[ÓÒÖÔÕ]/g, 'O')
+        .replace(/[ÚÙÜÛ]/g, 'U')
+        .replace(/ñ/g, 'n')
+        .replace(/Ñ/g, 'N');
+
+      // ============================================================
+      // 🔹 PASO 3: limpieza específica por tipo de campo
+      // ============================================================
+      switch (tipo) {
+        case 'email':
+          // Minúsculas, sin espacios, asegurar @ y puntos
+          limpio = limpio
+            .toLowerCase()
+            .replace(/\s+/g, '')
+            .replace(/@@+/g, '@')
+            .replace(/\.\.+/g, '.')
+            // Asegurar solo un @
+            .replace(/@(?=.*@)/g, '')
+            .trim();
+          break;
+
+        case 'password':
+        case 'code':
+          // Sin espacios, sin acentos (ya hechos arriba)
+          limpio = limpio.replace(/\s+/g, '').trim();
+          break;
+
+        case 'username':
+          // Minúsculas, sin espacios, sin símbolos raros
+          limpio = limpio
+            .toLowerCase()
+            .replace(/[^a-z0-9._-]/g, '')
+            .trim();
+          break;
+
+        case 'text':
+        default:
+          // Nombres, apellidos, direcciones → capitalizar palabras
+          limpio = limpio
+            .replace(/\s+/g, ' ')
+            .trim()
+            .split(' ')
+            .map(w => w.length > 0 ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : '')
+            .join(' ');
+          break;
+      }
+
+      return limpio;
+    }
+
+   /**
+   * Normaliza un texto para comparación: elimina espacios, comandos de
+   * capitalización y acentos. Así podemos comparar "mayúscula cornella 56 admi !"
+   * con "Cornella56!" y ver que son lo mismo.
+   */
+  private normalizarParaComparar(text: string): string {
+    if (!text) return '';
+
+    return text
+      .toLowerCase()
+      // Quitar comandos de capitalización (todas las variantes)
+      .replace(/\bmay[uú]scula[s]?\b/gi, '')
+      .replace(/\bmin[uú]scula[s]?\b/gi, '')
+      // Quitar acentos
+      .replace(/[áàäâã]/g, 'a')
+      .replace(/[éèëê]/g, 'e')
+      .replace(/[íìïî]/g, 'i')
+      .replace(/[óòöôõ]/g, 'o')
+      .replace(/[úùüû]/g, 'u')
+      .replace(/ñ/g, 'n')
+      // Quitar TODO lo que no sea letra o número
+      .replace(/[^a-z0-9]/g, '');
   }
+   
+  /**
+   * Extrae el "valor limpio" más plausible del buffer de dictado.
+   * Se usa para campos como password/code donde el reconocedor
+   * puede haber acumulado fragmentos basura.
+   *
+   * Estrategia:
+   *   1. Dividir el buffer por comas/espacios
+   *   2. Buscar la "frase" más reciente que parezca un valor coherente
+   *   3. Devolver esa frase
+   */
+    public extraerValorLimpio(buffer: string, tipoCampo: string = 'text'): string {
+    if (!buffer) return '';
+
+    let limpio = buffer.trim();
+
+    // 1. Quitar comandos/fragmentos de capitalización (con TODAS las variantes)
+    limpio = limpio
+      // Mayúscula (todas las variantes: sin tilde, con tilde, fragmentos)
+      .replace(/\bmay[uú]scula[s]?\b/gi, '')
+      .replace(/\bmayuscula[s]?\b/gi, '')
+      .replace(/\bmay[uú]scu\b/gi, '')
+      .replace(/\bmayuscu\b/gi, '')
+      .replace(/\bmay[uú]s\b/gi, '')
+      .replace(/\bmayus\b/gi, '')
+      .replace(/\bmay[uú]\b/gi, '')
+      .replace(/\bmayu\b/gi, '')
+      .replace(/\bm[aá]y\b/gi, '')
+      .replace(/\bm[aá]\b/gi, '')
+      // Minúscula (todas las variantes)
+      .replace(/\bmin[uú]scula[s]?\b/gi, '')
+      .replace(/\bminuscula[s]?\b/gi, '')
+      .replace(/\bmin[uú]scu\b/gi, '')
+      .replace(/\bminuiscu\b/gi, '')
+      .replace(/\bmin[uú]s\b/gi, '')
+      .replace(/\bminus\b/gi, '')
+      .replace(/\bmin[uú]\b/gi, '')
+      .replace(/\bminu\b/gi, '')
+      .replace(/\bm[ií]n\b/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    // 2. Quitar palabras duplicadas consecutivas (ej: "cornella cornella")
+    const palabras = limpio.split(/\s+/);
+    const sinDuplicados: string[] = [];
+    for (const p of palabras) {
+      if (sinDuplicados.length === 0 ||
+          sinDuplicados[sinDuplicados.length - 1].toLowerCase() !== p.toLowerCase()) {
+        sinDuplicados.push(p);
+      }
+    }
+    limpio = sinDuplicados.join(' ');
+
+    return limpio.trim();
+  }
+
+      /**
+     * Extrae la ÚLTIMA frase "válida" del buffer.
+     * Se usa para limpiar buffers contaminados con fragmentos.
+     *
+     * Estrategia:
+     *   1. Buscar el último patrón tipo "Cornella57!" (mayúscula + minúsculas + números + símbolo)
+     *   2. Si no hay, buscar el último patrón letras+números sin mayúscula inicial
+     *   3. Si no encuentra nada, devolver vacío
+     */
+    public extraerUltimaFraseValida(buffer: string): string {
+      if (!buffer) return '';
+
+      const limpio = buffer.trim();
+
+      // Buscar el ÚLTIMO patrón que parezca una contraseña:
+      // - Empieza con mayúscula
+      // - Sigue con letras minúsculas
+      // - Contiene al menos un número
+      // - Opcionalmente acaba con símbolo
+      const passwordPattern = /[A-Z][a-záéíóúñ]+\d+[!@#$%^&*()_\-+=.,;:?]?/g;
+      const matches = limpio.match(passwordPattern);
+
+      if (matches && matches.length > 0) {
+        const ultima = matches[matches.length - 1];
+        console.log(`🎯 [extraerUltimaFraseValida] Encontrada: "${ultima}"`);
+        return ultima;
+      }
+
+      // Fallback: buscar el último patrón de letras+números sin mayúscula inicial
+      const alfanumPattern = /[a-záéíóúñ]+\d+[!@#$%^&*()_\-+=.,;:?]?/g;
+      const matches2 = limpio.match(alfanumPattern);
+
+      if (matches2 && matches2.length > 0) {
+        const ultima = matches2[matches2.length - 1];
+        console.log(`🎯 [extraerUltimaFraseValida] Alfanum encontrada: "${ultima}"`);
+        return ultima;
+      }
+
+      return '';
+    }
 }
+
