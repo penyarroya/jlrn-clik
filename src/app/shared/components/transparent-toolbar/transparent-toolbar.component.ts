@@ -37,29 +37,19 @@ import {
   OnChanges, 
   SimpleChanges, 
   OnInit, 
-  ChangeDetectionStrategy 
+  ChangeDetectionStrategy, 
+  ViewChild,
+  DestroyRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { 
-  IonIcon, 
-  IonButtons, 
-  IonButton, 
-  IonInput, 
-  IonBadge, 
-  IonMenu, 
-  IonHeader, 
-  IonToolbar, 
-  IonTitle, 
-  IonContent, 
-  IonList, 
-  IonItem, 
-  IonLabel, 
-  IonItemDivider 
-} from '@ionic/angular';
+import { IonIcon, IonButtons, IonButton, IonInput, IonBadge, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonItemDivider, IonPopover, IonAvatar } from '@ionic/angular';
 import { ThemeService } from '../../services/theme/theme';
 import { addIcons } from 'ionicons';
 import * as allIcons from 'ionicons/icons';
+import { AuthService } from '../../../features/auth/Services/auth-service';
+import { VoiceService } from '../../../features/services/voz/voice.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // ============================================================
 // INTERFACES
@@ -117,16 +107,16 @@ export interface ToolbarConfig {
     IonButton,
     IonInput,
     IonBadge,
-    IonMenu,
     IonHeader,
     IonToolbar,
-    IonTitle,
     IonContent,
     IonList,
     IonItem,
     IonLabel,
-    IonItemDivider
-  ],
+    IonItemDivider,
+    IonPopover,
+    IonAvatar
+],
   templateUrl: './transparent-toolbar.component.html',
   styleUrls: ['./transparent-toolbar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -138,6 +128,12 @@ export class TransparentToolbarComponent implements OnChanges, OnInit {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private themeService = inject(ThemeService);
+  private authService = inject(AuthService);
+
+  private voiceService = inject(VoiceService);     // ✅ NUEVO
+  private destroyRef = inject(DestroyRef);          // ✅ NUEVO
+
+  @ViewChild('mobileMenu') mobileMenu!: IonMenu;
 
   // ============================================================
   // INPUTS
@@ -154,7 +150,8 @@ export class TransparentToolbarComponent implements OnChanges, OnInit {
   @Input() showNotifications = false;
   @Input() navLinks: NavLink[] = [];
   @Input() backgroundColor = 'transparent';
-  @Input() position: 'fixed' | 'sticky' | 'relative' = 'fixed';
+  // @Input() position: 'fixed' | 'sticky' | 'relative' = 'fixed';
+  @Input() position: 'fixed' | 'sticky' | 'relative' = 'sticky';
   @Input() backgroundOpacity = 0.85;
   @Input() greeting = '';
   @Input() userNameDisplay = '';
@@ -179,9 +176,14 @@ export class TransparentToolbarComponent implements OnChanges, OnInit {
   // ============================================================
   // ESTADO
   // ============================================================
-  isAuthenticated = signal<boolean>(false);
-  readonly userName = computed(() => 'Usuario');
-  readonly userEmail = computed(() => 'usuario@email.com');
+  // isAuthenticated = signal<boolean>(false);
+  // readonly userName = computed(() => 'Usuario');
+  // readonly userEmail = computed(() => 'usuario@email.com');
+
+  isAuthenticated = computed(() => this.authService.isAuthenticated());
+  readonly userName = computed(() => this.authService.getUserName() || 'Usuario');
+  readonly userEmail = computed(() => this.authService.getUserEmail() || 'usuario@ejemplo.com');
+
   isMicActive = signal<boolean>(false);
   isDarkTheme = computed(() => this.themeService.currentTheme() === 'dark');
   isMobileMenuOpen = signal<boolean>(false);
@@ -199,8 +201,21 @@ export class TransparentToolbarComponent implements OnChanges, OnInit {
   // ============================================================
   // CONSTRUCTOR
   // ============================================================
+  // constructor() {
+  //   addIcons(allIcons);
+  // }
+
   constructor() {
     addIcons(allIcons);
+
+    // ✅ NUEVO: sincronizar isMicActive con el estado REAL del servicio
+    this.voiceService.muted$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(muted => {
+        // isMicActive = true significa "micrófono activo" = NO muteado
+        this.isMicActive.set(!muted);
+        this.cdr.markForCheck();
+      });
   }
 
   // ============================================================
@@ -311,9 +326,26 @@ export class TransparentToolbarComponent implements OnChanges, OnInit {
     this.themeToggled.emit(newTheme);
   }
 
+  // toggleMic(): void {
+  //   this.isMicActive.set(!this.isMicActive());
+  //   this.micToggled.emit(this.isMicActive());
+  // }
+
   toggleMic(): void {
-    this.isMicActive.set(!this.isMicActive());
-    this.micToggled.emit(this.isMicActive());
+    // ✅ Delegar SIEMPRE en el servicio, que es la fuente de verdad
+    const wasMuted = this.voiceService.isCurrentlyMuted();
+
+    if (wasMuted) {
+      // Al desmutear, cancelar cualquier TTS pendiente
+      window.speechSynthesis.cancel();
+    }
+
+    // ✅ Esto sí mutea/desmutea de verdad
+    this.voiceService.toggleMute();
+
+    // ✅ Emitir el evento con el nuevo estado REAL por si un padre lo escucha
+    const newIsActive = !this.voiceService.isCurrentlyMuted();
+    this.micToggled.emit(newIsActive);
   }
 
   toggleSearch(): void {
@@ -370,9 +402,14 @@ export class TransparentToolbarComponent implements OnChanges, OnInit {
     this.router.navigate(['/login']);
   }
 
+  // onLogout(): void {
+  //   this.isAuthenticated.set(false);
+  //   this.logoutEvent.emit();  // ✅ Corregido
+  //   this.router.navigate(['/login']);
+  // }
+
   onLogout(): void {
-    this.isAuthenticated.set(false);
-    this.logoutEvent.emit();  // ✅ Corregido
+    this.logoutEvent.emit();
     this.router.navigate(['/login']);
   }
 
