@@ -1,11 +1,3 @@
-// import { Service } from '@angular/core';
-
-// @Service()
-// export class AuthService {
-// }
-
-
-
 // src/app/core/services/auth.service.ts
 
 import { Service, inject, signal, computed, effect, PLATFORM_ID } from '@angular/core';
@@ -17,6 +9,7 @@ import { environment } from '../../../../environments/environment';
 import { LoginRequest } from '../models/LoginRequest';
 import { LoginResponse } from '../models/LoginResponse';
 import { UserPreferencesService } from '../../../shared/services/user-preferences/user-preferences.service';
+import { ReadOtpResponse } from '../models/ReadOtpResponse';
 
 @Service()
 export class AuthService {
@@ -57,60 +50,22 @@ export class AuthService {
     effect(() => {
       const user = this.currentUser();
       this.currentUserSubject.next(user);
+
+      // ✅ NUEVO: si hay usuario restaurado, cargar preferencias
+      if (user?.id) {
+        console.log('✅ [AuthService] Usuario restaurado, cargando preferencias para ID:', user.id);
+        this.userPreferences.setUserId(user.id);
+        this.userPreferences.loadPreferences().subscribe({
+          next: (prefs) => console.log('✅ Preferencias cargadas tras restauración:', prefs),
+          error: (err) => console.error('❌ Error cargando preferencias:', err)
+        });
+      }
     });
   }
 
   // ============================================================
   // MÉTODOS DE INICIALIZACIÓN
   // ============================================================
-
-  // private getInitialUser(): LoginResponse | null {
-  //   if (!isPlatformBrowser(this.platformId)) return null;
-
-  //   const isTabActive = sessionStorage.getItem(this.TAB_SESSION_KEY);
-  //   if (!isTabActive) {
-  //     sessionStorage.setItem(this.TAB_SESSION_KEY, 'true');
-  //     return null;
-  //   }
-    
-  //   const savedUser = localStorage.getItem(this.USER_INFO_KEY);
-  //   if (!savedUser) return null;
-
-  //   try {
-  //     const storedUser = JSON.parse(savedUser);
-      
-  //     const user: LoginResponse = {
-  //       id: storedUser.id,
-  //       username: storedUser.username,
-  //       email: storedUser.email || '',
-  //       roles: storedUser.roles || [],
-  //       type: 'Bearer',
-  //       accessToken: '',
-  //       refreshToken: null,
-  //       token: '',
-  //       permissions: storedUser.permissions || []
-  //     };
-      
-  //     if (isPlatformBrowser(this.platformId)) {
-  //       const token = localStorage.getItem('access_token');
-  //       if (token) {
-  //         user.accessToken = token;
-  //         user.token = token;
-  //       }
-  //     }
-      
-  //     console.log('✅ Sesión restaurada con roles:', user.roles);
-  //     console.log('📧 Email restaurado:', user.email);
-  //     return user;
-  //   } catch (e) {
-  //     console.error('Error parseando usuario:', e);
-  //     return null;
-  //   }
-  // }
-
-
-
-
   private getInitialUser(): LoginResponse | null {
     if (!isPlatformBrowser(this.platformId)) return null;
 
@@ -149,9 +104,6 @@ export class AuthService {
       return null;
     }
   }
-
-
-
 
   // ============================================================
   // GETTERS
@@ -379,64 +331,6 @@ export class AuthService {
   // ============================================================
   // REFRESH TOKEN
   // ============================================================
-
-  // refreshToken(): Observable<LoginResponse> {
-  //   const url = `${environment.apiGateway}${environment.authEndpoint}/refresh`;
-  //   console.log('🔄 Llamando a refresh endpoint:', url);
-    
-  //   const refreshToken = localStorage.getItem('refreshToken');
-    
-  //   return this.http.post<LoginResponse>(url, { refreshToken }, {
-  //     withCredentials: true
-  //   })
-  //   .pipe(
-  //     tap((response) => {
-  //       console.log('✅ Refresh exitoso');
-  //       console.log('📦 Respuesta del refresh:', response);
-        
-  //       if (response?.accessToken) {
-  //         localStorage.setItem('accessToken', response.accessToken);
-  //         console.log('✅ Access token guardado en localStorage');
-  //       }
-  //       if (response?.refreshToken) {
-  //         localStorage.setItem('refreshToken', response.refreshToken);
-  //         console.log('✅ Refresh token guardado en localStorage');
-  //       }
-        
-  //       if (response) {
-  //         this.currentUser.set(response);
-  //         console.log('✅ Usuario actualizado en memoria');
-  //       }
-        
-  //       this.userPreferences.loadPreferences().subscribe({
-  //         next: (prefs) => {
-  //           console.log('✅ Preferencias recargadas después de refresh');
-  //         },
-  //         error: (error) => {
-  //           console.error('❌ Error recargando preferencias:', error);
-  //         }
-  //       });
-  //     }),
-  //     catchError((error: HttpErrorResponse) => {
-  //       console.error('❌ Error en refresh:', error.status, error.message);
-        
-  //       if (error.status === 401) {
-  //         console.warn('🔴 Refresh token expirado o inválido, cerrando sesión');
-  //         this.fullLocalLogout();
-  //         this.userPreferences.clearPreferences();
-  //         this.router.navigate(['/login']);
-  //       } else if (error.status === 500) {
-  //         console.error('🚨 Error interno del servidor (500) en refresh');
-  //       }
-        
-  //       return throwError(() => error);
-  //     })
-  //   );
-  // }
-
-
-
-
   refreshToken(): Observable<LoginResponse> {
     const url = `${environment.apiGateway}${environment.authEndpoint}/refresh`;
     console.log('🔄 Llamando a refresh endpoint:', url);
@@ -485,10 +379,6 @@ export class AuthService {
       })
     );
   }
-
-
-
-
 
   // ============================================================
   // REGISTER
@@ -624,6 +514,33 @@ export class AuthService {
     
     console.log('✅ [AuthService] Estado reiniciado correctamente');
   }
+
+  // ============================================================
+  // ✅ NUEVO A2: LEER OTP POR VOZ
+  // ============================================================
+
+  /**
+   * Lee el OTP descifrado del backend para leerlo por voz.
+   * La cookie HttpOnly `otp_session` viaja automáticamente
+   * gracias a `withCredentials: true`.
+   *
+   * @param email email del usuario que solicitó el reset
+   * @returns { code: string, remainingReads: number }
+   */
+    readOtp(email: string): Observable<ReadOtpResponse> {
+      const url = `${this.AUTH_URL}/read-otp`;
+      console.log(`🔊 [AuthService] Solicitando lectura de OTP para: ${email}`);
+      return this.http.post<ReadOtpResponse>(url, { email }, this.httpOptions)
+        .pipe(
+          tap((response) => {
+            console.log(`✅ [AuthService] OTP leído:`, {
+              code: response.code ? '***' + response.code.slice(-2) : null,
+              remainingReads: response.remainingReads
+            });
+          }),
+          catchError((err) => this.handleError(err))
+        );
+    }
 
   // ============================================================
   // HANDLE ERROR

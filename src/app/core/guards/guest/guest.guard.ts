@@ -18,8 +18,8 @@ export const guestGuard: CanActivateFn = (route, state) => {
       return true; // Permitir acceso a login
     }
     
-    console.log('🔍 guestGuard - Usuario autenticado, redirigiendo a: /home');
-    return router.parseUrl('/home');
+    console.log('🔍 guestGuard - Usuario autenticado, redirigiendo a: /dashboard');
+    return router.parseUrl('/dashboard');
   }
 
   console.log('🔍 guestGuard - Usuario NO autenticado, permitiendo acceso');

@@ -42,6 +42,7 @@
 //   eyeOutline,
 //   eyeOffOutline,
 //   clipboardOutline,
+//   volumeHighOutline, 
 // } from 'ionicons/icons';
 
 // // ✅ Directivas locales
@@ -109,6 +110,7 @@
 //   readonly isLoading = signal(false);
 //   readonly hidePassword = signal(true);
 //   readonly errorMessage = signal<string | null>(null);
+//   readonly lastRemainingReads = signal<number | null>(null);   // ✅ NUEVO A2
 
 //   private isDestroyed = false;
 //   private welcomeShown = false;
@@ -120,8 +122,6 @@
 //   private dictationBuffer = '';
 //   private helpShown = false;
 
-//   private availableCodeForVoice: string | null = null;
-
 //   // Control de duplicados
 //   private lastProcessedCommand = '';
 //   private lastProcessedTime = 0;
@@ -129,8 +129,6 @@
 
 //   private lastPasteAttempt = 0;
 //   private readonly PASTE_DEBOUNCE = 1500;
-
-//   private pendingReadCode = 0;
 
 //   // Referencias para autofoco
 //   readonly btnSubmitEmail = viewChild<ElementRef<HTMLButtonElement>>('btnSubmit');
@@ -158,20 +156,8 @@
 //     '"iniciar sesión" para ir a la pantalla de inicio de sesión, ' +
 //     'o "ayuda" para repetir este mensaje.';
 
-//   // private readonly HELP_MESSAGE_STEP_2 =
-//   //   'Ahora puedes decir: "código" para dictar el código de verificación, ' +
-//   //   '"copiar código" o "pegar código" para rellenarlo desde el portapapeles, ' +
-//   //   '"contraseña" para escribir tu nueva contraseña, ' +
-//   //   '"confirmar" para repetir la contraseña, ' +
-//   //   '"guardar" para cambiar tu contraseña, ' +
-//   //   '"leer campos" para escuchar lo que has escrito, ' +
-//   //   '"borrar" para limpiar el campo actual, ' +
-//   //   '"limpiar" para borrar todos los campos, ' +
-//   //   '"volver" para regresar, o "ayuda" para repetir este mensaje.';
-
 //   private readonly HELP_MESSAGE_STEP_2 =
-//     'Ahora puedes decir: "leer código" para que te lea el código por voz, ' +
-//     '"código" para dictarlo tú mismo, ' +
+//     'Ahora puedes decir: "código" para dictar el código, ' +
 //     '"pegar código" si lo has copiado del correo, ' +
 //     '"contraseña" para escribir tu nueva contraseña, ' +
 //     '"confirmar" para repetir la contraseña, ' +
@@ -192,6 +178,7 @@
 //       eyeOutline,
 //       eyeOffOutline,
 //       clipboardOutline,
+//       volumeHighOutline,
 //     });
 
 //     // ✅ PASO 1: Solo email
@@ -249,6 +236,10 @@
 //     }
 //   }
 
+//   /**
+//    * Convierte "503682" en "cinco, cero, tres, seis, ocho, dos"
+//    * para que el usuario lo oiga claramente y pueda verificar.
+//    */
 //   private spellDigits(code: string): string {
 //     const map: Record<string, string> = {
 //       '0': 'cero', '1': 'uno', '2': 'dos', '3': 'tres', '4': 'cuatro',
@@ -271,7 +262,6 @@
 //         'correo', 'enviar', 'código', 'codigo', 'otp',
 //         'contraseña', 'confirmar', 'guardar', 'volver',
 //         'ayuda', 'borrar', 'limpiar', 'leer campos', 'estado',
-//         'leer código',
 //         'copiar código',
 //         'pegar código',
 //         'iniciar sesión'
@@ -308,15 +298,25 @@
 //       }
 //     }, 1000);
 
+//     // this.voiceService
+//     //   .getTranscript()
+//     //   .pipe(takeUntil(this.destroy$))
+//     //   .subscribe((text: string) => {
+//     //     this.ngZone.run(() => {
+//     //       if (this.isDestroyed || !text) return;
+//     //       this.handleVoiceCommand(text);
+//     //     });
+//     //   });
+
 //     this.voiceService
-//       .getTranscript()
-//       .pipe(takeUntil(this.destroy$))
-//       .subscribe((text: string) => {
-//         this.ngZone.run(() => {
-//           if (this.isDestroyed || !text) return;
-//           this.handleVoiceCommand(text);
-//         });
+//     .getTranscriptWithFinal()
+//     .pipe(takeUntil(this.destroy$))
+//     .subscribe(({ text, isFinal }) => {
+//       this.ngZone.run(() => {
+//         if (this.isDestroyed || !text) return;
+//         this.handleVoiceCommand(text, isFinal);
 //       });
+//     });
 
 //     this.registerFieldsForCleanup();
 
@@ -507,8 +507,6 @@
 //     speakNext();
 //   }
 
-  
-
 //   // ============================================================
 //   // ✅ MÉTODO PARA PEGAR CÓDIGO DESDE EL PORTAPAPELES
 //   // ============================================================
@@ -574,31 +572,31 @@
 
 
 //   //
-//   public async pasteCodeFromClipboard(): Promise<void> {
-//     if (this.isDestroyed) return;
+//   // public async pasteCodeFromClipboard(): Promise<void> {
+//   //   if (this.isDestroyed) return;
 
-//     const now = Date.now();
-//     if (now - this.lastPasteAttempt < this.PASTE_DEBOUNCE) {
-//       console.log('⏭️ [ForgotPassword] pegar código ignorado (debounce)');
-//       return;
-//     }
-//     this.lastPasteAttempt = now;
+//   //   const now = Date.now();
+//   //   if (now - this.lastPasteAttempt < this.PASTE_DEBOUNCE) {
+//   //     console.log('⏭️ [ForgotPassword] pegar código ignorado (debounce)');
+//   //     return;
+//   //   }
+//   //   this.lastPasteAttempt = now;
 
-//     try {
-//       const text = await this.readClipboardWithRetry();
-//       const code = this.extractCodeFromText(text);
+//   //   try {
+//   //     const text = await this.readClipboardWithRetry();
+//   //     const code = this.extractCodeFromText(text);
 
-//       if (!code) {
-//         this.voiceService.speak('El portapapeles no contiene un código de 6 dígitos. Copia el código del correo primero.');
-//         return;
-//       }
+//   //     if (!code) {
+//   //       this.voiceService.speak('El portapapeles no contiene un código de 6 dígitos. Copia el código del correo primero.');
+//   //       return;
+//   //     }
 
-//       this.applyCode(code, 'pegado');
-//     } catch (err) {
-//       console.error('Error al leer el portapapeles:', err);
-//       this.voiceService.speak('No se pudo acceder al portapapeles. Asegúrate de permitir el acceso.');
-//     }
-//   }
+//   //     this.applyCode(code, 'pegado');
+//   //   } catch (err) {
+//   //     console.error('Error al leer el portapapeles:', err);
+//   //     this.voiceService.speak('No se pudo acceder al portapapeles. Asegúrate de permitir el acceso.');
+//   //   }
+//   // }
 
 
 //   //
@@ -640,220 +638,25 @@
 //     }
 
 //     this.cdr.detectChanges();
-//     this.voiceService.speak(`Código ${code} ${action} correctamente.`);
+
+//     // ✅ Aviso claro dígito a dígito: el usuario puede verificar si es el correcto
+//     this.voiceService.speak(
+//       `Código ${action}: ${this.spellDigits(code)}. ` +
+//       `Verifica que coincide con el que recibiste en el correo. ` +
+//       `Si no es correcto, di "borrar código" y copia el correcto del correo.`
+//     );
 //     console.log(`📋 Código ${action} desde el portapapeles: "${code}"`);
 
 //     if (this.resetPasswordForm.get('code')?.valid) {
-//       setTimeout(() => this.focusInput('password'), 500);
+//       setTimeout(() => this.focusInput('password'), 1200);
 //     }
 //   }
+
 
 //   // ============================================================
 //   // PROCESAMIENTO DE COMANDOS DE VOZ
 //   // ============================================================
-//   // private handleVoiceCommand(text: string): void {
-//   //   if (this.isDestroyed) return;
-//   //   const lower = text.toLowerCase().trim();
-
-//   //   const now = Date.now();
-//   //   if (lower === this.lastProcessedCommand && (now - this.lastProcessedTime) < this.COMMAND_DEBOUNCE) {
-//   //     console.log(`⏭️ ForgotPassword: comando duplicado ignorado: "${lower}"`);
-//   //     return;
-//   //   }
-//   //   this.lastProcessedCommand = lower;
-//   //   this.lastProcessedTime = now;
-
-//   //   // ✅ Si el campo está vacío y dice "correo", iniciar dictado directo
-//   //   if ((lower === 'correo' || lower === 'email' || lower === 'correo electrónico') && !this.emailSent()) {
-//   //     const control = this.forgotPasswordForm.get('email');
-//   //     const shouldStartDictation = (!control?.value || control.value.length === 0) &&
-//   //                                 (!this.dictationMode || this.dictationTarget !== 'email');
-
-//   //     if (shouldStartDictation) {
-//   //       console.log(`🎤 [ForgotPassword] Campo "correo" vacío, iniciando dictado directo`);
-//   //       if (this.dictationMode) {
-//   //         this.stopDictation(undefined, true);
-//   //       }
-//   //       this.voiceService.speak('Dime tu correo electrónico. Di "fin" o "terminar" cuando hayas terminado.');
-//   //       this.startDictation('email', '');
-//   //       return;
-//   //     } else if (this.dictationMode && this.dictationTarget === 'email') {
-//   //       console.log(`⏭️ [ForgotPassword] Ya dictando "correo", ignorando comando`);
-//   //       return;
-//   //     }
-//   //   }
-
-//   //   // ✅ PRIORIDAD: Si estamos en modo dictado
-//   //   if (this.dictationMode && this.dictationTarget) {
-//   //     this.handleDictation(lower);
-//   //     return;
-//   //   }
-
-//   //   // ============================================================
-//   //   // COMANDO "LEER CAMPOS"
-//   //   // ============================================================
-//   //   if (lower.includes('leer campos') || lower === 'leer' || lower.includes('leer todo') ||
-//   //       lower.includes('qué tengo') || lower.includes('qué hay') || lower.includes('mostrar campos') ||
-//   //       lower.includes('qué he escrito') || lower.includes('revisar campos') ||
-//   //       lower.includes('comprobar campos') || lower.includes('ver campos')) {
-//   //     console.log('📖 [ForgotPassword] Comando "leer campos" detectado');
-//   //     if (this.dictationMode) {
-//   //       this.stopDictation(undefined, true);
-//   //     }
-//   //     this.readAllFields();
-//   //     return;
-//   //   }
-
-//   //   // ============================================================
-//   //   // COMANDO "ESTADO" / "QUÉ FALTA"
-//   //   // ============================================================
-//   //   if (lower.includes('estado') || lower.includes('qué falta') || lower.includes('campos pendientes')) {
-//   //     console.log('📊 [ForgotPassword] Comando "estado" detectado');
-//   //     if (this.dictationMode) {
-//   //       this.stopDictation(undefined, true);
-//   //     }
-//   //     this.showStatus();
-//   //     return;
-//   //   }
-
-//   //   // ✅ COMANDO VOLVER
-//   //   if (lower.includes('volver') || lower.includes('atrás') || lower.includes('regresar')) {
-//   //     this.goBack();
-//   //     return;
-//   //   }
-
-//   //   // ✅ COMANDO "INICIAR SESIÓN"
-//   //   if (lower.includes('iniciar sesión') || lower.includes('ir a login') || lower.includes('login') || lower.includes('inicia sesión')) {
-//   //     this.voiceService.clearTranscript();
-//   //     this.voiceService.speak('Navegando a inicio de sesión.');
-//   //     this.router.navigate(['/login']);
-//   //     return;
-//   //   }
-
-//   //   // ✅ COMANDO BORRAR / LIMPIAR (soporta campo específico o activo)
-//   //   if (lower.includes('borrar') || lower.includes('limpiar')) {
-//   //     if (lower.includes('correo') || lower.includes('email')) {
-//   //       this.clearField('email');
-//   //       return;
-//   //     }
-//   //     if (lower.includes('código') || lower.includes('codigo')) {
-//   //       this.clearField('code');
-//   //       return;
-//   //     }
-//   //     if (lower.includes('confirmar')) {
-//   //       this.clearField('confirmPassword');
-//   //       return;
-//   //     }
-//   //     if (lower.includes('contraseña') || lower.includes('clave') || lower.includes('password')) {
-//   //       this.clearField('password');
-//   //       return;
-//   //     }
-//   //     this.clearCurrentField();
-//   //     return;
-//   //   }
-
-//   //   // ============================================================
-//   //   // PASO 1: SOLICITAR CORREO
-//   //   // ============================================================
-//   //   if (!this.emailSent()) {
-//   //     if (/^(correo|email|correo electrónico)\b/.test(lower)) {
-//   //       const rest = lower.replace(/^(correo|email|correo electrónico)\s*/, '').trim();
-//   //       if (rest && rest.length > 0) {
-//   //         this.startDictation('email', rest);
-//   //       } else {
-//   //         this.startDictation('email', '');
-//   //       }
-//   //       return;
-//   //     }
-
-//   //     if (lower.includes('enviar') || lower.includes('siguiente') || lower.includes('continuar')) {
-//   //       this.onSubmitEmail();
-//   //       return;
-//   //     }
-//   //   }
-
-//   //   // ============================================================
-//   //   // PASO 2: CÓDIGO + NUEVA CONTRASEÑA
-//   //   // ============================================================
-//   //   if (this.emailSent() && !this.isFinished()) {
-//   //     // ✅ NUEVO: "código" ahora arranca dictado del código (no solo foco)
-//   //     if (lower.includes('código') || lower.includes('codigo') || lower.includes('otp') || lower.includes('pin')) {
-//   //       const control = this.resetPasswordForm.get('code');
-//   //       const shouldStartDictation = (!control?.value || control.value.length === 0) &&
-//   //                                   (!this.dictationMode || this.dictationTarget !== 'code');
-
-//   //       if (shouldStartDictation) {
-//   //         console.log(`🎤 [ForgotPassword] Campo "código" vacío, iniciando dictado directo`);
-//   //         this.focusCodeInput();
-//   //         setTimeout(() => this.startDictation('code', ''), 500);
-//   //         return;
-//   //       } else if (this.dictationMode && this.dictationTarget === 'code') {
-//   //         console.log(`⏭️ [ForgotPassword] Ya dictando "código", ignorando comando`);
-//   //         return;
-//   //       }
-//   //       return;
-//   //     }
-
-//   //     // ✅ COMANDO: Copiar/Pegar código (desde el portapapeles)
-//   //     if (lower.includes('pegar código') || lower.includes('pegar codigo') ||
-//   //         lower.includes('copiar código') || lower.includes('copiar codigo') ||
-//   //         lower.includes('rellenar código') || lower.includes('rellenar codigo') ||
-//   //         lower.includes('escribir código') || lower.includes('escribir codigo')) {
-//   //       if (!this.isMicActive()) {
-//   //         this.voiceService.speak('El micrófono está desactivado. Actívalo con "hola" o desde el botón de micrófono.');
-//   //         return;
-//   //       }
-//   //       this.copyCodeFromClipboard();
-//   //       return;
-//   //     }
-
-//   //     // Dictado: nueva contraseña
-//   //     if (/^(contraseña|clave|password|pass|nueva contraseña)\b/.test(lower)) {
-//   //       const rest = lower.replace(/^(contraseña|clave|password|pass|nueva contraseña)\s*/, '').trim();
-//   //       this.startDictation('password', rest);
-//   //       return;
-//   //     }
-
-//   //     // Dictado: confirmar contraseña
-//   //     if (lower.includes('confirmar') || lower.includes('confirmar contraseña') ||
-//   //         lower.includes('confirmar clave') || lower.includes('repetir contraseña')) {
-//   //       this.startDictation('confirmPassword', '');
-//   //       return;
-//   //     }
-
-//   //     // Guardar / Cambiar contraseña
-//   //     if (lower.includes('guardar') || lower.includes('cambiar') || lower.includes('actualizar')) {
-//   //       this.onSubmitNewPassword();
-//   //       return;
-//   //     }
-//   //   }
-
-//   //   // Limpiar todos los campos
-//   //   if (lower.includes('limpiar todo') || lower.includes('borrar todo') || lower.includes('resetear')) {
-//   //     this.clearAllFields();
-//   //     return;
-//   //   }
-
-//   //   // Ayuda
-//   //   if (lower.includes('ayuda') || lower === 'help' || lower.includes('qué puedo decir')) {
-//   //     this.showHelp();
-//   //     return;
-//   //   }
-
-//   //   console.log('🔍 ForgotPassword: comando no reconocido:', lower);
-//   // }
-
-
-
-
-
-
-
-
-
-
-
-//   private handleVoiceCommand(text: string): void {
+//   private handleVoiceCommand(text: string, isFinal: boolean = false): void {
 //     if (this.isDestroyed) return;
 //     const lower = text.toLowerCase().trim();
 
@@ -864,11 +667,10 @@
 //       'rellenar código', 'rellenar codigo',
 //       'escribir código', 'escribir codigo',
 //       'leer código', 'leer codigo',
+//       'leer otp',
 //       'dime el código', 'dime el codigo',
-//       'dicta el código', 'dicta el codigo',
-//       'léeme el código', 'leeme el codigo',
-//       // ✅ Fragmentos sueltos de "leer código" (el motor de voz los emite por separado)
-//       'leer', 'léeme', 'leeme', 'dime', 'dicta'
+//       'leer el código', 'leer el codigo',
+//       'leer por voz', 'por voz'             // ✅ NUEVO
 //     ];
 //     const bypassDebounce = bypassDebounceCommands.some(cmd => lower.includes(cmd));
 
@@ -883,45 +685,30 @@
 //     this.lastProcessedTime = now;
 
 //     // ============================================================
-//     // ✅ NUEVO: manejo de "leer código" fragmentado por el motor de voz
-//     //    El motor emite "leer" y "código" como fragmentos separados.
-//     //    Aquí reconstruimos la intención.
-//     // ============================================================
-
-//     // Si es "leer" suelto, marcar que esperamos "código"
-//     if (lower === 'leer' || lower === 'léeme' || lower === 'leeme' ||
-//         lower === 'dime' || lower === 'dicta') {
-//       console.log('⏳ [ForgotPassword] "leer" suelto detectado, esperando "código"...');
-//       this.pendingReadCode = Date.now();
-//       return;
-//     }
-
-//     // Si hace <1.5s dijimos "leer" y ahora llega "código", es "leer código"
-//     if (this.pendingReadCode && (Date.now() - this.pendingReadCode) < 1500) {
-//       if (lower.includes('código') || lower.includes('codigo')) {
-//         console.log('🔊 [ForgotPassword] "leer código" reconstruido desde fragmentos');
-//         this.pendingReadCode = 0;
-//         this.handleReadCodeByVoice();
-//         return;
-//       }
-//       this.pendingReadCode = 0;
-//     }
-
-//     // ============================================================
-//     // ✅ Comandos de código (portapapeles + lectura por voz)
+//     // ✅ Comandos de código (portapapeles + LECTURA POR VOZ)
 //     //    ANTES de la prioridad de dictado, para que "código" fragmentado
 //     //    no arranque dictado cuando en realidad el usuario quiere
 //     //    "leer código" o "pegar código"
 //     // ============================================================
 //     if (this.emailSent() && !this.isFinished()) {
 
-//       // ✅ NUEVO: leer código por voz (accesibilidad para invidentes)
+//       // ✅ Comando "leer código" (y variantes) → leer OTP por voz
 //       if (lower.includes('leer código') || lower.includes('leer codigo') ||
-//           lower.includes('dime el código') || lower.includes('dime el codigo') ||
-//           lower.includes('dicta el código') || lower.includes('dicta el codigo') ||
-//           lower.includes('léeme el código') || lower.includes('leeme el codigo')) {
-//         console.log('🔊 [ForgotPassword] Comando leer código detectado');
-//         this.handleReadCodeByVoice();
+//           lower.includes('leer otp') || lower.includes('dime el código') ||
+//           lower.includes('dime el codigo') || lower.includes('leer el código') ||
+//           lower.includes('leer el codigo') || lower.includes('leer por voz') ||
+//           lower.includes('por voz')) {                       // ✅ NUEVO
+//         console.log('🔊 [ForgotPassword] Comando "leer código" detectado');
+//         if (this.dictationMode) {
+//           this.stopDictation(undefined, true);
+//         }
+//         this.readOtpByVoice();
+//         return;
+//       }
+
+//       // ✅ NUEVO: si dicen solo "leer" → esperar al siguiente fragmento
+//       if (lower === 'leer' || lower === 'leerlo') {
+//         console.log('⏭️ [ForgotPassword] "leer" detectado → esperando "código"');
 //         return;
 //       }
 
@@ -960,8 +747,14 @@
 //     }
 
 //     // ✅ PRIORIDAD: Si estamos en modo dictado
+//     // if (this.dictationMode && this.dictationTarget) {
+//     //   this.handleDictation(lower);
+//     //   return;
+//     // }
+
+//     // ✅ PRIORIDAD: Si estamos en modo dictado
 //     if (this.dictationMode && this.dictationTarget) {
-//       this.handleDictation(lower);
+//       this.handleDictation(lower, isFinal);
 //       return;
 //     }
 
@@ -1108,46 +901,6 @@
 //     console.log('🔍 ForgotPassword: comando no reconocido:', lower);
 //   }
 
-
-
-
-//   //
-//   private handleReadCodeByVoice(): void {
-//     if (this.dictationMode) {
-//       this.stopDictation(undefined, true);
-//     }
-
-//     if (!this.availableCodeForVoice) {
-//       this.voiceService.speak('Todavía no has solicitado el código. Di "enviar" para pedirlo.');
-//       return;
-//     }
-
-//     const code = this.availableCodeForVoice;
-
-//     this.resetPasswordForm.patchValue({ code });
-//     this.resetPasswordForm.get('code')?.markAsDirty();
-//     this.resetPasswordForm.get('code')?.markAsTouched();
-
-//     const codeInput = this.codeInput()?.nativeElement;
-//     if (codeInput) {
-//       this.renderer.setProperty(codeInput, 'value', code);
-//       codeInput.dispatchEvent(new Event('input', { bubbles: true }));
-//     }
-
-//     this.cdr.detectChanges();
-
-//     this.voiceService.speak(
-//       `Tu código de verificación es: ${this.spellDigits(code)}. ` +
-//       `Ya está relleno. Ahora di "contraseña" para escribir tu nueva clave.`
-//     );
-
-//     setTimeout(() => {
-//       this.newPassInput()?.nativeElement.focus({ preventScroll: true });
-//     }, 1000);
-//   }
-
-
-
 //   // ============================================================
 //   // MÉTODO DE ESTADO - PÚBLICO
 //   // ============================================================
@@ -1259,198 +1012,18 @@
 //     return cleaned;
 //   }
 
+//   //
 //   // private handleDictation(text: string): void {
-//   //   if (this.isDestroyed || !this.dictationTarget) return;
-//   //   const target = this.dictationTarget;
-//   //   const currentValue = this.getCurrentValue(target);
-
-//   //   console.log(`📝 [handleDictation] target: ${target}, currentValue: "${currentValue}", text: "${text}"`);
-
-//   //   const lower = text.toLowerCase().trim();
-
-//   //   if (lower.includes('volver') || lower.includes('atrás') || lower.includes('regresar')) {
-//   //     console.log('🔙 [handleDictation] Comando "volver" detectado en dictado, ejecutando...');
-//   //     this.stopDictation('', true);
-//   //     this.goBack();
-//   //     return;
-//   //   }
-
-//   //   if (lower.includes('ayuda') || lower === 'help' || lower.includes('qué puedo decir')) {
-//   //     console.log('❓ [handleDictation] Comando "ayuda" detectado en dictado');
-//   //     this.stopDictation('', true);
-//   //     this.showHelp();
-//   //     return;
-//   //   }
-
-//   //   if (lower.includes('estado') || lower.includes('qué falta') || lower.includes('campos pendientes')) {
-//   //     console.log('📊 [handleDictation] Comando "estado" detectado en dictado');
-//   //     this.stopDictation('', true);
-//   //     this.showStatus();
-//   //     return;
-//   //   }
-
-//   //   if (lower.includes('leer campos') || lower === 'leer' || lower.includes('leer todo') ||
-//   //       lower.includes('qué tengo') || lower.includes('qué hay') || lower.includes('mostrar campos') ||
-//   //       lower.includes('qué he escrito') || lower.includes('revisar campos') ||
-//   //       lower.includes('comprobar campos') || lower.includes('ver campos')) {
-//   //     console.log('📖 [handleDictation] Comando "leer campos" detectado en dictado');
-//   //     this.stopDictation('', true);
-//   //     this.readAllFields();
-//   //     return;
-//   //   }
-
-//   //   if (lower === 'borrar' || lower === 'limpiar' || lower.includes('borrar campo') || lower.includes('limpiar campo')) {
-//   //     console.log('🧹 [handleDictation] Comando "borrar" detectado, limpiando campo');
-//   //     this.updateFormAndInputDirectly(target, '');
-//   //     this.dictationBuffer = '';
-//   //     this.stopDictation('', true);
-//   //     const fieldName = target === 'email' ? 'correo' : 'contraseña';
-//   //     this.voiceService.speak(`Campo ${fieldName} limpiado. Di el nombre del campo para escribirlo.`);
-//   //     return;
-//   //   }
-
-//   //   if (this.voiceFilter.containsFinishWords(text)) {
-//   //     console.log('🔴 Comando de finalización');
-//   //     const cleanText = this.voiceFilter.removeFinishWords(text);
-
-//   //     let finalValue = this.dictationBuffer || currentValue;
-
-//   //     if (cleanText.length > 0) {
-//   //       console.log(`📝 Procesando: "${cleanText}"`);
-//   //       const processed = this.voiceFilter.processDictationPhrase(cleanText, this.getDictationContext(target), false);
-//   //       if (processed.success) {
-//   //         let textToAdd = processed.text;
-//   //         if (target === 'email') {
-//   //           textToAdd = this.cleanEmailText(textToAdd);
-
-//   //           this.updateFormAndInputDirectly(target, textToAdd);
-
-//   //           const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-//   //           if (!emailPattern.test(textToAdd)) {
-//   //             console.log(`❌ Email inválido: "${textToAdd}"`);
-//   //             this.voiceService.speak('El correo no tiene un formato válido. Debe incluir @ y un dominio como .com. Puedes corregirlo manualmente o dictarlo de nuevo.');
-//   //             this.dictationBuffer = '';
-//   //             this.dictationMode = false;
-//   //             this.dictationTarget = null;
-//   //             this.dictationBuffer = '';
-//   //             this.cdr.markForCheck();
-//   //             return;
-//   //           }
-//   //         }
-//   //         finalValue = textToAdd;
-//   //         this.updateFormAndInputDirectly(target, finalValue);
-//   //         this.dictationBuffer = processed.text.trimEnd();
-//   //         console.log(`🔤 Reemplazado por: "${finalValue}"`);
-//   //       }
-//   //     } else {
-//   //       console.log(`🔤 Sin texto nuevo, usando buffer: "${finalValue}"`);
-//   //       if (finalValue && finalValue.length > 0) {
-//   //         this.updateFormAndInputDirectly(target, finalValue);
-//   //       }
-//   //     }
-//   //     this.stopDictation(finalValue);
-//   //     return;
-//   //   }
-
-//   //   if (lower === 'fin' || lower === 'terminar') {
-//   //     console.log('🔴 [ForgotPassword] Finalización directa');
-//   //     const finalValue = this.dictationBuffer || currentValue;
-
-//   //     if (target === 'email' && finalValue && finalValue.length > 0) {
-//   //       this.updateFormAndInputDirectly(target, finalValue);
-
-//   //       const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-//   //       if (!emailPattern.test(finalValue)) {
-//   //         console.log(`❌ Email inválido al finalizar: "${finalValue}"`);
-//   //         this.voiceService.speak('El correo no tiene un formato válido. Debe incluir @ y un dominio como .com. Puedes corregirlo manualmente o dictarlo de nuevo.');
-//   //         this.dictationBuffer = '';
-//   //         this.dictationMode = false;
-//   //         this.dictationTarget = null;
-//   //         this.dictationBuffer = '';
-//   //         this.cdr.markForCheck();
-//   //         return;
-//   //       }
-//   //     }
-
-//   //     this.stopDictation(finalValue);
-//   //     return;
-//   //   }
-
-//   //   if (text.includes('borrar') || text.includes('eliminar')) {
-//   //     if (this.dictationBuffer.length > 0) {
-//   //       const newValue = currentValue.slice(0, -this.dictationBuffer.length);
-//   //       this.updateFormAndInputDirectly(target, newValue);
-//   //       this.voiceService.speak(`Borrado: ${this.dictationBuffer.trim()}`);
-//   //       this.dictationBuffer = '';
-//   //       return;
-//   //     } else {
-//   //       const newValue = currentValue.slice(0, -1);
-//   //       this.updateFormAndInputDirectly(target, newValue);
-//   //       this.voiceService.speak('Borrado último carácter');
-//   //       return;
-//   //     }
-//   //   }
-
-//   //   if (text.includes('limpiar todo') || text.includes('borrar todo')) {
-//   //     this.updateFormAndInputDirectly(target, '');
-//   //     this.dictationBuffer = '';
-//   //     this.voiceService.speak('Campo limpiado');
-//   //     return;
-//   //   }
-
-//   //   if (text.includes('mostrar') || text.includes('ver') || text.includes('leer')) {
-//   //     this.voiceService.speak(`Texto actual: ${currentValue || 'vacío'}`);
-//   //     return;
-//   //   }
-
-//   //   const shouldCapitalize = target !== 'email';
-//   //   let processed = this.voiceFilter.processDictationPhrase(text, this.getDictationContext(target), shouldCapitalize);
-
-//   //   if (!processed.success || !processed.text) {
-//   //     const word = text.trim();
-//   //     const cleanWord = word.replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i').replace(/ó/g, 'o').replace(/ú/g, 'u');
-//   //     let finalWord = cleanWord;
-//   //     if (shouldCapitalize && (currentValue === '' || currentValue.endsWith(' ')) && finalWord.length > 0) {
-//   //       finalWord = finalWord.charAt(0).toUpperCase() + finalWord.slice(1);
-//   //     }
-//   //     processed = {
-//   //       success: true,
-//   //       text: finalWord + ' ',
-//   //       originalText: text,
-//   //       processedText: finalWord + ' '
-//   //     } as any;
-//   //     console.log(`🔤 Fallback: "${processed.text}"`);
-//   //   }
-
-//   //   let textToAdd = processed.text;
-//   //   if (target === 'email') {
-//   //     textToAdd = this.cleanEmailText(textToAdd);
-//   //   }
-
-//   //   this.dictationBuffer = textToAdd.trimEnd();
-//   //   console.log(`🔤 Texto acumulado (no visible): "${this.dictationBuffer}"`);
-//   // }
-
-
-
-
-
-
-
-
-
-
-
-//   private handleDictation(text: string): void {
+//   private handleDictation(text: string, isFinal: boolean = false): void {
 //     if (this.isDestroyed || !this.dictationTarget) return;
 //     const target = this.dictationTarget;
 //     const currentValue = this.getCurrentValue(target);
 
-//     console.log(`📝 [handleDictation] target: ${target}, currentValue: "${currentValue}", text: "${text}"`);
+//     console.log(`📝 [handleDictation] target: ${target}, currentValue: "${currentValue}", text: "${text}", isFinal: ${isFinal}`);
 
 //     const lower = text.toLowerCase().trim();
 
-//     // ✅ NUEVO: si estamos dictando y dicen "pegar código", cancelar dictado y pegar
+//     // ✅ Si estamos dictando y dicen "pegar código" → cancelar y pegar
 //     if (lower.includes('pegar código') || lower.includes('pegar codigo') ||
 //         lower.includes('copiar código') || lower.includes('copiar codigo') ||
 //         lower.includes('rellenar código') || lower.includes('rellenar codigo') ||
@@ -1458,6 +1031,16 @@
 //       console.log('📋 [handleDictation] pegar/copiar código detectado → cancelando dictado');
 //       this.stopDictation('', true);
 //       this.copyCodeFromClipboard();
+//       return;
+//     }
+
+//     // ✅ Si estamos dictando y dicen "leer código" → cancelar y leer por voz
+//     if (lower.includes('leer código') || lower.includes('leer codigo') ||
+//         lower.includes('leer otp') || lower.includes('dime el código') ||
+//         lower.includes('dime el codigo')) {
+//       console.log('🔊 [handleDictation] leer código → cancelando dictado');
+//       this.stopDictation('', true);
+//       this.readOtpByVoice();
 //       return;
 //     }
 
@@ -1502,67 +1085,82 @@
 //       return;
 //     }
 
+//     // ============================================================
+//     // ✅ FINALIZACIÓN: procesar el buffer y volcarlo al input
+//     // ============================================================
 //     if (this.voiceFilter.containsFinishWords(text)) {
-//       console.log('🔴 Comando de finalización');
+//       console.log('🔴 Comando de finalización → procesando buffer final');
+
 //       const cleanText = this.voiceFilter.removeFinishWords(text);
 
-//       let finalValue = this.dictationBuffer || currentValue;
-
+//       let combined = this.dictationBuffer || '';
 //       if (cleanText.length > 0) {
-//         console.log(`📝 Procesando: "${cleanText}"`);
-//         const processed = this.voiceFilter.processDictationPhrase(cleanText, this.getDictationContext(target), false);
-//         if (processed.success) {
-//           let textToAdd = processed.text;
-//           if (target === 'email') {
-//             textToAdd = this.cleanEmailText(textToAdd);
-
-//             this.updateFormAndInputDirectly(target, textToAdd);
-
-//             const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-//             if (!emailPattern.test(textToAdd)) {
-//               console.log(`❌ Email inválido: "${textToAdd}"`);
-//               this.voiceService.speak('El correo no tiene un formato válido. Debe incluir @ y un dominio como .com. Puedes corregirlo manualmente o dictarlo de nuevo.');
-//               this.dictationBuffer = '';
-//               this.dictationMode = false;
-//               this.dictationTarget = null;
-//               this.dictationBuffer = '';
-//               this.cdr.markForCheck();
-//               return;
-//             }
-//           }
-//           finalValue = textToAdd;
-//           this.updateFormAndInputDirectly(target, finalValue);
-//           this.dictationBuffer = processed.text.trimEnd();
-//           console.log(`🔤 Reemplazado por: "${finalValue}"`);
-//         }
-//       } else {
-//         console.log(`🔤 Sin texto nuevo, usando buffer: "${finalValue}"`);
-//         if (finalValue && finalValue.length > 0) {
-//           this.updateFormAndInputDirectly(target, finalValue);
-//         }
+//         combined = this.voiceFilter.fusionarFrase(combined, cleanText, target);
 //       }
-//       this.stopDictation(finalValue);
-//       return;
-//     }
 
-//     if (lower === 'fin' || lower === 'terminar') {
-//       console.log('🔴 [ForgotPassword] Finalización directa');
-//       const finalValue = this.dictationBuffer || currentValue;
+//       console.log(`📝 Buffer bruto antes de limpiar: "${combined}"`);
 
-//       if (target === 'email' && finalValue && finalValue.length > 0) {
-//         this.updateFormAndInputDirectly(target, finalValue);
+//       // ✅ CAMBIO 1: Extraer la ÚLTIMA frase válida (no el buffer entero)
+//       let valorLimpio = this.voiceFilter.extraerUltimaFraseValida(combined);
 
+//       // Fallback: si no encontró patrón, usar el buffer tal cual
+//       if (!valorLimpio) {
+//         valorLimpio = combined;
+//         console.log(`⚠️ No se encontró patrón válido, usando buffer completo`);
+//       }
+
+//       console.log(`📝 Valor limpio extraído: "${valorLimpio}"`);
+
+//       // ============================================================
+//       // ✅ CAMBIO 3: Evitar que processDictationPhrase destruya la capitalización
+//       //    Si el valor ya tiene mayúsculas, NO lo procesamos otra vez.
+//       // ============================================================
+//       const yaEstaCapitalizado = /[A-Z]/.test(valorLimpio);
+
+//       let finalValue: string;
+
+//       if (yaEstaCapitalizado) {
+//         // Ya está capitalizado → no reprocesar
+//         console.log(`✅ Valor ya capitalizado, no se reprocesa: "${valorLimpio}"`);
+//         finalValue = valorLimpio;
+//       } else {
+//         // No está capitalizado → procesar normalmente
+//         const context = this.getDictationContext(target);
+//         const processed = this.voiceFilter.processDictationPhrase(
+//           valorLimpio,
+//           context,
+//           target !== 'email'
+//         );
+
+//         finalValue = processed.success && processed.text
+//           ? processed.text
+//           : valorLimpio;
+//       }
+
+//       // ✅ Limpieza final por tipo de campo
+//       finalValue = this.voiceFilter.limpiarValorFinal(finalValue, target);
+
+//       if (target === 'email') {
 //         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 //         if (!emailPattern.test(finalValue)) {
-//           console.log(`❌ Email inválido al finalizar: "${finalValue}"`);
-//           this.voiceService.speak('El correo no tiene un formato válido. Debe incluir @ y un dominio como .com. Puedes corregirlo manualmente o dictarlo de nuevo.');
-//           this.dictationBuffer = '';
-//           this.dictationMode = false;
-//           this.dictationTarget = null;
-//           this.dictationBuffer = '';
-//           this.cdr.markForCheck();
-//           return;
+//           console.log(`❌ Email inválido: "${finalValue}"`);
+//           this.voiceService.speak('El correo no tiene un formato válido. Puedes corregirlo manualmente.');
 //         }
+//       }
+
+//       console.log(`🔤 Valor final: "${finalValue}"`);
+
+//       this.updateFormAndInputDirectly(target, finalValue);
+//       this.dictationBuffer = finalValue;
+
+//       if (target === 'email') {
+//         this.voiceService.speak(`Correo guardado: ${finalValue}`);
+//       } else if (target === 'code') {
+//         this.voiceService.speak(`Código completado: ${finalValue}`);
+//       } else if (target === 'password') {
+//         this.voiceService.speak(`Listo, contraseña completada.`);
+//       } else {
+//         this.voiceService.speak(`Listo, confirmación completada.`);
 //       }
 
 //       this.stopDictation(finalValue);
@@ -1596,6 +1194,37 @@
 //       return;
 //     }
 
+//     // ============================================================
+//     // ✅ COMANDO DE CAPITALIZACIÓN SOLO
+//     // ============================================================
+//     const lowerTrimmed = text.toLowerCase().trim();
+//     const esComandoCapitalizacion = /^(may[uú]scula[s]?|min[uú]scula[s]?)$/i.test(lowerTrimmed);
+
+//     if (esComandoCapitalizacion) {
+//       console.log(`⏭️ "${text}" es comando de capitalización`);
+
+//       const bufferActual = this.dictationBuffer || '';
+
+//       const bufferLimpio = bufferActual
+//         .replace(/\s*(ma|má|may|máy|mayu|mayú|mayús|mayus|mayúscu|mayuscu|mayúscula|mayuscula|mayúsculas|mayusculas|min|mín|minu|minú|minús|minus|minúscu|minuiscu|minúscula|minuscula|minúsculas|minusculas)\s*$/gi, '')
+//         .trim();
+
+//       this.dictationBuffer = bufferLimpio
+//         ? bufferLimpio + ' mayúscula'
+//         : 'mayúscula';
+
+//       console.log(`🔤 Buffer interno (no visible): "${this.dictationBuffer}"`);
+//       return;
+//     }
+
+//     // ✅ Detectar fragmentos sueltos
+//     const esFragmentoCapitalizacion = /^(ma|má|may|máy|mayu|mayú|mayús|mayus|mayúscu|mayuscu|min|mín|minu|minú|minús|minus|minúscu|minuiscu)$/i.test(lowerTrimmed);
+
+//     if (esFragmentoCapitalizacion) {
+//       console.log(`⏭️ "${text}" es fragmento de capitalización → se ignora (esperando el completo)`);
+//       return;
+//     }
+
 //     const shouldCapitalize = target !== 'email';
 //     let processed = this.voiceFilter.processDictationPhrase(text, this.getDictationContext(target), shouldCapitalize);
 
@@ -1620,10 +1249,132 @@
 //       textToAdd = this.cleanEmailText(textToAdd);
 //     }
 
-//     this.dictationBuffer = textToAdd.trimEnd();
-//     console.log(`🔤 Texto acumulado (no visible): "${this.dictationBuffer}"`);
+//   // ============================================================
+//   // ✅ BUFFER: interinos REEMPLAZAN, finales CONSOLIDAN
+//   // ============================================================
+//   //   const previousBuffer = this.dictationBuffer || '';
+//   //   const candidate = textToAdd.trimEnd();
+
+//   //   if (isFinal) {
+//   //     console.log(`✅ [handleDictation] Frase FINAL: consolidando "${candidate}"`);
+//   //     this.dictationBuffer = this.voiceFilter.fusionarFrase(
+//   //       previousBuffer,
+//   //       candidate,
+//   //       target
+//   //     );
+//   //   } else {
+//   //     console.log(`📝 [handleDictation] Frase INTERINA: reemplazando "${previousBuffer}" con "${candidate}"`);
+//   //     this.dictationBuffer = candidate;
+//   //   }
+
+//   //   console.log(`🔤 Buffer interno (no visible): "${this.dictationBuffer}"`);
+//   //   // ❌ NO se actualiza el input durante el dictado.
+//   // }
+
+
+//   const previousBuffer = this.dictationBuffer || '';
+//     const candidate = textToAdd.trimEnd();
+
+//     if (isFinal) {
+//       console.log(`✅ [handleDictation] Frase FINAL: fusionando "${previousBuffer}" + "${candidate}"`);
+//       this.dictationBuffer = this.voiceFilter.fusionarFrase(
+//         previousBuffer,
+//         candidate,
+//         target
+//       );
+//     } else {
+//       console.log(`📝 [handleDictation] Frase INTERINA: fusionando "${previousBuffer}" + "${candidate}"`);
+//       this.dictationBuffer = this.voiceFilter.fusionarFrase(
+//         previousBuffer,
+//         candidate,
+//         target
+//       );
+//     }
+
+//     console.log(`🔤 Buffer interno (no visible): "${this.dictationBuffer}"`);
+//     // ❌ NO se actualiza el input durante el dictado.
 //   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   // private stopDictation(finalValue?: string, silent = false): void {
+//   //   if (this.isDestroyed) return;
+//   //   console.log(`🔴 stopDictation (silent: ${silent})`);
+//   //   const target = this.dictationTarget;
+
+//   //   if (target) {
+//   //     let value = finalValue !== undefined ? finalValue : this.dictationBuffer;
+
+//   //     if (!value || value.length === 0) {
+//   //       value = this.getCurrentValue(target);
+//   //     }
+
+//   //     value = value.trim();
+
+//   //     if (value && value.length > 0) {
+//   //       if (target === 'email') {
+//   //         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+//   //         if (!emailPattern.test(value)) {
+//   //           console.log(`❌ Email inválido en stopDictation: "${value}"`);
+//   //           if (!silent) {
+//   //             this.voiceService.speak('El correo no tiene un formato válido. Debe incluir @ y un dominio como .com. Puedes corregirlo manualmente.');
+//   //           }
+//   //           this.dictationBuffer = '';
+//   //           this.dictationMode = false;
+//   //           this.dictationTarget = null;
+//   //           this.dictationBuffer = '';
+//   //           this.cdr.markForCheck();
+//   //           return;
+//   //         }
+//   //       }
+
+//   //       this.updateFormAndInputDirectly(target, value);
+//   //       if (!silent) {
+//   //         if (target === 'email') {
+//   //           const cleanEmail = this.cleanEmailText(value);
+//   //           if (cleanEmail.includes('@') && cleanEmail.includes('.')) {
+//   //             this.voiceService.speak(`Correo guardado: ${cleanEmail}`);
+//   //           } else {
+//   //             this.voiceService.speak('Correo guardado correctamente.');
+//   //           }
+//   //         } else if (target === 'code') {
+//   //           // ✅ NUEVO: mensaje para código
+//   //           this.voiceService.speak(`Código completado: ${value}. Di "contraseña" para la nueva clave.`);
+//   //         } else if (target === 'password') {
+//   //           this.voiceService.speak(`Listo, contraseña completada.`);
+//   //         } else {
+//   //           this.voiceService.speak(`Listo, confirmación completada.`);
+//   //         }
+//   //       }
+//   //     } else {
+//   //       if (!silent) {
+//   //         const fieldName =
+//   //           target === 'email' ? 'el correo' :
+//   //           target === 'code' ? 'el código' :
+//   //           target === 'password' ? 'la contraseña' : 'la confirmación';
+//   //         this.voiceService.speak(`No se reconoció ${fieldName}.`);
+//   //       }
+//   //     }
+//   //   }
+
+//   //   this.dictationMode = false;
+//   //   this.dictationTarget = null;
+//   //   this.dictationBuffer = '';
+//   //   this.cdr.markForCheck();
+//   //   console.log('🔴 Dictado finalizado');
+//   // }
 
 
 
@@ -1643,6 +1394,9 @@
 //       value = value.trim();
 
 //       if (value && value.length > 0) {
+//         // ============================================================
+//         // VALIDACIÓN PREVIA POR TIPO DE CAMPO
+//         // ============================================================
 //         if (target === 'email') {
 //           const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 //           if (!emailPattern.test(value)) {
@@ -1653,13 +1407,69 @@
 //             this.dictationBuffer = '';
 //             this.dictationMode = false;
 //             this.dictationTarget = null;
-//             this.dictationBuffer = '';
 //             this.cdr.markForCheck();
 //             return;
 //           }
 //         }
 
+//         // ============================================================
+//         // ✅ VALIDACIÓN DE PASSWORD ANTES DE GUARDAR
+//         // ============================================================
+//         if (target === 'password') {
+//           const passwordCtrl = this.resetPasswordForm.get('password');
+//           if (passwordCtrl?.invalid) {
+//             const errores = this.getPasswordErrors();
+//             console.log(`❌ Password inválida: ${errores}`);
+
+//             // ✅ Limpiar el campo para que el usuario lo reintente
+//             this.updateFormAndInputDirectly('password', '');
+//             this.dictationBuffer = '';
+//             this.dictationMode = false;
+//             this.dictationTarget = null;
+//             this.cdr.markForCheck();
+
+//             if (!silent) {
+//               this.voiceService.speak(
+//                 `La contraseña no es válida. ${errores} Di "contraseña" para intentarlo de nuevo.`
+//               );
+//             }
+//             return;
+//           }
+//         }
+
+//         // ============================================================
+//         // ✅ VALIDACIÓN DE CONFIRMACIÓN ANTES DE GUARDAR
+//         // ============================================================
+//         if (target === 'confirmPassword') {
+//           const confirmCtrl = this.resetPasswordForm.get('confirmPassword');
+//           if (this.resetPasswordForm.hasError('passwordsMismatch') || confirmCtrl?.invalid) {
+//             const errores = this.getConfirmPasswordErrors();
+//             console.log(`❌ Confirmación inválida: ${errores}`);
+
+//             // ✅ Limpiar el campo para que el usuario lo reintente
+//             this.updateFormAndInputDirectly('confirmPassword', '');
+//             this.dictationBuffer = '';
+//             this.dictationMode = false;
+//             this.dictationTarget = null;
+//             this.cdr.markForCheck();
+
+//             if (!silent) {
+//               this.voiceService.speak(
+//                 `${errores} Di "confirmar" para intentarlo de nuevo.`
+//               );
+//             }
+//             return;
+//           }
+//         }
+
+//         // ============================================================
+//         // ✅ GUARDAR EL VALOR (todos los campos)
+//         // ============================================================
 //         this.updateFormAndInputDirectly(target, value);
+
+//         // ============================================================
+//         // ✅ MENSAJES POR VOZ SEGÚN EL CAMPO
+//         // ============================================================
 //         if (!silent) {
 //           if (target === 'email') {
 //             const cleanEmail = this.cleanEmailText(value);
@@ -1669,15 +1479,20 @@
 //               this.voiceService.speak('Correo guardado correctamente.');
 //             }
 //           } else if (target === 'code') {
-//             // ✅ NUEVO: mensaje para código
 //             this.voiceService.speak(`Código completado: ${value}. Di "contraseña" para la nueva clave.`);
 //           } else if (target === 'password') {
-//             this.voiceService.speak(`Listo, contraseña completada.`);
+//             // ✅ NUEVO: al terminar contraseña válida → pedir confirmación
+//             this.voiceService.speak(`Contraseña válida. Ahora di "confirmar" para repetirla.`);
+//             setTimeout(() => this.focusInput('confirmPassword'), 800);
+//           } else if (target === 'confirmPassword') {
+//             // ✅ NUEVO: al terminar confirmación válida → pedir guardar
+//             this.voiceService.speak(`Confirmación correcta. Di "guardar" para cambiar tu contraseña.`);
 //           } else {
 //             this.voiceService.speak(`Listo, confirmación completada.`);
 //           }
 //         }
 //       } else {
+//         // No hay valor → avisar según el campo
 //         if (!silent) {
 //           const fieldName =
 //             target === 'email' ? 'el correo' :
@@ -1695,74 +1510,132 @@
 //     console.log('🔴 Dictado finalizado');
 //   }
 
-//   private validatePasswordAfterDictation(password: string): void {
-//     const control = this.resetPasswordForm.get('password');
-//     if (control && control.invalid) {
-//       const errors = this.getPasswordErrors();
-//       this.updateFormAndInputDirectly('password', '');
-//       this.dictationBuffer = '';
 
-//       if (errors) {
-//         this.voiceService.speak(`La contraseña no es válida: ${errors}. Voy a borrarla. Di "contraseña" para intentarlo de nuevo.`);
-//       } else {
-//         this.voiceService.speak('La contraseña no cumple con los requisitos. Voy a borrarla. Di "contraseña" para intentarlo de nuevo.');
-//       }
-//       setTimeout(() => {
-//         this.startDictation('password', '');
-//       }, 500);
-//       return;
-//     } else if (control && control.valid) {
-//       this.voiceService.speak('Contraseña válida. Ahora di "confirmar" para repetirla, o "guardar" para cambiar tu contraseña.');
-//       setTimeout(() => {
-//         this.focusInput('confirmPassword');
-//       }, 500);
-//     }
-//   }
 
-//   private validateConfirmPasswordAfterDictation(): void {
-//     const control = this.resetPasswordForm.get('confirmPassword');
-//     if (control && control.invalid) {
-//       const errors = this.getConfirmPasswordErrors();
-//       this.updateFormAndInputDirectly('confirmPassword', '');
-//       this.dictationBuffer = '';
-
-//       if (errors) {
-//         this.voiceService.speak(`Error: ${errors}. Voy a borrar el campo. Di "confirmar" para intentarlo de nuevo.`);
-//       } else {
-//         this.voiceService.speak('La confirmación no coincide con la contraseña. Voy a borrar el campo. Di "confirmar" para intentarlo de nuevo.');
-//       }
-//       setTimeout(() => {
-//         this.startDictation('confirmPassword', '');
-//       }, 500);
-//       return;
-//     } else if (control && control.valid) {
-//       this.voiceService.speak('Confirmación correcta. Di "guardar" para cambiar tu contraseña.');
-//     }
-//   }
-
+//   /**
+//    * Devuelve un mensaje con los errores de la contraseña, o null si no hay.
+//    * Se usa para avisar por voz tras el dictado.
+//    */
 //   private getPasswordErrors(): string | null {
 //     const ctrl = this.resetPasswordForm.get('password');
 //     if (!ctrl) return null;
+
 //     const value = ctrl.value || '';
-//     if (ctrl.hasError('required')) return 'La contraseña es obligatoria.';
+//     const errores: string[] = [];
+
+//     if (ctrl.hasError('required')) {
+//       errores.push('La contraseña es obligatoria.');
+//     }
 //     if (ctrl.hasError('minlength')) {
-//       return `Debe tener al menos 9 caracteres. Tiene ${value.length}.`;
+//       errores.push(`Debe tener al menos 9 caracteres. Tiene ${value.length}.`);
 //     }
 //     if (ctrl.hasError('pattern')) {
-//       return 'Debe incluir mayúscula, minúscula, número y símbolo.';
+//       const faltantes: string[] = [];
+//       if (!/[a-z]/.test(value)) faltantes.push('una minúscula');
+//       if (!/[A-Z]/.test(value)) faltantes.push('una mayúscula');
+//       if (!/[0-9]/.test(value)) faltantes.push('un número');
+//       if (!/[!@#$%^&*]/.test(value)) faltantes.push('un símbolo como admiración o asterisco');
+
+//       if (faltantes.length > 0) {
+//         errores.push(`Debe incluir: ${faltantes.join(', ')}.`);
+//       } else {
+//         errores.push('Debe incluir mayúscula, minúscula, número y símbolo.');
+//       }
 //     }
-//     return null;
+
+//     return errores.length > 0 ? errores.join(' ') : null;
 //   }
 
+//   /**
+//    * Devuelve un mensaje con los errores de la confirmación, o null si no hay.
+//    */
 //   private getConfirmPasswordErrors(): string | null {
 //     const ctrl = this.resetPasswordForm.get('confirmPassword');
 //     if (!ctrl) return null;
-//     if (ctrl.hasError('required')) return 'Es obligatorio confirmar la contraseña.';
-//     if (this.resetPasswordForm.hasError('passwordsMismatch')) {
-//       return 'La confirmación no coincide con la contraseña.';
+
+//     if (ctrl.hasError('required')) {
+//       return 'Debes confirmar la contraseña.';
 //     }
+//     if (this.resetPasswordForm.hasError('passwordsMismatch')) {
+//       return 'Las contraseñas no coinciden.';
+//     }
+
 //     return null;
 //   }
+
+
+
+
+//   // private validatePasswordAfterDictation(password: string): void {
+//   //   const control = this.resetPasswordForm.get('password');
+//   //   if (control && control.invalid) {
+//   //     const errors = this.getPasswordErrors();
+//   //     this.updateFormAndInputDirectly('password', '');
+//   //     this.dictationBuffer = '';
+
+//   //     if (errors) {
+//   //       this.voiceService.speak(`La contraseña no es válida: ${errors}. Voy a borrarla. Di "contraseña" para intentarlo de nuevo.`);
+//   //     } else {
+//   //       this.voiceService.speak('La contraseña no cumple con los requisitos. Voy a borrarla. Di "contraseña" para intentarlo de nuevo.');
+//   //     }
+//   //     setTimeout(() => {
+//   //       this.startDictation('password', '');
+//   //     }, 500);
+//   //     return;
+//   //   } else if (control && control.valid) {
+//   //     this.voiceService.speak('Contraseña válida. Ahora di "confirmar" para repetirla, o "guardar" para cambiar tu contraseña.');
+//   //     setTimeout(() => {
+//   //       this.focusInput('confirmPassword');
+//   //     }, 500);
+//   //   }
+//   // }
+
+//   // private validateConfirmPasswordAfterDictation(): void {
+//   //   const control = this.resetPasswordForm.get('confirmPassword');
+//   //   if (control && control.invalid) {
+//   //     const errors = this.getConfirmPasswordErrors();
+//   //     this.updateFormAndInputDirectly('confirmPassword', '');
+//   //     this.dictationBuffer = '';
+
+//   //     if (errors) {
+//   //       this.voiceService.speak(`Error: ${errors}. Voy a borrar el campo. Di "confirmar" para intentarlo de nuevo.`);
+//   //     } else {
+//   //       this.voiceService.speak('La confirmación no coincide con la contraseña. Voy a borrar el campo. Di "confirmar" para intentarlo de nuevo.');
+//   //     }
+//   //     setTimeout(() => {
+//   //       this.startDictation('confirmPassword', '');
+//   //     }, 500);
+//   //     return;
+//   //   } else if (control && control.valid) {
+//   //     this.voiceService.speak('Confirmación correcta. Di "guardar" para cambiar tu contraseña.');
+//   //   }
+//   // }
+
+
+
+//   // private getPasswordErrors(): string | null {
+//   //   const ctrl = this.resetPasswordForm.get('password');
+//   //   if (!ctrl) return null;
+//   //   const value = ctrl.value || '';
+//   //   if (ctrl.hasError('required')) return 'La contraseña es obligatoria.';
+//   //   if (ctrl.hasError('minlength')) {
+//   //     return `Debe tener al menos 9 caracteres. Tiene ${value.length}.`;
+//   //   }
+//   //   if (ctrl.hasError('pattern')) {
+//   //     return 'Debe incluir mayúscula, minúscula, número y símbolo.';
+//   //   }
+//   //   return null;
+//   // }
+
+//   // private getConfirmPasswordErrors(): string | null {
+//   //   const ctrl = this.resetPasswordForm.get('confirmPassword');
+//   //   if (!ctrl) return null;
+//   //   if (ctrl.hasError('required')) return 'Es obligatorio confirmar la contraseña.';
+//   //   if (this.resetPasswordForm.hasError('passwordsMismatch')) {
+//   //     return 'La confirmación no coincide con la contraseña.';
+//   //   }
+//   //   return null;
+//   // }
 
 //   private getCurrentValue(target: string): string {
 //     if (target === 'email') {
@@ -2127,102 +2000,7 @@
 //     this.hidePassword.update(v => !v);
 //   }
 
-//   // public onSubmitEmail(): void {
-//   //   if (this.forgotPasswordForm.invalid) {
-//   //     this.forgotPasswordForm.markAllAsTouched();
-//   //     this.focusInput('email');
-
-//   //     let msg = 'El correo es obligatorio y debe tener un formato válido.';
-//   //     const emailControl = this.forgotPasswordForm.get('email');
-//   //     if (emailControl?.hasError('required')) {
-//   //       msg = 'El correo electrónico es obligatorio.';
-//   //     } else if (emailControl?.hasError('invalidEmail')) {
-//   //       msg = 'El formato del correo electrónico no es válido. Debe incluir un arroba y un dominio.';
-//   //     }
-
-//   //     this.errorMessage.set(msg);
-//   //     this.voiceService.speak(msg);
-//   //     this.cdr.markForCheck();
-//   //     return;
-//   //   }
-
-//   //   if (this.isLoading()) return;
-
-//   //   this.isLoading.set(true);
-//   //   this.errorMessage.set(null);
-//   //   this.voiceService.speak('Validando correo electrónico...');
-
-//   //   const email = this.forgotPasswordForm.value.email;
-//   //   console.log('📤 Enviando correo para recuperación:', email);
-
-//   //   this.authService.forgotPassword(email)
-//   //     .pipe(finalize(() => {
-//   //       this.isLoading.set(false);
-//   //       this.cdr.markForCheck();
-//   //     }))
-//   //     .subscribe({
-//   //       next: (response) => {
-//   //         console.log('✅ Respuesta del backend:', response);
-
-//   //         if (response && typeof response === 'object') {
-//   //           if (response.success === false || response.error === true) {
-//   //             const errorMsg = response.message || 'Ha ocurrido un error.';
-//   //             console.log('🔴 Error en la respuesta:', errorMsg);
-//   //             this.errorMessage.set(errorMsg);
-//   //             this.voiceService.speak(errorMsg);
-//   //             this.focusInput('email');
-//   //             this.cdr.markForCheck();
-//   //             return;
-//   //           }
-
-//   //           if (response.message &&
-//   //               (response.message.toLowerCase().includes('no registrado') ||
-//   //                response.message.toLowerCase().includes('not found') ||
-//   //                response.message.toLowerCase().includes('no existe'))) {
-//   //             console.log('🔴 Correo no registrado:', response.message);
-//   //             const msg = 'El correo electrónico no está registrado. Verifica que lo has escrito correctamente.';
-//   //             this.errorMessage.set(msg);
-//   //             this.voiceService.speak(msg);
-//   //             this.focusInput('email');
-//   //             this.cdr.markForCheck();
-//   //             return;
-//   //           }
-//   //         }
-
-//   //         this.emailSent.set(true);
-//   //         this.voiceService.speak('Código enviado a tu correo. Revisa tu bandeja de entrada o spam.');
-//   //         setTimeout(() => {
-//   //           this.focusInput('code');
-//   //         }, 500);
-//   //       },
-//   //       error: (err) => {
-//   //         console.log('🔴 Error HTTP:', err);
-
-//   //         let msg = 'El correo electrónico no está registrado. Verifica que lo has escrito correctamente.';
-
-//   //         if (err && typeof err === 'object') {
-//   //           if (err.message) {
-//   //             msg = err.message;
-//   //           } else if (err.error && typeof err.error === 'object' && err.error.message) {
-//   //             msg = err.error.message;
-//   //           }
-//   //         }
-
-//   //         console.log('🔴 Mensaje final de error:', msg);
-//   //         this.errorMessage.set(msg);
-//   //         this.voiceService.speak(msg);
-//   //         this.focusInput('email');
-//   //         this.cdr.markForCheck();
-//   //       }
-//   //     });
-//   // }
-
-
-
-
-
-
-
+//   //
 //   public onSubmitEmail(): void {
 //     if (this.forgotPasswordForm.invalid) {
 //       this.forgotPasswordForm.markAllAsTouched();
@@ -2260,8 +2038,9 @@
 //         next: (response) => {
 //           console.log('✅ Respuesta del backend:', response);
 
+//           // Manejo de errores de negocio (rate limit)
 //           if (response && typeof response === 'object') {
-//             if (response.success === false || response.error === true) {
+//             if (response.success === false) {
 //               const errorMsg = response.message || 'Ha ocurrido un error.';
 //               console.log('🔴 Error en la respuesta:', errorMsg);
 //               this.errorMessage.set(errorMsg);
@@ -2270,55 +2049,15 @@
 //               this.cdr.markForCheck();
 //               return;
 //             }
-
-//             if (response.message &&
-//                 (response.message.toLowerCase().includes('no registrado') ||
-//                 response.message.toLowerCase().includes('not found') ||
-//                 response.message.toLowerCase().includes('no existe'))) {
-//               console.log('🔴 Correo no registrado:', response.message);
-//               const msg = 'El correo electrónico no está registrado. Verifica que lo has escrito correctamente.';
-//               this.errorMessage.set(msg);
-//               this.voiceService.speak(msg);
-//               this.focusInput('email');
-//               this.cdr.markForCheck();
-//               return;
-//             }
 //           }
 
-//           // ✅ DIAGNÓSTICO: imprimir el tipo y las claves del response
-//           console.log('🔍 [ForgotPassword] Tipo de response:', typeof response);
-//           console.log('🔍 [ForgotPassword] Claves del response:', response ? Object.keys(response as any) : 'null');
-//           console.log('🔍 [ForgotPassword] response.code:', (response as any)?.code);
-//           console.log('🔍 [ForgotPassword] JSON response:', JSON.stringify(response));
-
-//           // ✅ NUEVO: capturar el código si el backend lo devuelve
-//           const codeFromBackend =
-//             (response as any)?.code ||
-//             (response as any)?.otp ||
-//             (response as any)?.verificationCode ||
-//             null;
-
-//           if (codeFromBackend) {
-//             this.availableCodeForVoice = String(codeFromBackend).trim();
-//             console.log('🎯 [ForgotPassword] Código capturado para lectura por voz:', this.availableCodeForVoice);
-//           } else {
-//             this.availableCodeForVoice = null;
-//             console.warn('⚠️ [ForgotPassword] NO se encontró campo code en la respuesta');
-//           }
-
+//           // ✅ Éxito (mensaje genérico anti-enumeración)
 //           this.emailSent.set(true);
 
-//           // ✅ Mensaje que cubre ambos canales (correo tradicional + voz)
-//           if (this.availableCodeForVoice) {
-//             this.voiceService.speak(
-//               'Código enviado a tu correo. ' +
-//               'Puedes revisar tu correo y copiarlo, o decir "leer código" para que te lo lea en voz alta.'
-//             );
-//           } else {
-//             this.voiceService.speak(
-//               'Código enviado a tu correo. Revisa tu bandeja de entrada o spam.'
-//             );
-//           }
+//           this.voiceService.speak(
+//             'Si el correo está registrado, recibirás un código de recuperación. ' +
+//             'Puedes dictarlo diciendo "código", o copiarlo del correo y decir "pegar código".'
+//           );
 
 //           setTimeout(() => {
 //             this.focusInput('code');
@@ -2327,7 +2066,7 @@
 //         error: (err) => {
 //           console.log('🔴 Error HTTP:', err);
 
-//           let msg = 'El correo electrónico no está registrado. Verifica que lo has escrito correctamente.';
+//           let msg = 'No se pudo procesar la solicitud. Inténtalo más tarde.';
 
 //           if (err && typeof err === 'object') {
 //             if (err.message) {
@@ -2345,6 +2084,214 @@
 //         }
 //       });
 //   }
+
+
+
+//   // ============================================================
+//   // ✅ NUEVO A2: LEER OTP POR VOZ
+//   // ============================================================
+
+//   /**
+//    * Llama al backend para obtener el OTP descifrado y lo lee en voz alta.
+//    * Solo funciona si previamente se ha solicitado con /forgot-password
+//    * (la cookie `otp_session` debe estar presente).
+//    */
+//   public readOtpByVoice(): void {
+//     if (this.isDestroyed) return;
+//     if (this.isLoading()) return;
+
+//     if (!this.emailSent()) {
+//       this.voiceService.speak('Primero debes solicitar el código con tu correo electrónico.');
+//       return;
+//     }
+
+//     const email = this.forgotPasswordForm.get('email')?.value;
+//     if (!email) {
+//       this.voiceService.speak('No se encontró tu correo electrónico. Vuelve al paso anterior.');
+//       return;
+//     }
+
+//     this.isLoading.set(true);
+//     this.errorMessage.set(null);
+//     this.voiceService.speak('Leyendo tu código de verificación...');
+//     this.cdr.markForCheck();
+
+//     this.authService.readOtp(email)
+//       .pipe(finalize(() => {
+//         this.isLoading.set(false);
+//         this.cdr.markForCheck();
+//       }))
+//       .subscribe({
+//         next: (response) => {
+//           if (!response || !response.code) {
+//             const msg = 'No se pudo leer el código. Solicita uno nuevo.';
+//             this.errorMessage.set(msg);
+//             this.voiceService.speak(msg);
+//             return;
+//           }
+
+//           const code = response.code;
+//           const remaining = response.remainingReads;
+
+//           this.lastRemainingReads.set(remaining);
+//           this.applyCode(code, 'copiado');
+
+//           const remainingMsg = remaining > 0
+//             ? `Te quedan ${remaining} lecturas disponibles.`
+//             : 'Esta ha sido tu última lectura.';
+
+//           this.voiceService.speak(
+//             `Tu código es: ${this.spellDigits(code)}. ${remainingMsg} ` +
+//             `Puedes escribir tu nueva contraseña cuando quieras.`
+//           );
+//           console.log(`🔊 [ForgotPassword] OTP leído: ${code}, restantes: ${remaining}`);
+//         },
+//         error: (err) => {
+//           console.error('🔴 [ForgotPassword] Error leyendo OTP:', err);
+
+//           let msg = 'No se pudo leer el código.';
+//           if (err?.status === 400) {
+//             msg = err.message || 'No hay un código activo. Solicita uno nuevo.';
+//           } else if (err?.status === 401) {
+//             msg = 'La sesión del código expiró. Solicita uno nuevo.';
+//           } else if (err?.message) {
+//             msg = err.message;
+//           }
+
+//           this.errorMessage.set(msg);
+//           this.voiceService.speak(msg);
+//         }
+//       });
+//   }
+
+
+
+//   //
+//   // public onSubmitNewPassword(): void {
+//   //   if (this.isDestroyed) return;
+//   //   if (this.isLoading()) return;
+
+//   //   this.resetPasswordForm.markAllAsTouched();
+
+//   //   const codeCtrl = this.resetPasswordForm.get('code');
+//   //   const passwordCtrl = this.resetPasswordForm.get('password');
+//   //   const confirmCtrl = this.resetPasswordForm.get('confirmPassword');
+
+//   //   if (this.resetPasswordForm.invalid) {
+//   //     let errorMessages: string[] = [];
+
+//   //     if (codeCtrl?.hasError('required')) {
+//   //       errorMessages.push('El código de verificación es obligatorio.');
+//   //     }
+//   //     if (codeCtrl?.hasError('minlength')) {
+//   //       errorMessages.push('El código debe tener 6 dígitos.');
+//   //     }
+//   //     if (passwordCtrl?.hasError('required')) {
+//   //       errorMessages.push('La contraseña es obligatoria.');
+//   //     }
+//   //     if (passwordCtrl?.hasError('minlength')) {
+//   //       errorMessages.push('La contraseña debe tener al menos 9 caracteres.');
+//   //     }
+//   //     if (passwordCtrl?.hasError('pattern')) {
+//   //       errorMessages.push('La contraseña debe incluir mayúscula, minúscula, número y símbolo.');
+//   //     }
+//   //     if (confirmCtrl?.hasError('required')) {
+//   //       errorMessages.push('Debes confirmar la contraseña.');
+//   //     }
+//   //     if (this.resetPasswordForm.hasError('passwordsMismatch') && confirmCtrl?.dirty) {
+//   //       errorMessages.push('Las contraseñas no coinciden.');
+//   //     }
+
+//   //     let voiceMsg = 'El formulario contiene errores. ';
+//   //     if (errorMessages.length === 1) {
+//   //       voiceMsg += errorMessages[0];
+//   //     } else if (errorMessages.length === 2) {
+//   //       voiceMsg += errorMessages[0] + ' Y ' + errorMessages[1];
+//   //     } else if (errorMessages.length > 2) {
+//   //       const last = errorMessages.pop();
+//   //       voiceMsg += errorMessages.join(' ') + ' Y ' + last;
+//   //     }
+//   //     voiceMsg += ' Revisa los campos resaltados.';
+
+//   //     this.errorMessage.set(voiceMsg);
+//   //     this.voiceService.speak(voiceMsg);
+
+//   //     if (codeCtrl?.invalid) {
+//   //       setTimeout(() => this.focusInput('code'), 500);
+//   //     } else if (passwordCtrl?.invalid) {
+//   //       setTimeout(() => this.focusInput('password'), 500);
+//   //     } else if (confirmCtrl?.invalid) {
+//   //       setTimeout(() => this.focusInput('confirmPassword'), 500);
+//   //     }
+
+//   //     this.cdr.markForCheck();
+//   //     return;
+//   //   }
+
+//   //   const code = this.resetPasswordForm.value.code;
+//   //   if (!code || code.trim().length === 0) {
+//   //     const msg = 'Falta el código de verificación. Revisa tu correo y di "código" para introducirlo.';
+//   //     this.errorMessage.set(msg);
+//   //     this.voiceService.speak(msg);
+//   //     this.focusInput('code');
+//   //     this.cdr.markForCheck();
+//   //     return;
+//   //   }
+
+//   //   this.isLoading.set(true);
+//   //   this.errorMessage.set(null);
+//   //   this.voiceService.speak('Actualizando contraseña...');
+
+//   //   const payload = {
+//   //     email: this.forgotPasswordForm.value.email,
+//   //     code: this.resetPasswordForm.value.code,
+//   //     newPassword: this.resetPasswordForm.value.password,
+//   //     confirmPassword: this.resetPasswordForm.value.confirmPassword
+//   //   };
+
+//   //   console.log('🔍 [ForgotPassword] Payload a enviar:', JSON.stringify({
+//   //     email: payload.email,
+//   //     code: payload.code,
+//   //     newPassword: payload.newPassword ? `[${payload.newPassword.length} chars]` : 'VACÍO',
+//   //     confirmPassword: payload.confirmPassword ? `[${payload.confirmPassword.length} chars]` : 'VACÍO'
+//   //   }, null, 2));
+
+//   //   this.authService.resetPassword(payload)
+//   //     .pipe(finalize(() => {
+//   //       this.isLoading.set(false);
+//   //       this.cdr.markForCheck();
+//   //     }))
+//   //     .subscribe({
+//   //       next: () => {
+//   //         this.isFinished.set(true);
+//   //         this.voiceService.speak('¡Contraseña actualizada correctamente! Ya puedes iniciar sesión.');
+//   //         console.log('✅ Contraseña actualizada correctamente');
+//   //       },
+//   //       error: (err) => {
+//   //         console.log('🔴 [ForgotPassword] Error reset-password:', err);
+
+//   //         let msg = 'Código inválido o expirado. Inténtalo de nuevo.';
+
+//   //         if (err?.status === 0) {
+//   //           msg = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+//   //         } else if (err?.status === 400) {
+//   //           msg = err.message || 'Los datos enviados no son válidos. Verifica el código y la contraseña.';
+//   //         } else if (err?.status === 401 || err?.status === 403) {
+//   //           msg = 'El código de verificación no es válido o ha expirado. Solicita uno nuevo.';
+//   //         } else if (err?.status === 500) {
+//   //           msg = 'Error en el servidor. Inténtalo más tarde.';
+//   //         } else if (err?.message) {
+//   //           msg = err.message;
+//   //         } else if (err?.error?.message) {
+//   //           msg = err.error.message;
+//   //         }
+
+//   //         this.errorMessage.set(msg);
+//   //         this.voiceService.speak(msg);
+//   //         this.focusInput('code');
+//   //       }
+//   //     });
+//   // }
 
 
 
@@ -2445,9 +2392,21 @@
 //       }))
 //       .subscribe({
 //         next: () => {
+//           console.log('✅ Contraseña actualizada correctamente → navegando a login');
+
+//           // ✅ Marcar como terminado (por si acaso)
 //           this.isFinished.set(true);
+
+//           // ✅ Mensaje por voz
 //           this.voiceService.speak('¡Contraseña actualizada correctamente! Ya puedes iniciar sesión.');
-//           console.log('✅ Contraseña actualizada correctamente');
+
+//           // ✅ Navegar directamente a /login con un state para mostrar mensaje
+//           this.router.navigate(['/login'], {
+//             state: {
+//               passwordResetSuccess: true,
+//               message: 'Contraseña actualizada. Ya puedes iniciar sesión.'
+//             }
+//           });
 //         },
 //         error: (err) => {
 //           console.log('🔴 [ForgotPassword] Error reset-password:', err);
@@ -2474,6 +2433,9 @@
 //         }
 //       });
 //   }
+
+
+
 
 //   // ============================================================
 //   // DESTRUCCIÓN
@@ -2522,6 +2484,14 @@
 
 
 
+
+
+
+
+
+
+
+
 // src/app/features/auth/forgot-password/forgot-password.component.ts
 import {
   Component,
@@ -2532,7 +2502,6 @@ import {
   inject,
   OnDestroy,
   ChangeDetectorRef,
-  Renderer2,
   OnInit,
   NgZone,
   ChangeDetectionStrategy
@@ -2540,7 +2509,7 @@ import {
 
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
-import { finalize, Subject, Subscription, takeUntil, debounceTime } from 'rxjs';
+import { finalize, Subject, Subscription, takeUntil } from 'rxjs';
 
 // ✅ IONIC standalone imports
 import {
@@ -2565,16 +2534,11 @@ import {
   lockClosedOutline,
   eyeOutline,
   eyeOffOutline,
-  clipboardOutline,
+  volumeHighOutline,
 } from 'ionicons/icons';
-
-// ✅ Directivas locales
-import { AutoFocusDirective } from '../../../../../shared/directives/auto-focus.directive';
-import { DisableAutofillDirective } from '../../../../../shared/directives/disable-autofill.directive';
 
 import { emailValidator } from '../../../../../shared/validators/validators';
 import { AuthService } from '../../../Services/auth-service';
-import { VoiceCommandHandlerService } from '../../../../services/voz/voice-command-handler.service';
 import { VoiceContextService } from '../../../../services/voz/voice-context.service';
 import { VoiceFilterService } from '../../../../services/voz/voice-filter.service';
 import { VoiceService } from '../../../../services/voz/voice.service';
@@ -2603,19 +2567,13 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly renderer = inject(Renderer2);
   private readonly ngZone = inject(NgZone);
 
   // Servicios de voz
   private readonly voiceService = inject(VoiceService);
-  private readonly voiceHandler = inject(VoiceCommandHandlerService);
   private readonly voiceContext = inject(VoiceContextService);
   private readonly voiceFilter = inject(VoiceFilterService);
   private readonly fieldCleanup = inject(FieldCleanupService);
-
-  // Feedback de voz con debounce
-  private voiceFeedback$ = new Subject<string>();
-  private voiceFeedbackSubscription?: Subscription;
 
   // ✅ Referencias a inputs (ion-input de Ionic)
   readonly emailInput       = viewChild<ElementRef<HTMLIonInputElement>>('emailInput');
@@ -2633,9 +2591,9 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   readonly isLoading = signal(false);
   readonly hidePassword = signal(true);
   readonly errorMessage = signal<string | null>(null);
+  readonly lastRemainingReads = signal<number | null>(null);   // ✅ NUEVO A2
 
   private isDestroyed = false;
-  private welcomeShown = false;
   private destroy$ = new Subject<void>();
 
   // Estado del dictado — ✅ NUEVO: incluye 'code'
@@ -2680,12 +2638,12 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   private readonly HELP_MESSAGE_STEP_2 =
     'Ahora puedes decir: "código" para dictar el código, ' +
-    '"pegar código" si lo has copiado del correo, ' +
+    '"leer código" para que yo te lo lea en voz alta, ' +
     '"contraseña" para escribir tu nueva contraseña, ' +
     '"confirmar" para repetir la contraseña, ' +
-    '"guardar" para cambiar tu contraseña, ' +
+    '"cambiar contraseña" para guardarla, ' +
     '"leer campos" para escuchar lo que has escrito, ' +
-    '"volver" para regresar, o "ayuda" para repetir este mensaje.';
+    '" volver" para regresar, o "ayuda" para repetir este mensaje.';
 
   constructor() {
     // ✅ registrar los iconos usados en el HTML
@@ -2699,7 +2657,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       lockClosedOutline,
       eyeOutline,
       eyeOffOutline,
-      clipboardOutline,
+      volumeHighOutline,
     });
 
     // ✅ PASO 1: Solo email
@@ -2740,21 +2698,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
         setTimeout(() => this.btnSubmitPass()?.nativeElement.focus(), 50);
       }
     });
-
-    // ✅ Suscripción para mensajes de voz con debounce
-    this.voiceFeedbackSubscription = this.voiceFeedback$
-      .pipe(debounceTime(1200))
-      .subscribe((message: string) => {
-        if (!this.isDestroyed && message) {
-          this.voiceService.speak(message);
-        }
-      });
-  }
-
-  private speakFeedback(message: string): void {
-    if (!this.isDestroyed && message) {
-      this.voiceFeedback$.next(message);
-    }
   }
 
   /**
@@ -2820,14 +2763,14 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     }, 1000);
 
     this.voiceService
-      .getTranscript()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((text: string) => {
-        this.ngZone.run(() => {
-          if (this.isDestroyed || !text) return;
-          this.handleVoiceCommand(text);
-        });
+    .getTranscriptWithFinal()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(({ text, isFinal }) => {
+      this.ngZone.run(() => {
+        if (this.isDestroyed || !text) return;
+        this.handleVoiceCommand(text, isFinal);
       });
+    });
 
     this.registerFieldsForCleanup();
 
@@ -2973,16 +2916,16 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       if (emptyFields.length > 0) {
         messages.push('Campos vacíos: ' + emptyFields.join(', ') + '.');
       }
+    }
 
-      if (emptyFields.length === 0) {
-        messages.push('Todos los campos están completos.');
-        if (this.emailSent() && !this.isFinished()) {
-          messages.push('Di "guardar" para cambiar la contraseña.');
-        } else if (!this.emailSent()) {
-          messages.push('Di "enviar" para solicitar el código.');
-        } else if (this.isFinished()) {
-          messages.push('Ya has actualizado tu contraseña. Ve al login.');
-        }
+    if (emptyFields.length === 0) {
+      messages.push('Todos los campos están completos.');
+      if (this.emailSent() && !this.isFinished()) {
+        messages.push('Di "cambiar contraseña" para guardarla.');
+      } else if (!this.emailSent()) {
+        messages.push('Di "enviar" para solicitar el código.');
+      } else if (this.isFinished()) {
+        messages.push('Ya has actualizado tu contraseña. Ve al login.');
       }
     }
 
@@ -3017,6 +2960,9 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
     speakNext();
   }
+
+
+
 
   // ============================================================
   // ✅ MÉTODO PARA PEGAR CÓDIGO DESDE EL PORTAPAPELES
@@ -3083,31 +3029,31 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
 
   //
-  public async pasteCodeFromClipboard(): Promise<void> {
-    if (this.isDestroyed) return;
+  // public async pasteCodeFromClipboard(): Promise<void> {
+  //   if (this.isDestroyed) return;
 
-    const now = Date.now();
-    if (now - this.lastPasteAttempt < this.PASTE_DEBOUNCE) {
-      console.log('⏭️ [ForgotPassword] pegar código ignorado (debounce)');
-      return;
-    }
-    this.lastPasteAttempt = now;
+  //   const now = Date.now();
+  //   if (now - this.lastPasteAttempt < this.PASTE_DEBOUNCE) {
+  //     console.log('⏭️ [ForgotPassword] pegar código ignorado (debounce)');
+  //     return;
+  //   }
+  //   this.lastPasteAttempt = now;
 
-    try {
-      const text = await this.readClipboardWithRetry();
-      const code = this.extractCodeFromText(text);
+  //   try {
+  //     const text = await this.readClipboardWithRetry();
+  //     const code = this.extractCodeFromText(text);
 
-      if (!code) {
-        this.voiceService.speak('El portapapeles no contiene un código de 6 dígitos. Copia el código del correo primero.');
-        return;
-      }
+  //     if (!code) {
+  //       this.voiceService.speak('El portapapeles no contiene un código de 6 dígitos. Copia el código del correo primero.');
+  //       return;
+  //     }
 
-      this.applyCode(code, 'pegado');
-    } catch (err) {
-      console.error('Error al leer el portapapeles:', err);
-      this.voiceService.speak('No se pudo acceder al portapapeles. Asegúrate de permitir el acceso.');
-    }
-  }
+  //     this.applyCode(code, 'pegado');
+  //   } catch (err) {
+  //     console.error('Error al leer el portapapeles:', err);
+  //     this.voiceService.speak('No se pudo acceder al portapapeles. Asegúrate de permitir el acceso.');
+  //   }
+  // }
 
 
   //
@@ -3164,20 +3110,24 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   }
 
 
-
   // ============================================================
   // PROCESAMIENTO DE COMANDOS DE VOZ
   // ============================================================
-  private handleVoiceCommand(text: string): void {
+  private handleVoiceCommand(text: string, isFinal: boolean = false): void {
     if (this.isDestroyed) return;
     const lower = text.toLowerCase().trim();
 
     // ✅ Comandos compuestos que NO deben pasar por debounce
-   const bypassDebounceCommands = [
+    const bypassDebounceCommands = [
       'pegar código', 'pegar codigo',
       'copiar código', 'copiar codigo',
       'rellenar código', 'rellenar codigo',
-      'escribir código', 'escribir codigo'
+      'escribir código', 'escribir codigo',
+      'leer código', 'leer codigo',
+      'leer otp',
+      'dime el código', 'dime el codigo',
+      'leer el código', 'leer el codigo',
+      'leer por voz', 'por voz'             // ✅ NUEVO
     ];
     const bypassDebounce = bypassDebounceCommands.some(cmd => lower.includes(cmd));
 
@@ -3192,13 +3142,33 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     this.lastProcessedTime = now;
 
     // ============================================================
-    // ✅ Comandos de código (portapapeles + lectura por voz)
+    // ✅ Comandos de código (portapapeles + LECTURA POR VOZ)
     //    ANTES de la prioridad de dictado, para que "código" fragmentado
     //    no arranque dictado cuando en realidad el usuario quiere
     //    "leer código" o "pegar código"
     // ============================================================
     if (this.emailSent() && !this.isFinished()) {
-      
+
+      // ✅ Comando "leer código" (y variantes) → leer OTP por voz
+      if (lower.includes('leer código') || lower.includes('leer codigo') ||
+          lower.includes('leer otp') || lower.includes('dime el código') ||
+          lower.includes('dime el codigo') || lower.includes('leer el código') ||
+          lower.includes('leer el codigo') || lower.includes('leer por voz') ||
+          lower.includes('por voz')) {                       // ✅ NUEVO
+        console.log('🔊 [ForgotPassword] Comando "leer código" detectado');
+        if (this.dictationMode) {
+          this.stopDictation(undefined, true);
+        }
+        this.readOtpByVoice();
+        return;
+      }
+
+      // ✅ NUEVO: si dicen solo "leer" → esperar al siguiente fragmento
+      if (lower === 'leer' || lower === 'leerlo') {
+        console.log('⏭️ [ForgotPassword] "leer" detectado → esperando "código"');
+        return;
+      }
+
       // ✅ Comandos de portapapeles (pegar/copiar código)
       if (lower.includes('pegar código') || lower.includes('pegar codigo') ||
           lower.includes('copiar código') || lower.includes('copiar codigo') ||
@@ -3235,7 +3205,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
     // ✅ PRIORIDAD: Si estamos en modo dictado
     if (this.dictationMode && this.dictationTarget) {
-      this.handleDictation(lower);
+      this.handleDictation(lower, isFinal);
       return;
     }
 
@@ -3361,7 +3331,17 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       }
 
       // Guardar / Cambiar contraseña
-      if (lower.includes('guardar') || lower.includes('cambiar') || lower.includes('actualizar')) {
+      // if (lower.includes('guardar') || lower.includes('cambiar') || lower.includes('actualizar')) {
+      //   this.onSubmitNewPassword();
+      //   return;
+      // }
+
+      // Guardar / Cambiar contraseña
+      if (lower.includes('guardar') || 
+          lower.includes('cambiar contraseña') || 
+          lower.includes('cambiar contraseña') ||
+          lower.includes('cambiar') || 
+          lower.includes('actualizar')) {
         this.onSubmitNewPassword();
         return;
       }
@@ -3409,7 +3389,8 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       if (!confirm || confirm.trim().length === 0) missingFields.push('confirmación');
 
       if (missingFields.length === 0) {
-        this.voiceService.speak('Todos los campos están completos. Di "guardar" para cambiar tu contraseña, o "leer campos" para escuchar lo que has escrito.');
+        // this.voiceService.speak('Todos los campos están completos. Di "guardar" para cambiar tu contraseña, o "leer campos" para escuchar lo que has escrito.');
+        this.voiceService.speak('Todos los campos están completos. Di "cambiar contraseña" para guardarla, o "leer campos" para escuchar lo que has escrito.');
       } else {
         const fieldList = missingFields.map(f => `"${f}"`).join(', ');
         this.voiceService.speak(`Faltan los campos: ${fieldList}. Di el nombre de uno para escribirlo.`);
@@ -3494,16 +3475,17 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   }
 
   //
-  private handleDictation(text: string): void {
+  // private handleDictation(text: string): void {
+  private handleDictation(text: string, isFinal: boolean = false): void {
     if (this.isDestroyed || !this.dictationTarget) return;
     const target = this.dictationTarget;
     const currentValue = this.getCurrentValue(target);
 
-    console.log(`📝 [handleDictation] target: ${target}, currentValue: "${currentValue}", text: "${text}"`);
+    console.log(`📝 [handleDictation] target: ${target}, currentValue: "${currentValue}", text: "${text}", isFinal: ${isFinal}`);
 
     const lower = text.toLowerCase().trim();
 
-    // ✅ NUEVO: si estamos dictando y dicen "pegar código", cancelar dictado y pegar
+    // ✅ Si estamos dictando y dicen "pegar código" → cancelar y pegar
     if (lower.includes('pegar código') || lower.includes('pegar codigo') ||
         lower.includes('copiar código') || lower.includes('copiar codigo') ||
         lower.includes('rellenar código') || lower.includes('rellenar codigo') ||
@@ -3511,6 +3493,16 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       console.log('📋 [handleDictation] pegar/copiar código detectado → cancelando dictado');
       this.stopDictation('', true);
       this.copyCodeFromClipboard();
+      return;
+    }
+
+    // ✅ Si estamos dictando y dicen "leer código" → cancelar y leer por voz
+    if (lower.includes('leer código') || lower.includes('leer codigo') ||
+        lower.includes('leer otp') || lower.includes('dime el código') ||
+        lower.includes('dime el codigo')) {
+      console.log('🔊 [handleDictation] leer código → cancelando dictado');
+      this.stopDictation('', true);
+      this.readOtpByVoice();
       return;
     }
 
@@ -3555,67 +3547,82 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // ============================================================
+    // ✅ FINALIZACIÓN: procesar el buffer y volcarlo al input
+    // ============================================================
     if (this.voiceFilter.containsFinishWords(text)) {
-      console.log('🔴 Comando de finalización');
+      console.log('🔴 Comando de finalización → procesando buffer final');
+
       const cleanText = this.voiceFilter.removeFinishWords(text);
 
-      let finalValue = this.dictationBuffer || currentValue;
-
+      let combined = this.dictationBuffer || '';
       if (cleanText.length > 0) {
-        console.log(`📝 Procesando: "${cleanText}"`);
-        const processed = this.voiceFilter.processDictationPhrase(cleanText, this.getDictationContext(target), false);
-        if (processed.success) {
-          let textToAdd = processed.text;
-          if (target === 'email') {
-            textToAdd = this.cleanEmailText(textToAdd);
-
-            this.updateFormAndInputDirectly(target, textToAdd);
-
-            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailPattern.test(textToAdd)) {
-              console.log(`❌ Email inválido: "${textToAdd}"`);
-              this.voiceService.speak('El correo no tiene un formato válido. Debe incluir @ y un dominio como .com. Puedes corregirlo manualmente o dictarlo de nuevo.');
-              this.dictationBuffer = '';
-              this.dictationMode = false;
-              this.dictationTarget = null;
-              this.dictationBuffer = '';
-              this.cdr.markForCheck();
-              return;
-            }
-          }
-          finalValue = textToAdd;
-          this.updateFormAndInputDirectly(target, finalValue);
-          this.dictationBuffer = processed.text.trimEnd();
-          console.log(`🔤 Reemplazado por: "${finalValue}"`);
-        }
-      } else {
-        console.log(`🔤 Sin texto nuevo, usando buffer: "${finalValue}"`);
-        if (finalValue && finalValue.length > 0) {
-          this.updateFormAndInputDirectly(target, finalValue);
-        }
+        combined = this.voiceFilter.fusionarFrase(combined, cleanText, target);
       }
-      this.stopDictation(finalValue);
-      return;
-    }
 
-    if (lower === 'fin' || lower === 'terminar') {
-      console.log('🔴 [ForgotPassword] Finalización directa');
-      const finalValue = this.dictationBuffer || currentValue;
+      console.log(`📝 Buffer bruto antes de limpiar: "${combined}"`);
 
-      if (target === 'email' && finalValue && finalValue.length > 0) {
-        this.updateFormAndInputDirectly(target, finalValue);
+      // ✅ CAMBIO 1: Extraer la ÚLTIMA frase válida (no el buffer entero)
+      let valorLimpio = this.voiceFilter.extraerUltimaFraseValida(combined);
 
+      // Fallback: si no encontró patrón, usar el buffer tal cual
+      if (!valorLimpio) {
+        valorLimpio = combined;
+        console.log(`⚠️ No se encontró patrón válido, usando buffer completo`);
+      }
+
+      console.log(`📝 Valor limpio extraído: "${valorLimpio}"`);
+
+      // ============================================================
+      // ✅ CAMBIO 3: Evitar que processDictationPhrase destruya la capitalización
+      //    Si el valor ya tiene mayúsculas, NO lo procesamos otra vez.
+      // ============================================================
+      const yaEstaCapitalizado = /[A-Z]/.test(valorLimpio);
+
+      let finalValue: string;
+
+      if (yaEstaCapitalizado) {
+        // Ya está capitalizado → no reprocesar
+        console.log(`✅ Valor ya capitalizado, no se reprocesa: "${valorLimpio}"`);
+        finalValue = valorLimpio;
+      } else {
+        // No está capitalizado → procesar normalmente
+        const context = this.getDictationContext(target);
+        const processed = this.voiceFilter.processDictationPhrase(
+          valorLimpio,
+          context,
+          target !== 'email'
+        );
+
+        finalValue = processed.success && processed.text
+          ? processed.text
+          : valorLimpio;
+      }
+
+      // ✅ Limpieza final por tipo de campo
+      finalValue = this.voiceFilter.limpiarValorFinal(finalValue, target);
+
+      if (target === 'email') {
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailPattern.test(finalValue)) {
-          console.log(`❌ Email inválido al finalizar: "${finalValue}"`);
-          this.voiceService.speak('El correo no tiene un formato válido. Debe incluir @ y un dominio como .com. Puedes corregirlo manualmente o dictarlo de nuevo.');
-          this.dictationBuffer = '';
-          this.dictationMode = false;
-          this.dictationTarget = null;
-          this.dictationBuffer = '';
-          this.cdr.markForCheck();
-          return;
+          console.log(`❌ Email inválido: "${finalValue}"`);
+          this.voiceService.speak('El correo no tiene un formato válido. Puedes corregirlo manualmente.');
         }
+      }
+
+      console.log(`🔤 Valor final: "${finalValue}"`);
+
+      this.updateFormAndInputDirectly(target, finalValue);
+      this.dictationBuffer = finalValue;
+
+      if (target === 'email') {
+        this.voiceService.speak(`Correo guardado: ${finalValue}`);
+      } else if (target === 'code') {
+        this.voiceService.speak(`Código completado: ${finalValue}`);
+      } else if (target === 'password') {
+        this.voiceService.speak(`Listo, contraseña completada.`);
+      } else {
+        this.voiceService.speak(`Listo, confirmación completada.`);
       }
 
       this.stopDictation(finalValue);
@@ -3649,6 +3656,37 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // ============================================================
+    // ✅ COMANDO DE CAPITALIZACIÓN SOLO
+    // ============================================================
+    const lowerTrimmed = text.toLowerCase().trim();
+    const esComandoCapitalizacion = /^(may[uú]scula[s]?|min[uú]scula[s]?)$/i.test(lowerTrimmed);
+
+    if (esComandoCapitalizacion) {
+      console.log(`⏭️ "${text}" es comando de capitalización`);
+
+      const bufferActual = this.dictationBuffer || '';
+
+      const bufferLimpio = bufferActual
+        .replace(/\s*(ma|má|may|máy|mayu|mayú|mayús|mayus|mayúscu|mayuscu|mayúscula|mayuscula|mayúsculas|mayusculas|min|mín|minu|minú|minús|minus|minúscu|minuiscu|minúscula|minuscula|minúsculas|minusculas)\s*$/gi, '')
+        .trim();
+
+      this.dictationBuffer = bufferLimpio
+        ? bufferLimpio + ' mayúscula'
+        : 'mayúscula';
+
+      console.log(`🔤 Buffer interno (no visible): "${this.dictationBuffer}"`);
+      return;
+    }
+
+    // ✅ Detectar fragmentos sueltos
+    const esFragmentoCapitalizacion = /^(ma|má|may|máy|mayu|mayú|mayús|mayus|mayúscu|mayuscu|min|mín|minu|minú|minús|minus|minúscu|minuiscu)$/i.test(lowerTrimmed);
+
+    if (esFragmentoCapitalizacion) {
+      console.log(`⏭️ "${text}" es fragmento de capitalización → se ignora (esperando el completo)`);
+      return;
+    }
+
     const shouldCapitalize = target !== 'email';
     let processed = this.voiceFilter.processDictationPhrase(text, this.getDictationContext(target), shouldCapitalize);
 
@@ -3673,13 +3711,51 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       textToAdd = this.cleanEmailText(textToAdd);
     }
 
-    this.dictationBuffer = textToAdd.trimEnd();
-    console.log(`🔤 Texto acumulado (no visible): "${this.dictationBuffer}"`);
+  // ============================================================
+  // ✅ BUFFER: interinos REEMPLAZAN, finales CONSOLIDAN
+  // ============================================================
+  //   const previousBuffer = this.dictationBuffer || '';
+  //   const candidate = textToAdd.trimEnd();
+
+  //   if (isFinal) {
+  //     console.log(`✅ [handleDictation] Frase FINAL: consolidando "${candidate}"`);
+  //     this.dictationBuffer = this.voiceFilter.fusionarFrase(
+  //       previousBuffer,
+  //       candidate,
+  //       target
+  //     );
+  //   } else {
+  //     console.log(`📝 [handleDictation] Frase INTERINA: reemplazando "${previousBuffer}" con "${candidate}"`);
+  //     this.dictationBuffer = candidate;
+  //   }
+
+  //   console.log(`🔤 Buffer interno (no visible): "${this.dictationBuffer}"`);
+  //   // ❌ NO se actualiza el input durante el dictado.
+  // }
+
+
+  const previousBuffer = this.dictationBuffer || '';
+    const candidate = textToAdd.trimEnd();
+
+    if (isFinal) {
+      console.log(`✅ [handleDictation] Frase FINAL: fusionando "${previousBuffer}" + "${candidate}"`);
+      this.dictationBuffer = this.voiceFilter.fusionarFrase(
+        previousBuffer,
+        candidate,
+        target
+      );
+    } else {
+      console.log(`📝 [handleDictation] Frase INTERINA: fusionando "${previousBuffer}" + "${candidate}"`);
+      this.dictationBuffer = this.voiceFilter.fusionarFrase(
+        previousBuffer,
+        candidate,
+        target
+      );
+    }
+
+    console.log(`🔤 Buffer interno (no visible): "${this.dictationBuffer}"`);
+    // ❌ NO se actualiza el input durante el dictado.
   }
-
-
-
-
 
   private stopDictation(finalValue?: string, silent = false): void {
     if (this.isDestroyed) return;
@@ -3696,6 +3772,9 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       value = value.trim();
 
       if (value && value.length > 0) {
+        // ============================================================
+        // VALIDACIÓN PREVIA POR TIPO DE CAMPO
+        // ============================================================
         if (target === 'email') {
           const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
           if (!emailPattern.test(value)) {
@@ -3706,13 +3785,69 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
             this.dictationBuffer = '';
             this.dictationMode = false;
             this.dictationTarget = null;
-            this.dictationBuffer = '';
             this.cdr.markForCheck();
             return;
           }
         }
 
+        // ============================================================
+        // ✅ VALIDACIÓN DE PASSWORD ANTES DE GUARDAR
+        // ============================================================
+        if (target === 'password') {
+          const passwordCtrl = this.resetPasswordForm.get('password');
+          if (passwordCtrl?.invalid) {
+            const errores = this.getPasswordErrors();
+            console.log(`❌ Password inválida: ${errores}`);
+
+            // ✅ Limpiar el campo para que el usuario lo reintente
+            this.updateFormAndInputDirectly('password', '');
+            this.dictationBuffer = '';
+            this.dictationMode = false;
+            this.dictationTarget = null;
+            this.cdr.markForCheck();
+
+            if (!silent) {
+              this.voiceService.speak(
+                `La contraseña no es válida. ${errores} Di "contraseña" para intentarlo de nuevo.`
+              );
+            }
+            return;
+          }
+        }
+
+        // ============================================================
+        // ✅ VALIDACIÓN DE CONFIRMACIÓN ANTES DE GUARDAR
+        // ============================================================
+        if (target === 'confirmPassword') {
+          const confirmCtrl = this.resetPasswordForm.get('confirmPassword');
+          if (this.resetPasswordForm.hasError('passwordsMismatch') || confirmCtrl?.invalid) {
+            const errores = this.getConfirmPasswordErrors();
+            console.log(`❌ Confirmación inválida: ${errores}`);
+
+            // ✅ Limpiar el campo para que el usuario lo reintente
+            this.updateFormAndInputDirectly('confirmPassword', '');
+            this.dictationBuffer = '';
+            this.dictationMode = false;
+            this.dictationTarget = null;
+            this.cdr.markForCheck();
+
+            if (!silent) {
+              this.voiceService.speak(
+                `${errores} Di "confirmar" para intentarlo de nuevo.`
+              );
+            }
+            return;
+          }
+        }
+
+        // ============================================================
+        // ✅ GUARDAR EL VALOR (todos los campos)
+        // ============================================================
         this.updateFormAndInputDirectly(target, value);
+
+        // ============================================================
+        // ✅ MENSAJES POR VOZ SEGÚN EL CAMPO
+        // ============================================================
         if (!silent) {
           if (target === 'email') {
             const cleanEmail = this.cleanEmailText(value);
@@ -3722,15 +3857,21 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
               this.voiceService.speak('Correo guardado correctamente.');
             }
           } else if (target === 'code') {
-            // ✅ NUEVO: mensaje para código
             this.voiceService.speak(`Código completado: ${value}. Di "contraseña" para la nueva clave.`);
           } else if (target === 'password') {
-            this.voiceService.speak(`Listo, contraseña completada.`);
+            // ✅ NUEVO: al terminar contraseña válida → pedir confirmación
+            this.voiceService.speak(`Contraseña válida. Ahora di "confirmar" para repetirla.`);
+            setTimeout(() => this.focusInput('confirmPassword'), 800);
+          } else if (target === 'confirmPassword') {
+            // ✅ NUEVO: al terminar confirmación válida → pedir guardar
+            // this.voiceService.speak(`Confirmación correcta. Di "guardar" para cambiar tu contraseña.`);
+            this.voiceService.speak(`Confirmación correcta. Di "cambiar contraseña" para guardarla.`);
           } else {
             this.voiceService.speak(`Listo, confirmación completada.`);
           }
         }
       } else {
+        // No hay valor → avisar según el campo
         if (!silent) {
           const fieldName =
             target === 'email' ? 'el correo' :
@@ -3748,72 +3889,54 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     console.log('🔴 Dictado finalizado');
   }
 
-  private validatePasswordAfterDictation(password: string): void {
-    const control = this.resetPasswordForm.get('password');
-    if (control && control.invalid) {
-      const errors = this.getPasswordErrors();
-      this.updateFormAndInputDirectly('password', '');
-      this.dictationBuffer = '';
-
-      if (errors) {
-        this.voiceService.speak(`La contraseña no es válida: ${errors}. Voy a borrarla. Di "contraseña" para intentarlo de nuevo.`);
-      } else {
-        this.voiceService.speak('La contraseña no cumple con los requisitos. Voy a borrarla. Di "contraseña" para intentarlo de nuevo.');
-      }
-      setTimeout(() => {
-        this.startDictation('password', '');
-      }, 500);
-      return;
-    } else if (control && control.valid) {
-      this.voiceService.speak('Contraseña válida. Ahora di "confirmar" para repetirla, o "guardar" para cambiar tu contraseña.');
-      setTimeout(() => {
-        this.focusInput('confirmPassword');
-      }, 500);
-    }
-  }
-
-  private validateConfirmPasswordAfterDictation(): void {
-    const control = this.resetPasswordForm.get('confirmPassword');
-    if (control && control.invalid) {
-      const errors = this.getConfirmPasswordErrors();
-      this.updateFormAndInputDirectly('confirmPassword', '');
-      this.dictationBuffer = '';
-
-      if (errors) {
-        this.voiceService.speak(`Error: ${errors}. Voy a borrar el campo. Di "confirmar" para intentarlo de nuevo.`);
-      } else {
-        this.voiceService.speak('La confirmación no coincide con la contraseña. Voy a borrar el campo. Di "confirmar" para intentarlo de nuevo.');
-      }
-      setTimeout(() => {
-        this.startDictation('confirmPassword', '');
-      }, 500);
-      return;
-    } else if (control && control.valid) {
-      this.voiceService.speak('Confirmación correcta. Di "guardar" para cambiar tu contraseña.');
-    }
-  }
-
+  /**
+   * Devuelve un mensaje con los errores de la contraseña, o null si no hay.
+   * Se usa para avisar por voz tras el dictado.
+   */
   private getPasswordErrors(): string | null {
     const ctrl = this.resetPasswordForm.get('password');
     if (!ctrl) return null;
+
     const value = ctrl.value || '';
-    if (ctrl.hasError('required')) return 'La contraseña es obligatoria.';
+    const errores: string[] = [];
+
+    if (ctrl.hasError('required')) {
+      errores.push('La contraseña es obligatoria.');
+    }
     if (ctrl.hasError('minlength')) {
-      return `Debe tener al menos 9 caracteres. Tiene ${value.length}.`;
+      errores.push(`Debe tener al menos 9 caracteres. Tiene ${value.length}.`);
     }
     if (ctrl.hasError('pattern')) {
-      return 'Debe incluir mayúscula, minúscula, número y símbolo.';
+      const faltantes: string[] = [];
+      if (!/[a-z]/.test(value)) faltantes.push('una minúscula');
+      if (!/[A-Z]/.test(value)) faltantes.push('una mayúscula');
+      if (!/[0-9]/.test(value)) faltantes.push('un número');
+      if (!/[!@#$%^&*]/.test(value)) faltantes.push('un símbolo como admiración o asterisco');
+
+      if (faltantes.length > 0) {
+        errores.push(`Debe incluir: ${faltantes.join(', ')}.`);
+      } else {
+        errores.push('Debe incluir mayúscula, minúscula, número y símbolo.');
+      }
     }
-    return null;
+
+    return errores.length > 0 ? errores.join(' ') : null;
   }
 
+  /**
+   * Devuelve un mensaje con los errores de la confirmación, o null si no hay.
+   */
   private getConfirmPasswordErrors(): string | null {
     const ctrl = this.resetPasswordForm.get('confirmPassword');
     if (!ctrl) return null;
-    if (ctrl.hasError('required')) return 'Es obligatorio confirmar la contraseña.';
-    if (this.resetPasswordForm.hasError('passwordsMismatch')) {
-      return 'La confirmación no coincide con la contraseña.';
+
+    if (ctrl.hasError('required')) {
+      return 'Debes confirmar la contraseña.';
     }
+    if (this.resetPasswordForm.hasError('passwordsMismatch')) {
+      return 'Las contraseñas no coinciden.';
+    }
+
     return null;
   }
 
@@ -4236,7 +4359,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
           this.voiceService.speak(
             'Si el correo está registrado, recibirás un código de recuperación. ' +
-            'Puedes dictarlo diciendo "código", o copiarlo del correo y decir "pegar código".'
+            'Puedes dictarlo diciendo "código", o decir "leer código" para que yo te lo lea.'
           );
 
           setTimeout(() => {
@@ -4265,8 +4388,82 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       });
   }
 
+  // ============================================================
+  // ✅ NUEVO A2: LEER OTP POR VOZ
+  // ============================================================
 
+  /**
+   * Llama al backend para obtener el OTP descifrado y lo lee en voz alta.
+   * Solo funciona si previamente se ha solicitado con /forgot-password
+   * (la cookie `otp_session` debe estar presente).
+   */
+  public readOtpByVoice(): void {
+    if (this.isDestroyed) return;
+    if (this.isLoading()) return;
 
+    if (!this.emailSent()) {
+      this.voiceService.speak('Primero debes solicitar el código con tu correo electrónico.');
+      return;
+    }
+
+    const email = this.forgotPasswordForm.get('email')?.value;
+    if (!email) {
+      this.voiceService.speak('No se encontró tu correo electrónico. Vuelve al paso anterior.');
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+    this.voiceService.speak('Leyendo tu código de verificación...');
+    this.cdr.markForCheck();
+
+    this.authService.readOtp(email)
+      .pipe(finalize(() => {
+        this.isLoading.set(false);
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: (response) => {
+          if (!response || !response.code) {
+            const msg = 'No se pudo leer el código. Solicita uno nuevo.';
+            this.errorMessage.set(msg);
+            this.voiceService.speak(msg);
+            return;
+          }
+
+          const code = response.code;
+          const remaining = response.remainingReads;
+
+          this.lastRemainingReads.set(remaining);
+          this.applyCode(code, 'copiado');
+
+          const remainingMsg = remaining > 0
+            ? `Te quedan ${remaining} lecturas disponibles.`
+            : 'Esta ha sido tu última lectura.';
+
+          this.voiceService.speak(
+            `Tu código es: ${this.spellDigits(code)}. ${remainingMsg} ` +
+            `Puedes escribir tu nueva contraseña cuando quieras.`
+          );
+          console.log(`🔊 [ForgotPassword] OTP leído: ${code}, restantes: ${remaining}`);
+        },
+        error: (err) => {
+          console.error('🔴 [ForgotPassword] Error leyendo OTP:', err);
+
+          let msg = 'No se pudo leer el código.';
+          if (err?.status === 400) {
+            msg = err.message || 'No hay un código activo. Solicita uno nuevo.';
+          } else if (err?.status === 401) {
+            msg = 'La sesión del código expiró. Solicita uno nuevo.';
+          } else if (err?.message) {
+            msg = err.message;
+          }
+
+          this.errorMessage.set(msg);
+          this.voiceService.speak(msg);
+        }
+      });
+  }
 
   public onSubmitNewPassword(): void {
     if (this.isDestroyed) return;
@@ -4364,9 +4561,21 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       }))
       .subscribe({
         next: () => {
+          console.log('✅ Contraseña actualizada correctamente → navegando a login');
+
+          // ✅ Marcar como terminado (por si acaso)
           this.isFinished.set(true);
+
+          // ✅ Mensaje por voz
           this.voiceService.speak('¡Contraseña actualizada correctamente! Ya puedes iniciar sesión.');
-          console.log('✅ Contraseña actualizada correctamente');
+
+          // ✅ Navegar directamente a /login con un state para mostrar mensaje
+          this.router.navigate(['/login'], {
+            state: {
+              passwordResetSuccess: true,
+              message: 'Contraseña actualizada. Ya puedes iniciar sesión.'
+            }
+          });
         },
         error: (err) => {
           console.log('🔴 [ForgotPassword] Error reset-password:', err);
@@ -4403,11 +4612,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     this.mutedSubscription?.unsubscribe();
 
     this.isDestroyed = true;
-
-    if (this.voiceFeedbackSubscription) {
-      this.voiceFeedbackSubscription.unsubscribe();
-      this.voiceFeedback$.complete();
-    }
 
     if (this.dictationMode) {
       this.stopDictation(undefined, true);

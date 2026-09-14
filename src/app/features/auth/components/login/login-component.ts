@@ -2219,15 +2219,6 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 1200);
   }
 
-
-
-
-
-
-
-
-
-
   //
   private focusFirstInput(): void {
     console.log('🎯 [Login] focusFirstInput() llamado');
@@ -2260,38 +2251,6 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
       console.warn('🎯 [Login] ⚠️ No se pudo aplicar el foco');
     }
   }
-
-  // private focusFirstInput(): void {
-  //   console.log('🎯 [Login] focusFirstInput() llamado');
-
-  //   setTimeout(() => {
-  //     if (this.isDestroyed) return;
-
-  //     this.cdr.detectChanges();
-
-  //     if (this.usernameInput) {
-  //       this.usernameInput.setFocus()
-  //         .then(() => console.log('🎯 [Login] ✅ Foco aplicado en usernameInput'))
-  //         .catch(err => {
-  //           console.warn('🎯 [Login] ⚠️ Falló setFocus, intentando fallback', err);
-  //           this.focusByQuerySelector();
-  //         });
-  //     } else {
-  //       console.log('🎯 [Login] usernameInput NO disponible, usando fallback');
-  //       this.focusByQuerySelector();
-  //     }
-  //   }, 400);
-  // }
-
-  // private focusByQuerySelector(): void {
-  //   const inputEl = document.querySelector('ion-input[formControlName="usernameOrEmail"]') as any;
-  //   if (inputEl && inputEl.setFocus) {
-  //     inputEl.setFocus();
-  //     console.log('🎯 [Login] ✅ Foco aplicado por querySelector');
-  //   } else {
-  //     console.warn('🎯 [Login] ⚠️ No se pudo aplicar el foco');
-  //   }
-  // }
 
   //
   ngAfterViewInit(): void {
@@ -2633,18 +2592,6 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
 
     console.log('⏭️ Login - Comando no reconocido, ignorado:', lower);
   }
-
-
-
-
-
-
-
-
-
-
-
-
 
   //
   private handleDictation(text: string): void {
@@ -3012,32 +2959,7 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
     speakNext();
   }
 
-  // private showHelp(): void {
-  //   if (this.isDestroyed) return;
-  //   if (this.voiceService.isCurrentlyMuted()) {
-  //     this.voiceService.speak('El micrófono está desactivado. Di "hola" para activarlo.');
-  //     return;
-  //   }
-  //   const helpMessages = [
-  //     'Puedes decir: "usuario" para escribir tu usuario.',
-  //     '"contraseña" para tu clave.',
-  //     '"enviar" para iniciar sesión.',
-  //     '"limpiar" para borrar los campos.',
-  //     '"leer campos" para escuchar el contenido.',
-  //     '"mostrar contraseña" u "ocultar contraseña" para ver u ocultar tu clave.',
-  //     '"registrar" para crear una cuenta.',
-  //     '"recuperar" para recuperar tu contraseña.',
-  //     '"volver" para regresar a la página anterior.',
-  //     '"silenciar micrófono" para apagar el micrófono.',
-  //     '"privacidad" para ver la política de privacidad.',
-  //     '"condiciones" para ver los términos y condiciones.',
-  //     'o "ayuda" para ver todas las opciones.'
-  //   ];
-  //   this.speakWithPauses(helpMessages, 100);
-  // }
-
-
-
+  //
   private showHelp(): void {
     if (this.isDestroyed) return;
     if (this.voiceService.isCurrentlyMuted()) {
