@@ -1,9 +1,10 @@
 [
-  "img/carrusel/FondoConBarco.webp",
-  "img/carrusel/Microfono.jpg",
-  "img/carrusel/TecnologiaInternacional.png",
-  "img/carrusel/TecnologiaFuturista.png",
-  "img/carrusel/EscritorioVoz.png",
-  "img/carrusel/TextoAVoz.png",
-  "img/carrusel/MicroVoxAction.png"
+  "carrusel/FondoConBarco.webp",
+  "carrusel/Microfono.jpg",
+  "carrusel/MicroVoxAction.png",
+  "carrusel/TecnologiaInternacional.png",
+  "carrusel/TecnologiaFuturista.png",
+  "carrusel/EscritorioVoz.png",
+  "carrusel/TextoAVoz.png",
+  "carrusel/shapes.svg"
 ]
