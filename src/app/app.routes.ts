@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { guestGuard } from './core/guards/guest/guest.guard';
+import { authGuard } from './core/guards/auth/auth-guard';
 
 export const routes: Routes = [
   {
@@ -43,6 +44,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/components/password/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
     canActivate: [guestGuard],
     title: 'Recuperar Contraseña - VozAcction',
+    data: { showTheme: false }
+  },
+  // =========================================================================
+  // RUTAS PRIVADAS (requieren autenticación)
+  // =========================================================================
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./features/pages/public/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [authGuard],
+    title: 'Panel de Control - VozAcction',
     data: { showTheme: false }
   },
   // ✅ AÑADIR: Página Not Found

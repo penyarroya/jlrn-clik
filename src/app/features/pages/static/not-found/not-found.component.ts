@@ -194,22 +194,63 @@ export class NotFoundComponent implements OnInit, OnDestroy {
   /**
    * ✅ VOLVER A LA PÁGINA ANTERIOR
    */
+  // goBack(): void {
+  //   const prevUrl = this.previousRouteService.getPreviousUrl() as unknown as string | null;
+  //   console.log('🔙 URL anterior válida:', prevUrl);
+
+  //   if (prevUrl && prevUrl !== this.router.url) {
+  //     console.log(`🔜 Navegando a: ${prevUrl}`);
+  //     this.router.navigateByUrl(prevUrl);
+  //     return;
+  //   }
+
+  //   if (window.history.length > 1) {
+  //     console.log('🔜 Navegando a home');
+  //     this.router.navigate(['/home']);
+  //   } else {
+  //     console.warn('⚠️ No hay historial, yendo a /home');
+  //     this.router.navigate(['/home']);
+  //   }
+  // }
+
+
   goBack(): void {
     const prevUrl = this.previousRouteService.getPreviousUrl() as unknown as string | null;
     console.log('🔙 URL anterior válida:', prevUrl);
 
-    if (prevUrl && prevUrl !== this.router.url) {
+    // ✅ 1. Si hay URL anterior válida y NO es /not-found ni la actual
+    if (prevUrl && prevUrl !== '/not-found' && prevUrl !== this.router.url) {
       console.log(`🔜 Navegando a: ${prevUrl}`);
-      this.router.navigateByUrl(prevUrl);
+      this.voiceService.stopListening();
+      this.router.navigateByUrl(prevUrl).then(() => {
+        setTimeout(() => {
+          if (!this.voiceService.isCurrentlyMuted() &&
+              !this.voiceService.isRecognitionActive()) {
+            this.voiceService.startListening({ source: 'notFound.back' });
+          }
+        }, 800);
+      });
       return;
     }
 
+    // ✅ 2. Si no hay URL anterior, usar el historial del navegador
     if (window.history.length > 1) {
-      console.log('🔜 Navegando a home');
-      this.router.navigate(['/home']);
-    } else {
-      console.warn('⚠️ No hay historial, yendo a /home');
-      this.router.navigate(['/home']);
+      console.log('🔜 Usando history.back()');
+      this.voiceService.stopListening();
+      window.history.back();
+      return;
     }
+
+    // ✅ 3. Fallback: ir a /home
+    console.warn('⚠️ No hay historial, yendo a /home');
+    this.voiceService.stopListening();
+    this.router.navigate(['/home']).then(() => {
+      setTimeout(() => {
+        if (!this.voiceService.isCurrentlyMuted() &&
+            !this.voiceService.isRecognitionActive()) {
+          this.voiceService.startListening({ source: 'notFound.fallback' });
+        }
+      }, 800);
+    });
   }
 }
