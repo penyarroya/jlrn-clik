@@ -891,12 +891,28 @@
   box-sizing: border-box;
 }
 
+// .register-content {
+//   --background: var(--bg-primary);
+//   --padding-start: 0;
+//   --padding-end: 0;
+//   --padding-top: 0;
+//   --padding-bottom: 0;
+// }
+
+
 .register-content {
   --background: var(--bg-primary);
   --padding-start: 0;
   --padding-end: 0;
   --padding-top: 0;
   --padding-bottom: 0;
+
+  &::part(background) {
+    background-image: url('/assets/img/pages/login/Faro_3.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
 }
 
 .register-container {

@@ -780,8 +780,19 @@
   height: 100%;
 }
 
+// .login-content {
+//   --background: var(--bg-primary, #f8fafc);
+// }
+
 .login-content {
   --background: var(--bg-primary, #f8fafc);
+
+  &::part(background) {
+    background-image: url('/assets/img/pages/login/Faro_3.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
 }
 
 // ============================================================
