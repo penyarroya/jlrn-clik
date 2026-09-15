@@ -2616,6 +2616,16 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   // ✅ Señal para saber si el micrófono está activo
   readonly isMicActive = signal<boolean>(!this.voiceService.isCurrentlyMuted());
+
+  // ✅ NUEVO: Señal para saber si hay auriculares conectados
+  readonly headphonesConnected = signal<boolean>(false);
+
+  // ✅ NUEVO: Referencia al listener de devicechange para limpiarlo
+  private deviceChangeListener?: () => void;
+
+  // ✅ NUEVO: Referencia al interval de polling
+  private headphonesPollInterval?: any;
+
   private mutedSubscription?: Subscription;
 
   // Mensajes con lenguaje natural
@@ -2714,6 +2724,24 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     console.log('✅ ForgotPasswordComponent inicializado (con voz)');
+
+    // ✅ NUEVO: Escuchar cambios de dispositivos (conectar/desconectar auriculares)
+    if (navigator.mediaDevices && 'ondevicechange' in navigator.mediaDevices) {
+      this.deviceChangeListener = () => {
+        console.log('🎧 [ForgotPassword] devicechange detectado');
+        this.updateHeadphonesState();
+      };
+      navigator.mediaDevices.addEventListener('devicechange', this.deviceChangeListener);
+    }
+
+    // ✅ NUEVO: Polling ligero por si el evento devicechange no se dispara
+    //    (algunos navegadores no lo emiten, o el VoiceService ya lo detecta por su cuenta)
+    this.headphonesPollInterval = setInterval(() => {
+      if (!this.isDestroyed) {
+        this.updateHeadphonesState();
+      }
+    }, 3000);
+
 
     this.mutedSubscription = this.voiceService.getMutedState().subscribe(muted => {
       this.isMicActive.set(!muted);
@@ -3027,35 +3055,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     return null;
   }
 
-
-  //
-  // public async pasteCodeFromClipboard(): Promise<void> {
-  //   if (this.isDestroyed) return;
-
-  //   const now = Date.now();
-  //   if (now - this.lastPasteAttempt < this.PASTE_DEBOUNCE) {
-  //     console.log('⏭️ [ForgotPassword] pegar código ignorado (debounce)');
-  //     return;
-  //   }
-  //   this.lastPasteAttempt = now;
-
-  //   try {
-  //     const text = await this.readClipboardWithRetry();
-  //     const code = this.extractCodeFromText(text);
-
-  //     if (!code) {
-  //       this.voiceService.speak('El portapapeles no contiene un código de 6 dígitos. Copia el código del correo primero.');
-  //       return;
-  //     }
-
-  //     this.applyCode(code, 'pegado');
-  //   } catch (err) {
-  //     console.error('Error al leer el portapapeles:', err);
-  //     this.voiceService.speak('No se pudo acceder al portapapeles. Asegúrate de permitir el acceso.');
-  //   }
-  // }
-
-
   //
   public async copyCodeFromClipboard(): Promise<void> {
     if (this.isDestroyed) return;
@@ -3108,7 +3107,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       setTimeout(() => this.focusInput('password'), 1200);
     }
   }
-
 
   // ============================================================
   // PROCESAMIENTO DE COMANDOS DE VOZ
@@ -3329,12 +3327,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
         this.startDictation('confirmPassword', '');
         return;
       }
-
-      // Guardar / Cambiar contraseña
-      // if (lower.includes('guardar') || lower.includes('cambiar') || lower.includes('actualizar')) {
-      //   this.onSubmitNewPassword();
-      //   return;
-      // }
 
       // Guardar / Cambiar contraseña
       if (lower.includes('guardar') || 
@@ -3714,26 +3706,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   // ============================================================
   // ✅ BUFFER: interinos REEMPLAZAN, finales CONSOLIDAN
   // ============================================================
-  //   const previousBuffer = this.dictationBuffer || '';
-  //   const candidate = textToAdd.trimEnd();
-
-  //   if (isFinal) {
-  //     console.log(`✅ [handleDictation] Frase FINAL: consolidando "${candidate}"`);
-  //     this.dictationBuffer = this.voiceFilter.fusionarFrase(
-  //       previousBuffer,
-  //       candidate,
-  //       target
-  //     );
-  //   } else {
-  //     console.log(`📝 [handleDictation] Frase INTERINA: reemplazando "${previousBuffer}" con "${candidate}"`);
-  //     this.dictationBuffer = candidate;
-  //   }
-
-  //   console.log(`🔤 Buffer interno (no visible): "${this.dictationBuffer}"`);
-  //   // ❌ NO se actualiza el input durante el dictado.
-  // }
-
-
   const previousBuffer = this.dictationBuffer || '';
     const candidate = textToAdd.trimEnd();
 
@@ -4603,11 +4575,40 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * ✅ Actualiza el signal de auriculares consultando al VoiceService.
+   *    Si el método no existe, asume false.
+   */
+  private async updateHeadphonesState(): Promise<void> {
+    try {
+      const connected = await this.voiceService.isHeadphonesConnected();
+
+      if (this.headphonesConnected() !== connected) {
+        console.log(`🎧 [ForgotPassword] Auriculares: ${connected}`);
+        this.headphonesConnected.set(connected);
+        this.cdr.markForCheck();
+      }
+    } catch (err) {
+      console.warn('⚠️ [ForgotPassword] No se pudo consultar el estado de auriculares', err);
+    }
+  }
+
   // ============================================================
   // DESTRUCCIÓN
   // ============================================================
   ngOnDestroy(): void {
     console.log('🧹 ForgotPasswordComponent destruido');
+
+    // ✅ NUEVO: Limpiar listener de devicechange
+    if (this.deviceChangeListener && navigator.mediaDevices) {
+      navigator.mediaDevices.removeEventListener('devicechange', this.deviceChangeListener);
+    }
+
+    // ✅ NUEVO: Limpiar polling
+    if (this.headphonesPollInterval) {
+      clearInterval(this.headphonesPollInterval);
+    }
+
 
     this.mutedSubscription?.unsubscribe();
 
