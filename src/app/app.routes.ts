@@ -56,6 +56,16 @@ export const routes: Routes = [
     title: 'Panel de Control - VozAcction',
     data: { showTheme: false }
   },
+  // =========================================================================
+  // DATABASE-MAINTENANCE
+  // =========================================================================
+  {
+  path: 'admin/database-maintenance',
+    loadComponent: () => import('./features/pages/admin/components/database-maintenance/database-maintenance.component').then(m => m.DatabaseMaintenanceComponent),
+    //canActivate: [authGuard],
+    title: 'Mantenimiento de Base de Datos - VozAcction',
+    data: { showTheme: false }
+  },
   // ✅ AÑADIR: Página Not Found
   {
     path: 'not-found',

@@ -1099,361 +1099,175 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.voiceContext.setDashboardContext();
   }
 
-  // private handleVoiceCommand(text: string): void {
-  //   if (this.isDestroyed) return;
-
-  //   // ✅ No procesar si el sistema está hablando (evita eco)
-  //   if (window.speechSynthesis.speaking) {
-  //     return;
-  //   }
-
-  //   const lower = text.toLowerCase().trim();
-  //   console.log(`📝 [Dashboard] Comando recibido: "${lower}"`);
-
-  //   // ✅ Debounce local
-  //   const now = Date.now();
-  //   if (lower === this.lastProcessedCommand && (now - this.lastProcessedTime) < this.COMMAND_DEBOUNCE) {
-  //     console.log(`⏭️ [Dashboard] Comando duplicado ignorado: "${lower}"`);
-  //     return;
-  //   }
-  //   this.lastProcessedCommand = lower;
-  //   this.lastProcessedTime = now;
-
-  //   // ============================================================
-  //   // MICRÓFONO
-  //   // ============================================================
-  //   if (lower.includes('silenciar') || lower.includes('desactivar micrófono') || lower === 'mute') {
-  //     if (!this.voiceService.isCurrentlyMuted()) {
-  //       this.voiceService.mute();
-  //       this.isMicActive.set(false);
-  //       this.userPreferences.updatePreference('micEnabled', false).subscribe();
-  //       this.voiceService.speak('Micrófono desactivado');
-  //     }
-  //     return;
-  //   }
-
-  //   if (lower.includes('activar micrófono') || lower.includes('encender micrófono') || lower === 'unmute') {
-  //     if (this.voiceService.isCurrentlyMuted()) {
-  //       this.voiceService.unmute();
-  //       this.voiceService.startListening();
-  //       this.isMicActive.set(true);
-  //       this.userPreferences.updatePreference('micEnabled', true).subscribe();
-  //       this.voiceService.speak('Micrófono activado');
-  //     }
-  //     return;
-  //   }
-
-  //   // ============================================================
-  //   // TEMA
-  //   // ============================================================
-  //   if (lower.includes('modo oscuro') || lower.includes('tema oscuro')) {
-  //     if (!this.isDarkTheme()) this.toggleTheme();
-  //     return;
-  //   }
-
-  //   if (lower.includes('modo claro') || lower.includes('tema claro')) {
-  //     if (this.isDarkTheme()) this.toggleTheme();
-  //     return;
-  //   }
-
-  //   // ============================================================
-  //   // NAVEGACIÓN POR SECCIONES
-  //   // ============================================================
-  //   if (lower.includes('dashboard') || lower.includes('panel') || lower.includes('inicio')) {
-  //     this.setActiveSection('dashboard');
-  //     this.voiceService.speak('Panel principal');
-  //     return;
-  //   }
-
-  //   if (lower.includes('curso')) {
-  //     this.setActiveSection('courses');
-  //     this.voiceService.speak('Cursos');
-  //     return;
-  //   }
-
-  //   if (lower.includes('perfil') || lower.includes('mi cuenta')) {
-  //     this.voiceService.speak('Abriendo perfil');
-  //     this.router.navigate(['/profile']);
-  //     return;
-  //   }
-
-  //   if (lower.includes('configuración') || lower.includes('configuracion') || lower.includes('ajustes')) {
-  //     this.voiceService.speak('Abriendo configuración');
-  //     this.router.navigate(['/settings']);
-  //     return;
-  //   }
-
-  //   if (lower.includes('preferencias de voz')) {
-  //     this.voiceService.speak('Abriendo preferencias de voz');
-  //     this.router.navigate(['/voice-settings']);
-  //     return;
-  //   }
-
-  //   // ============================================================
-  //   // PROYECTOS
-  //   // ============================================================
-  //   if (lower.includes('informatica') || lower.includes('informática')) {
-  //     this.loadProject('informatica');
-  //     this.voiceService.speak('Cargando proyecto de informática');
-  //     return;
-  //   }
-
-  //   if (lower.includes('huertos')) {
-  //     this.loadProject('huertos');
-  //     this.voiceService.speak('Cargando proyecto de huertos');
-  //     return;
-  //   }
-
-  //   if (lower.includes('salud')) {
-  //     this.loadProject('salud');
-  //     this.voiceService.speak('Cargando proyecto de salud');
-  //     return;
-  //   }
-
-  //   if (lower.includes('finanzas')) {
-  //     this.loadProject('finanzas');
-  //     this.voiceService.speak('Cargando proyecto de finanzas');
-  //     return;
-  //   }
-
-  //   // ============================================================
-  //   // SESIÓN
-  //   // ============================================================
-  //   if (lower.includes('cerrar sesión') || lower.includes('cerrar sesion') || lower.includes('logout') || lower.includes('salir')) {
-  //     this.voiceService.speak('Cerrando sesión');
-  //     setTimeout(() => this.logout(), 800);
-  //     return;
-  //   }
-
-  //   // ============================================================
-  //   // AYUDA
-  //   // ============================================================
-  //   if (lower.includes('ayuda') || lower === 'help') {
-  //     this.showHelp();
-  //     return;
-  //   }
-
-  //   console.log(`⏭️ [Dashboard] Comando no reconocido: "${lower}"`);
-  // }
-
-
-
-
   private handleVoiceCommand(text: string): void {
-  if (this.isDestroyed) return;
+    if (this.isDestroyed) return;
 
-  const lower = text.toLowerCase().trim();
-  if (!lower) return;
+    const lower = text.toLowerCase().trim();
+    if (!lower) return;
 
-  // ✅ Comandos que SIEMPRE pueden interrumpir el TTS
-  const canInterrupt =
-    lower.includes('ayuda') ||
-    lower.includes('para') ||
-    lower.includes('stop') ||
-    lower.includes('silencio') ||
-    lower.includes('silenciar') ||
-    lower.includes('calla');
+    // ✅ Comandos que SIEMPRE pueden interrumpir el TTS
+    const canInterrupt =
+      lower.includes('ayuda') ||
+      lower.includes('para') ||
+      lower.includes('stop') ||
+      lower.includes('silencio') ||
+      lower.includes('silenciar') ||
+      lower.includes('calla');
 
-  // ✅ Si el TTS habla y NO es un comando prioritario → ignorar
-  if (window.speechSynthesis.speaking && !canInterrupt) {
-    console.log(`🔇 [Dashboard] TTS activo, ignorando comando: "${lower}"`);
-    return;
-  }
-
-  // ✅ Si es un comando prioritario y el TTS habla → cortar y seguir
-  if (canInterrupt && window.speechSynthesis.speaking) {
-    console.log(`🛑 [Dashboard] Interrumpiendo TTS para: "${lower}"`);
-    window.speechSynthesis.cancel();
-  }
-
-  console.log(`📝 [Dashboard] Comando recibido: "${lower}"`);
-
-  // ✅ Debounce local (NO aplica a "ayuda", "para", "silencio")
-  const now = Date.now();
-  const isRepeatable = canInterrupt;
-  if (!isRepeatable &&
-      lower === this.lastProcessedCommand &&
-      (now - this.lastProcessedTime) < this.COMMAND_DEBOUNCE) {
-    console.log(`⏭️ [Dashboard] Comando duplicado ignorado: "${lower}"`);
-    return;
-  }
-  this.lastProcessedCommand = lower;
-  this.lastProcessedTime = now;
-
-  // ============================================================
-  // PARAR TTS (prioritario)
-  // ============================================================
-  if (lower.includes('para') || lower.includes('stop') ||
-      lower.includes('silencio') || lower.includes('calla')) {
-    console.log('🛑 [Dashboard] TTS detenido por comando');
-    window.speechSynthesis.cancel();
-    return;
-  }
-
-  // ============================================================
-  // MICRÓFONO
-  // ============================================================
-  if (lower.includes('silenciar') || lower.includes('desactivar micrófono') || lower === 'mute') {
-    if (!this.voiceService.isCurrentlyMuted()) {
-      this.voiceService.mute();
-      this.isMicActive.set(false);
-      this.userPreferences.updatePreference('micEnabled', false).subscribe();
-      this.voiceService.speak('Micrófono desactivado');
+    // ✅ Si el TTS habla y NO es un comando prioritario → ignorar
+    if (window.speechSynthesis.speaking && !canInterrupt) {
+      console.log(`🔇 [Dashboard] TTS activo, ignorando comando: "${lower}"`);
+      return;
     }
-    return;
-  }
 
-  if (lower.includes('activar micrófono') || lower.includes('encender micrófono') || lower === 'unmute') {
-    if (this.voiceService.isCurrentlyMuted()) {
-      this.voiceService.unmute();
-      this.voiceService.startListening();
-      this.isMicActive.set(true);
-      this.userPreferences.updatePreference('micEnabled', true).subscribe();
-      this.voiceService.speak('Micrófono activado');
+    // ✅ Si es un comando prioritario y el TTS habla → cortar y seguir
+    if (canInterrupt && window.speechSynthesis.speaking) {
+      console.log(`🛑 [Dashboard] Interrumpiendo TTS para: "${lower}"`);
+      window.speechSynthesis.cancel();
     }
-    return;
+
+    console.log(`📝 [Dashboard] Comando recibido: "${lower}"`);
+
+    // ✅ Debounce local (NO aplica a "ayuda", "para", "silencio")
+    const now = Date.now();
+    const isRepeatable = canInterrupt;
+    if (!isRepeatable &&
+        lower === this.lastProcessedCommand &&
+        (now - this.lastProcessedTime) < this.COMMAND_DEBOUNCE) {
+      console.log(`⏭️ [Dashboard] Comando duplicado ignorado: "${lower}"`);
+      return;
+    }
+    this.lastProcessedCommand = lower;
+    this.lastProcessedTime = now;
+
+    // ============================================================
+    // PARAR TTS (prioritario)
+    // ============================================================
+    if (lower.includes('para') || lower.includes('stop') ||
+        lower.includes('silencio') || lower.includes('calla')) {
+      console.log('🛑 [Dashboard] TTS detenido por comando');
+      window.speechSynthesis.cancel();
+      return;
+    }
+
+    // ============================================================
+    // MICRÓFONO
+    // ============================================================
+    if (lower.includes('silenciar') || lower.includes('desactivar micrófono') || lower === 'mute') {
+      if (!this.voiceService.isCurrentlyMuted()) {
+        this.voiceService.mute();
+        this.isMicActive.set(false);
+        this.userPreferences.updatePreference('micEnabled', false).subscribe();
+        this.voiceService.speak('Micrófono desactivado');
+      }
+      return;
+    }
+
+    if (lower.includes('activar micrófono') || lower.includes('encender micrófono') || lower === 'unmute') {
+      if (this.voiceService.isCurrentlyMuted()) {
+        this.voiceService.unmute();
+        this.voiceService.startListening();
+        this.isMicActive.set(true);
+        this.userPreferences.updatePreference('micEnabled', true).subscribe();
+        this.voiceService.speak('Micrófono activado');
+      }
+      return;
+    }
+
+    // ============================================================
+    // TEMA
+    // ============================================================
+    if (lower.includes('modo oscuro') || lower.includes('tema oscuro')) {
+      if (!this.isDarkTheme()) this.toggleTheme();
+      return;
+    }
+
+    if (lower.includes('modo claro') || lower.includes('tema claro')) {
+      if (this.isDarkTheme()) this.toggleTheme();
+      return;
+    }
+
+    // ============================================================
+    // NAVEGACIÓN POR SECCIONES
+    // ============================================================
+    if (lower.includes('dashboard') || lower.includes('panel') || lower.includes('inicio')) {
+      this.setActiveSection('dashboard');
+      this.voiceService.speak('Panel principal');
+      return;
+    }
+
+    if (lower.includes('curso')) {
+      this.setActiveSection('courses');
+      this.voiceService.speak('Cursos');
+      return;
+    }
+
+    if (lower.includes('perfil') || lower.includes('mi cuenta')) {
+      this.voiceService.speak('Abriendo perfil');
+      this.router.navigate(['/profile']);
+      return;
+    }
+
+    if (lower.includes('configuración') || lower.includes('configuracion') || lower.includes('ajustes')) {
+      this.voiceService.speak('Abriendo configuración');
+      this.router.navigate(['/settings']);
+      return;
+    }
+
+    if (lower.includes('preferencias de voz')) {
+      this.voiceService.speak('Abriendo preferencias de voz');
+      this.router.navigate(['/voice-settings']);
+      return;
+    }
+
+    // ============================================================
+    // PROYECTOS
+    // ============================================================
+    if (lower.includes('informatica') || lower.includes('informática')) {
+      this.loadProject('informatica');
+      this.voiceService.speak('Cargando proyecto de informática');
+      return;
+    }
+
+    if (lower.includes('huertos')) {
+      this.loadProject('huertos');
+      this.voiceService.speak('Cargando proyecto de huertos');
+      return;
+    }
+
+    if (lower.includes('salud')) {
+      this.loadProject('salud');
+      this.voiceService.speak('Cargando proyecto de salud');
+      return;
+    }
+
+    if (lower.includes('finanzas')) {
+      this.loadProject('finanzas');
+      this.voiceService.speak('Cargando proyecto de finanzas');
+      return;
+    }
+
+    // ============================================================
+    // SESIÓN
+    // ============================================================
+    if (lower.includes('cerrar sesión') || lower.includes('cerrar sesion') ||
+        lower.includes('logout') || lower.includes('salir')) {
+      this.voiceService.speak('Cerrando sesión');
+      setTimeout(() => this.logout(), 800);
+      return;
+    }
+
+    // ============================================================
+    // AYUDA
+    // ============================================================
+    if (lower.includes('ayuda') || lower === 'help') {
+      this.showHelp();
+      return;
+    }
+
+    console.log(`⏭️ [Dashboard] Comando no reconocido: "${lower}"`);
   }
-
-  // ============================================================
-  // TEMA
-  // ============================================================
-  if (lower.includes('modo oscuro') || lower.includes('tema oscuro')) {
-    if (!this.isDarkTheme()) this.toggleTheme();
-    return;
-  }
-
-  if (lower.includes('modo claro') || lower.includes('tema claro')) {
-    if (this.isDarkTheme()) this.toggleTheme();
-    return;
-  }
-
-  // ============================================================
-  // NAVEGACIÓN POR SECCIONES
-  // ============================================================
-  if (lower.includes('dashboard') || lower.includes('panel') || lower.includes('inicio')) {
-    this.setActiveSection('dashboard');
-    this.voiceService.speak('Panel principal');
-    return;
-  }
-
-  if (lower.includes('curso')) {
-    this.setActiveSection('courses');
-    this.voiceService.speak('Cursos');
-    return;
-  }
-
-  if (lower.includes('perfil') || lower.includes('mi cuenta')) {
-    this.voiceService.speak('Abriendo perfil');
-    this.router.navigate(['/profile']);
-    return;
-  }
-
-  if (lower.includes('configuración') || lower.includes('configuracion') || lower.includes('ajustes')) {
-    this.voiceService.speak('Abriendo configuración');
-    this.router.navigate(['/settings']);
-    return;
-  }
-
-  if (lower.includes('preferencias de voz')) {
-    this.voiceService.speak('Abriendo preferencias de voz');
-    this.router.navigate(['/voice-settings']);
-    return;
-  }
-
-  // ============================================================
-  // PROYECTOS
-  // ============================================================
-  if (lower.includes('informatica') || lower.includes('informática')) {
-    this.loadProject('informatica');
-    this.voiceService.speak('Cargando proyecto de informática');
-    return;
-  }
-
-  if (lower.includes('huertos')) {
-    this.loadProject('huertos');
-    this.voiceService.speak('Cargando proyecto de huertos');
-    return;
-  }
-
-  if (lower.includes('salud')) {
-    this.loadProject('salud');
-    this.voiceService.speak('Cargando proyecto de salud');
-    return;
-  }
-
-  if (lower.includes('finanzas')) {
-    this.loadProject('finanzas');
-    this.voiceService.speak('Cargando proyecto de finanzas');
-    return;
-  }
-
-  // ============================================================
-  // SESIÓN
-  // ============================================================
-  if (lower.includes('cerrar sesión') || lower.includes('cerrar sesion') ||
-      lower.includes('logout') || lower.includes('salir')) {
-    this.voiceService.speak('Cerrando sesión');
-    setTimeout(() => this.logout(), 800);
-    return;
-  }
-
-  // ============================================================
-  // AYUDA
-  // ============================================================
-  if (lower.includes('ayuda') || lower === 'help') {
-    this.showHelp();
-    return;
-  }
-
-  console.log(`⏭️ [Dashboard] Comando no reconocido: "${lower}"`);
-}
-
-
-
-
-  // ============================================================
-  // ANUNCIO DE ENTRADA AL DASHBOARD
-  // ============================================================
-  // private announceDashboardEntry(): void {
-  //   if (this.announcementDone) return;
-  //   this.announcementDone = true;
-
-  //   setTimeout(() => {
-  //     if (this.isDestroyed) return;
-
-  //     // Si el micro está muteado, no anunciamos para no pisar otros TTS
-  //     const isMuted = this.voiceService.isCurrentlyMuted();
-  //     if (isMuted) {
-  //       console.log('🔇 [Dashboard] Micrófono muteado, no se anuncia entrada');
-  //       return;
-  //     }
-
-  //     const message = this.voiceContext.getMessage('dashboardEntry', this.userName);
-  //     console.log('📢 [Dashboard] Anunciando entrada:', message);
-
-  //     this.voiceService.speakAlways(message, true)
-  //       .then(() => {
-  //         console.log('✅ [Dashboard] Anuncio emitido');
-  //         setTimeout(() => {
-  //           if (!this.voiceService.isRecognitionActive() &&
-  //               !this.voiceService.isCurrentlyMuted()) {
-  //             this.voiceService.startListening();
-  //           }
-  //         }, 400);
-  //       })
-  //       .catch((err) => {
-  //         console.warn('⚠️ [Dashboard] speakAlways falló:', err);
-  //         if (!this.voiceService.isRecognitionActive() &&
-  //             !this.voiceService.isCurrentlyMuted()) {
-  //           this.voiceService.startListening();
-  //         }
-  //       });
-  //   }, 900);
-  // }
-
-
-
-
+  
   // ============================================================
   // ANUNCIO DE ENTRADA AL DASHBOARD
   // ============================================================
@@ -1492,9 +1306,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }, 900);
   }
-
-
-
 
   // ============================================================
   // BIENVENIDA (una vez por sesión)
