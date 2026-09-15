@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { EntityConfig } from './entity-config';
+import { EntityCrudService } from './entity-crud.service';
 
-describe('EntityConfig', () => {
-  let service: EntityConfig;
+describe('EntityCrudService', () => {
+  let service: EntityCrudService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(EntityConfig);
+    service = TestBed.inject(EntityCrudService);
   });
 
   it('should be created', () => {
