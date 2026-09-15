@@ -1,0 +1,23 @@
+{
+  "title": "Mantenimiento de Base de Datos",
+  "showLogo": true,
+  "showThemeToggle": true,
+  "showMicToggle": true,
+  "showUserAvatar": true,
+  "showBackButton": true,
+  "showHelp": true,
+  "showNotifications": false,
+  "unreadNotifications": 0,
+  "navLinks": [
+    { "label": "Dashboard", "route": "/dashboard", "icon": "grid-outline" }
+  ],
+  "userMenuItems": [
+    { "label": "Volver al Panel", "icon": "grid-outline", "route": "/dashboard" },
+    { "isDivider": true },
+    { "label": "Usuarios", "icon": "person-outline", "actionId": "select-user" },
+    { "label": "Roles", "icon": "shield-outline", "actionId": "select-role" },
+    { "label": "Permisos", "icon": "lock-closed-outline", "actionId": "select-permission" },
+    { "isDivider": true },
+    { "label": "Configuración", "icon": "settings-outline", "route": "/settings" }
+  ]
+}

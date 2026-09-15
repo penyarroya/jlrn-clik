@@ -360,7 +360,8 @@
                   <ion-item-divider></ion-item-divider>
 
                   <!-- Items del menú -->
-                  @for (item of resolvedConfig().userMenuItems; track item.label) {
+                  <!-- @for (item of resolvedConfig().userMenuItems; track item.label) { -->
+                  @for (item of resolvedConfig().userMenuItems; track $index) {
                     @if (item.isDivider) {
                       <ion-item-divider></ion-item-divider>
                     } @else {
@@ -460,7 +461,8 @@
 
     <!-- USER MENU ITEMS -->
     @if (resolvedConfig().userMenuItems?.length) {
-      @for (item of resolvedConfig().userMenuItems; track item.label) {
+      <!-- @for (item of resolvedConfig().userMenuItems; track item.label) { -->
+      @for (item of resolvedConfig().userMenuItems; track $index) { 
         @if (item.isDivider) {
           <div class="divider"></div>
         } @else {
