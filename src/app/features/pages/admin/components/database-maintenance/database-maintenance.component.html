@@ -1,0 +1,139 @@
+<!-- <app-transparent-toolbar
+  [config]="toolbarConfig()"
+  [greeting]="greeting"
+  [userNameDisplay]="userName"
+  [userEmailDisplay]="userEmail"
+  [currentTimeDisplay]="formattedCurrentTime"
+  [showUserGreeting]="true"
+  (mobileMenuClick)="toggleMobileSidebar()"
+  (searchEvent)="onSearch($event)"
+  (helpEvent)="showHelp()"
+  (loginEvent)="goToLogin()">
+</app-transparent-toolbar>
+
+<div class="maintenance-layout">
+
+  <div class="sidebar-wrapper" [class.open]="isMobileSidebarOpen()">
+    <app-entity-sidebar
+      [selectedEntity]="selectedEntity()?.name || ''"
+      (entitySelected)="onSelectEntityByName($event)">
+    </app-entity-sidebar>
+    <button class="close-sidebar-mobile" (click)="toggleMobileSidebar()">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+  </div>
+
+  <main class="maintenance-main">
+    @if (selectedEntity(); as currentEntity) {
+      <header class="maintenance-toolbar">
+        <div class="toolbar-title">
+          <h1>{{ currentEntity.label }}</h1>
+        </div>
+      </header>
+
+      <div class="content-body">
+        @if (!showForm()) {
+          <app-entity-table
+            [config]="selectedEntityConfig()"
+            [showActions]="true"
+            (createRequested)="openCreateForm()"
+            (editRequested)="editEntityItem($event)"
+            (deleteRequested)="deleteEntityItem($event)"
+            (backRequested)="volverAtras()">
+          </app-entity-table>
+        } @else {
+          <app-entity-form
+            [entity]="selectedEntity()?.name || ''"
+            [data]="currentData()"
+            [isEdit]="isEditing()"
+            [loading]="loading()"
+            (saveRequested)="handleSave($event)"
+            (cancelRequested)="closeForm()">
+          </app-entity-form>
+        }
+      </div>
+    } @else {
+      <div class="welcome-placeholder">
+        <div class="placeholder-content">
+          <ion-icon name="server-outline" class="large-icon"></ion-icon>
+          <h2>Panel de Mantenimiento de Base de Datos</h2>
+          <p>Selecciona una entidad en el menú lateral izquierdo para comenzar a ver y gestionar sus registros.</p>
+        </div>
+      </div>
+    }
+  </main>
+</div> -->
+
+
+
+
+
+
+
+
+
+<app-transparent-toolbar
+  [config]="toolbarConfig()"
+  [greeting]="greeting"
+  [userNameDisplay]="userName"
+  [userEmailDisplay]="userEmail"
+  [currentTimeDisplay]="formattedCurrentTime"
+  [showUserGreeting]="true"
+  (mobileMenuClick)="toggleMobileSidebar()"
+  (searchEvent)="onSearch($event)"
+  (helpEvent)="showHelp()"
+  (loginEvent)="goToLogin()">
+</app-transparent-toolbar>
+
+<div class="maintenance-layout">
+
+  <div class="sidebar-wrapper" [class.open]="isMobileSidebarOpen()">
+    <app-entity-sidebar
+      [selectedEntity]="selectedEntity()?.name || ''"
+      (entitySelected)="onSelectEntityByName($event)">
+    </app-entity-sidebar>
+    <button class="close-sidebar-mobile" (click)="toggleMobileSidebar()">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+  </div>
+
+  <main class="maintenance-main">
+    @if (selectedEntity(); as currentEntity) {
+      <header class="maintenance-toolbar">
+        <div class="toolbar-title">
+          <h1>{{ currentEntity.label }}</h1>
+        </div>
+      </header>
+
+      <div class="content-body">
+        @if (!showForm()) {
+          <app-entity-table
+            [config]="selectedEntityConfig()"
+            [showActions]="true"
+            (createRequested)="openCreateForm()"
+            (editRequested)="editEntityItem($event)"
+            (deleteRequested)="deleteEntityItem($event)"
+            (backRequested)="volverAtras()">
+          </app-entity-table>
+        } @else {
+          <app-entity-form
+            [entity]="selectedEntity()?.name || ''"
+            [data]="currentData()"
+            [isEdit]="isEditing()"
+            [loading]="loading()"
+            (saveRequested)="handleSave($event)"
+            (cancelRequested)="closeForm()">
+          </app-entity-form>
+        }
+      </div>
+    } @else {
+      <div class="welcome-placeholder">
+        <div class="placeholder-content">
+          <ion-icon name="server-outline" class="large-icon"></ion-icon>
+          <h2>Panel de Mantenimiento de Base de Datos</h2>
+          <p>Selecciona una entidad en el menú lateral izquierdo para comenzar a ver y gestionar sus registros.</p>
+        </div>
+      </div>
+    }
+  </main>
+</div>

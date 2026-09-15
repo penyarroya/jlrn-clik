@@ -1,0 +1,169 @@
+<!-- src/app/features/admin/dynamic-entity-manager/components/entity-form/entity-form.component.html -->
+
+<div class="form-panel">
+  <div class="form-header">
+    <h3>
+      <ion-icon name="create-outline"></ion-icon>
+      {{ isEditing() ? 'Editar' : 'Nuevo' }} {{ config()?.displayName }}
+    </h3>
+    <button type="button" class="btn-close" (click)="cancelar()" title="Cerrar">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-grid" [style.grid-template-columns]="gridColumns()">
+      @for (field of editableFields(); track field.key) {
+
+        <!-- ✅ BOOLEAN: IonCheckbox -->
+        @if (field.type === 'boolean') {
+          <div class="form-field-checkbox">
+            <ion-checkbox
+              [formControlName]="field.key"
+              [disabled]="!!(isEditing() && field.readonlyOnEdit)"
+              labelPlacement="end">
+              {{ field.label }}
+            </ion-checkbox>
+            @if (form.get(field.key)?.errors && form.get(field.key)?.touched) {
+              <div class="field-error">
+                @if (form.get(field.key)?.errors?.['required']) {
+                  ⚠ {{ field.label }} es obligatorio
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- ✅ RESTO: dentro de un wrapper con label -->
+        @if (field.type !== 'boolean') {
+          <div class="form-field">
+            <label class="field-label">
+              {{ field.label }}
+              @if (field.required) { <span class="required-mark">*</span> }
+            </label>
+
+            @switch (field.type) {
+              @case ('textarea') {
+                <ion-textarea
+                  #firstInput
+                  [formControlName]="field.key"
+                  [readonly]="!!(isEditing() && field.readonlyOnEdit)"
+                  [placeholder]="field.placeholder || ''"
+                  [rows]="3"
+                  fill="outline"
+                  [class.invalid]="form.get(field.key)?.invalid && form.get(field.key)?.touched">
+                </ion-textarea>
+              }
+
+              @case ('select') {
+                <ion-select
+                  [formControlName]="field.key"
+                  [disabled]="!!(isEditing() && field.readonlyOnEdit)"
+                  interface="popover"
+                  fill="outline"
+                  [placeholder]="field.placeholder || 'Selecciona una opción'"
+                  [class.invalid]="form.get(field.key)?.invalid && form.get(field.key)?.touched">
+                  @for (option of field.options || []; track option.value) {
+                    <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
+                  }
+                </ion-select>
+              }
+
+              @case ('multiselect') {
+                <ion-select
+                  [formControlName]="field.key"
+                  multiple
+                  [disabled]="!!(isEditing() && field.readonlyOnEdit)"
+                  interface="popover"
+                  fill="outline"
+                  [placeholder]="field.placeholder || 'Selecciona una o varias opciones'"
+                  [class.invalid]="form.get(field.key)?.invalid && form.get(field.key)?.touched">
+                  @for (option of field.options || []; track option.value) {
+                    <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
+                  }
+                </ion-select>
+              }
+
+              @case ('date') {
+                <input
+                  #firstInput
+                  type="date"
+                  class="native-date-input"
+                  [formControlName]="field.key"
+                  [readonly]="!!(isEditing() && field.readonlyOnEdit)"
+                  [class.invalid]="form.get(field.key)?.invalid && form.get(field.key)?.touched">
+              }
+
+              @case ('password') {
+                <ion-input
+                  #firstInput
+                  type="password"
+                  [formControlName]="field.key"
+                  [readonly]="!!(isEditing() && field.readonlyOnEdit)"
+                  [placeholder]="field.placeholder || ''"
+                  fill="outline"
+                  [class.invalid]="form.get(field.key)?.invalid && form.get(field.key)?.touched">
+                </ion-input>
+              }
+
+              @default {
+                <ion-input
+                  #firstInput
+                  [type]="field.type === 'number' ? 'number' : 'text'"
+                  [formControlName]="field.key"
+                  [readonly]="!!(isEditing() && field.readonlyOnEdit)"
+                  [placeholder]="field.placeholder || ''"
+                  fill="outline"
+                  [class.invalid]="form.get(field.key)?.invalid && form.get(field.key)?.touched">
+                </ion-input>
+              }
+            }
+
+            @if (form.get(field.key)?.errors && form.get(field.key)?.touched) {
+              <div class="field-error">
+                @if (form.get(field.key)?.errors?.['required']) {
+                  ⚠ {{ field.label }} es obligatorio
+                }
+                @if (form.get(field.key)?.errors?.['email']) {
+                  ⚠ Email inválido
+                }
+                @if (form.get(field.key)?.errors?.['minlength']) {
+                  ⚠ Mínimo {{ field.minLength }} caracteres
+                }
+                @if (form.get(field.key)?.errors?.['maxlength']) {
+                  ⚠ Máximo {{ field.maxLength }} caracteres
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+
+    <div class="form-actions">
+      <ion-button
+        type="button"
+        fill="outline"
+        class="btn-cancel"
+        (click)="cancelar()">
+        <ion-icon slot="start" name="close-outline"></ion-icon>
+        Cancelar
+      </ion-button>
+
+      <ion-button
+        type="submit"
+        fill="solid"
+        color="primary"
+        class="btn-submit"
+        [disabled]="form.invalid || loading()">
+        @if (loading()) {
+          <ion-spinner name="crescent" slot="start"></ion-spinner>
+          Guardando...
+        } @else {
+          <ion-icon slot="start" name="save-outline"></ion-icon>
+          {{ isEditing() ? 'Actualizar' : 'Crear' }}
+        }
+      </ion-button>
+    </div>
+  </form>
+</div>

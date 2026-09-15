@@ -1,0 +1,162 @@
+<!-- ============================================================ -->
+<!-- TOOLBAR SUPERIOR (búsqueda + acciones)                      -->
+<!-- ============================================================ -->
+<div class="table-toolbar">
+  @if (config()?.tableSettings?.showSearch !== false) {
+    <div class="search-field">
+      <ion-icon name="search-outline" class="search-icon"></ion-icon>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="onSearchInput()"
+        placeholder="Buscar..."
+        class="search-input"
+      />
+      @if (searchTerm()) {
+        <button class="clear-btn" (click)="clearSearch()" type="button">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      }
+    </div>
+  }
+
+  <div class="toolbar-actions">
+    <!-- Volver -->
+    <ion-button fill="outline" class="btn-volver" (click)="goBack()">  
+      <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+      Volver
+    </ion-button>
+
+    <!-- Nuevo -->
+    <ion-button fill="solid" color="primary" (click)="onCreate()">
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      Nuevo {{ config()?.displayName }}
+    </ion-button>
+
+    <span class="record-count">{{ total() }} registros</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TABLA                                                        -->
+<!-- ============================================================ -->
+<div class="table-container">
+  @if (loading()) {
+    <div class="loading-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando...</p>
+    </div>
+  } @else {
+    <table class="entity-table">
+      <thead>
+        <tr>
+          @for (field of visibleFields(); track field.key) {
+            <th>{{ field.label }}</th>
+          }
+          @if (showActions() && config()?.tableSettings?.showActions !== false) {
+            <th class="th-actions">Acciones</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of data(); track item.id || item.userId || $index) {
+          <tr>
+            @for (field of visibleFields(); track field.key) {
+              <td>{{ item[field.key] | entityValue:field.type }}</td>
+            }
+            @if (showActions() && config()?.tableSettings?.showActions !== false) {
+              <td class="td-actions">
+                <button
+                  class="icon-btn btn-edit"
+                  (click)="handleEdit(item)"
+                  title="Editar"
+                  type="button">
+                  <ion-icon name="create-outline"></ion-icon>
+                </button>
+                <button
+                  class="icon-btn btn-delete"
+                  (click)="handleDelete(item)"
+                  title="Eliminar"
+                  type="button">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    @if (data().length === 0) {
+      <div class="empty-state">
+        <ion-icon name="archive-outline"></ion-icon>
+        <p>No hay {{ config()?.displayName | lowercase }}</p>
+      </div>
+    }
+  }
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGINACIÓN                                                   -->
+<!-- ============================================================ -->
+@if (total() > 0) {
+  <div class="paginator">
+    <!-- Selector de tamaño de página -->
+    <div class="page-size">
+      <label>Por página:</label>
+      <select
+        [ngModel]="pageSize()"
+        (ngModelChange)="onPageSizeChange($event)">
+        @for (opt of pageSizeOptions; track opt) {
+          <option [value]="opt">{{ opt }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Rango -->
+    <span class="range-label">{{ rangeLabel }}</span>
+
+    <!-- Controles -->
+    <div class="page-controls">
+      <button
+        class="icon-btn"
+        [disabled]="!canGoPrev"
+        (click)="goFirst()"
+        title="Primera página"
+        type="button">
+        <ion-icon name="chevron-back-circle-outline"></ion-icon>
+      </button>
+
+      <button
+        class="icon-btn"
+        [disabled]="!canGoPrev"
+        (click)="goPrev()"
+        title="Página anterior"
+        type="button">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+
+      <span class="page-indicator">
+        {{ pageIndex() + 1 }} / {{ totalPages }}
+      </span>
+
+      <button
+        class="icon-btn"
+        [disabled]="!canGoNext"
+        (click)="goNext()"
+        title="Página siguiente"
+        type="button">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+
+      <button
+        class="icon-btn"
+        [disabled]="!canGoNext"
+        (click)="goLast()"
+        title="Última página"
+        type="button">
+        <ion-icon name="chevron-forward-circle-outline"></ion-icon>
+      </button>
+    </div>
+  </div>
+}
