@@ -1,0 +1,130 @@
+/* ============================================================
+   ESTILOS DE ALERTAS PERSONALIZADAS
+   ============================================================ */
+
+/* ALERT DE CONFIRMACIÓN — Eliminar */
+.alert-confirm-delete {
+  --backdrop-opacity: 0.4 !important;   /* ✅ Menos opaco */
+  --max-width: 420px !important;
+
+  .alert-wrapper {
+    border-radius: 20px !important;
+    box-shadow:
+      0 20px 50px rgba(0, 0, 0, 0.15),    /* ✅ Más suave */
+      0 8px 20px rgba(0, 0, 0, 0.08) !important;
+    overflow: hidden !important;
+    background: var(--card-bg, #ffffff) !important;
+  }
+
+  /* ✅ Cabecera con gradiente más suave */
+  .alert-head {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%) !important;
+    padding: 24px 20px 16px !important;
+    text-align: center !important;
+  }
+
+  .alert-title {
+    font-size: 1.2rem !important;
+    font-weight: 800 !important;           /* ✅ Más bold */
+    color: #7f1d1d !important;              /* ✅ Más oscuro pero elegante */
+    letter-spacing: -0.01em !important;
+    text-align: center !important;
+    margin: 0 !important;
+  }
+
+  .alert-message {
+    font-size: 0.95rem !important;
+    line-height: 1.55 !important;
+    font-weight: 500 !important;            /* ✅ Texto con más peso */
+    color: #64748b !important;              /* ✅ Gris más suave */
+    padding: 16px 24px 20px !important;
+    text-align: center !important;
+  }
+
+  .alert-button-group {
+    padding: 0 20px 20px !important;
+    gap: 10px !important;
+    display: flex !important;
+    flex-direction: row !important;
+  }
+
+  .alert-button {
+    border-radius: 10px !important;
+    font-size: 0.92rem !important;
+    font-weight: 700 !important;            /* ✅ Botones más bold */
+    text-transform: none !important;
+    height: 44px !important;
+    margin: 0 !important;
+    flex: 1 !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+  }
+
+  /* ✅ Botón Cancelar — más suave */
+  .alert-btn-cancel {
+    background: rgba(148, 163, 184, 0.15) !important;
+    color: #64748b !important;
+    --color: #64748b !important;
+    .alert-button-inner { color: #64748b !important; }
+    &:hover {
+      background: rgba(148, 163, 184, 0.25) !important;
+    }
+  }
+
+  /* ✅ Botón Eliminar — rojo más suave */
+  .alert-btn-danger {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%) !important;
+    color: #ffffff !important;
+    --color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+    .alert-button-inner { color: #ffffff !important; }
+    &:hover {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4) !important;
+    }
+  }
+}
+
+/* ============================================================
+   MODO OSCURO
+   ============================================================ */
+.dark-theme,
+[data-theme="dark"] {
+  .alert-confirm-delete {
+    .alert-wrapper {
+      background: #1e293b !important;
+    }
+
+    .alert-head {
+      background: linear-gradient(
+        135deg,
+        rgba(248, 113, 113, 0.12) 0%,
+        rgba(248, 113, 113, 0.05) 100%
+      ) !important;
+    }
+
+    .alert-title {
+      color: #fecaca !important;    /* ✅ Más claro */
+    }
+
+    .alert-message {
+      color: #cbd5e1 !important;
+      font-weight: 500 !important;
+    }
+
+    .alert-btn-cancel {
+      background: rgba(148, 163, 184, 0.12) !important;
+      color: #cbd5e1 !important;
+      .alert-button-inner { color: #cbd5e1 !important; }
+
+      &:hover {
+        background: rgba(148, 163, 184, 0.2) !important;
+      }
+    }
+
+    .alert-btn-danger {
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 100%) !important;
+      .alert-button-inner { color: #ffffff !important; }
+    }
+  }
+}
