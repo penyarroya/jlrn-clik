@@ -49,6 +49,8 @@ GitHub
 # 1. Ver qué cambió
 git status
 
+type .gitignore
+
 # 2. Añadir los cambios
 git add .
 
