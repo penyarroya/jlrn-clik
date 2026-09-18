@@ -1,0 +1,8 @@
+@if (visible() && displayMessage()) {
+  <div class="message" [class]="'message--' + displayType()">
+    <div class="message__icon">
+      <ion-icon [name]="iconName"></ion-icon>
+    </div>
+    <span class="message__text">{{ displayMessage() }}</span>
+  </div>
+}
