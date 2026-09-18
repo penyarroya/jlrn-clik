@@ -85,6 +85,17 @@
   (loginEvent)="goToLogin()">
 </app-transparent-toolbar>
 
+<!-- ✅ Mensajes globales -->
+@if (globalMessage()) {
+  <div class="global-message-container">
+    <app-field-error
+      [type]="globalMessageType()"
+      [message]="globalMessage()"
+      [duration]="globalMessageDuration()">
+    </app-field-error>
+  </div>
+}
+
 <div class="maintenance-layout">
 
   <div class="sidebar-wrapper" [class.open]="isMobileSidebarOpen()">

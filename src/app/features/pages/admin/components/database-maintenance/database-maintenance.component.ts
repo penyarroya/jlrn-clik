@@ -675,7 +675,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
 
 // ✅ Ionic 9
-import { IonIcon } from '@ionic/angular';
+import { AlertController, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   closeOutline,
@@ -703,6 +703,7 @@ import { ENTITY_REGISTRY, getEntityConfig } from '../../../../../shared/constant
 import { EntityTableComponent } from '../../components/entity-table/entity-table.component';
 import { EntityFormComponent } from '../../components/entity-form/entity-form.component';
 import { EntityConfig } from '../../models/entity-config';
+import { MessageType, FieldErrorComponent } from '../../../../../shared/components/messages/field-error/field-error.component';
 
 interface EntityDefinition {
   name: string;
@@ -725,8 +726,9 @@ export interface ExternalToolbarConfig extends ToolbarConfig {
     TransparentToolbarComponent,
     EntitySidebarComponent,
     EntityTableComponent,
-    EntityFormComponent
-  ],
+    EntityFormComponent,
+    FieldErrorComponent
+],
   templateUrl: './database-maintenance.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./database-maintenance.component.scss']
@@ -744,6 +746,7 @@ export class DatabaseMaintenanceComponent implements OnInit, OnDestroy {
   private themeService = inject(ThemeService);
   private http = inject(HttpClient);
   private crudService = inject(EntityCrudService);
+  private alertController = inject(AlertController);
 
   @ViewChild(EntityTableComponent) tableComponent?: EntityTableComponent;
 
@@ -763,6 +766,11 @@ export class DatabaseMaintenanceComponent implements OnInit, OnDestroy {
   currentData = signal<any>(null);
   loading = signal(false);
   isMobileSidebarOpen = signal(false);
+
+  // ✅ Mensajes globales
+  globalMessage = signal<string | null>(null);
+  globalMessageType = signal<MessageType>('info');
+  globalMessageDuration = signal<number>(3000);
 
   // ============================================================
   // ✅ ACTION MAP — traduce actionId del JSON a funciones reales
@@ -1006,7 +1014,8 @@ export class DatabaseMaintenanceComponent implements OnInit, OnDestroy {
     });
   }
 
-  deleteEntityItem(rowOrId: any): void {
+  //
+  async deleteEntityItem(rowOrId: any): Promise<void> {
     const config = this.selectedEntityConfig();
     if (!config) return;
 
@@ -1015,19 +1024,44 @@ export class DatabaseMaintenanceComponent implements OnInit, OnDestroy {
       ? rowOrId[primaryKeyField]
       : rowOrId;
 
-    if (confirm('¿Estás seguro de que deseas eliminar este registro?')) {
-      this.loading.set(true);
-      this.crudService.delete(config, id).subscribe({
-        next: () => {
-          this.loading.set(false);
-          this.tableComponent?.reload();
+    const alert = await this.alertController.create({
+      header: 'Confirmar eliminación',
+      message: '¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.',
+      cssClass: 'alert-confirm-delete',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'alert-btn-cancel'
         },
-        error: (err) => {
-          console.error('Error al eliminar registro:', err);
-          this.loading.set(false);
+        {
+          text: 'Eliminar',
+          role: 'destructive',
+          cssClass: 'alert-btn-danger',
+          handler: () => this.performDelete(config, id)
         }
-      });
-    }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  //
+  private performDelete(config: EntityConfig, id: any): void {
+    this.loading.set(true);
+
+    this.crudService.delete(config, id).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.tableComponent?.reload();
+        this.showMessage('success', 'Registro eliminado correctamente', 3000);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        console.error('Error al eliminar registro:', err);
+        this.showMessage('error', this.extractErrorMessage(err), 5000);
+      }
+    });
   }
 
   openCreateForm(): void {
@@ -1042,6 +1076,7 @@ export class DatabaseMaintenanceComponent implements OnInit, OnDestroy {
     this.loading.set(false);
   }
 
+  //
   handleSave(formData: any): void {
     const config = this.selectedEntityConfig();
     if (!config) return;
@@ -1063,12 +1098,51 @@ export class DatabaseMaintenanceComponent implements OnInit, OnDestroy {
         this.loading.set(false);
         this.closeForm();
         this.tableComponent?.reload();
+        this.showMessage(
+          'success',
+          this.isEditing()
+            ? 'Registro actualizado correctamente'
+            : 'Registro creado correctamente',
+          3000
+        );
       },
       error: (err) => {
         this.loading.set(false);
         console.error('Error al guardar el registro:', err);
+        this.showMessage('error', this.extractErrorMessage(err), 5000);
       }
     });
+  }
+
+  //
+  private extractErrorMessage(err: any): string {
+    if (err?.error?.message) return err.error.message;
+    if (err?.error?.validationErrors) {
+      return Object.entries(err.error.validationErrors)
+        .map(([field, msg]) => `${field}: ${msg}`)
+        .join('\n');
+    }
+    if (err?.message) return err.message;
+    return 'Error al procesar la solicitud';
+  }
+
+
+ // ============================================================
+  // MENSAJES GLOBALES
+  // ============================================================
+  private showMessage(type: MessageType, message: string, duration: number = 3000): void {
+    this.globalMessageType.set(type);
+    this.globalMessage.set(message);
+    this.globalMessageDuration.set(duration);
+
+    // Limpiar después de la duración
+    if (duration > 0) {
+      setTimeout(() => {
+        if (this.globalMessage() === message) {
+          this.globalMessage.set(null);
+        }
+      }, duration);
+    }
   }
 
   // ============================================================
