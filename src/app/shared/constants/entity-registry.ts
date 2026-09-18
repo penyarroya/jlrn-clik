@@ -212,18 +212,20 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
   UserEntity: {
     entityName: 'UserEntity',
     apiPath: `${API}/users`,
+    // apiListPath: `${API}/users/all`,                       // descomenta si tu backend lo requiere
+    // apiDetailPath: (id: number) => `${API}/users/${id}`,   // descomenta si aplica
     displayName: 'Usuarios',
     displayField: 'username',
     icon: '👤',
     module: 'users',
-    roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
+    roles: ['SUPER_ADMIN'],
     fields: [
       { key: 'id', label: 'ID', type: 'number', hidden: true },
       { key: 'username', label: 'Usuario', type: 'text', required: true, 
         showInTable: true, 
         showOnCreate: true, 
         showOnEdit: true,
-        readonlyOnEdit: true 
+        readonlyOnEdit: true
       },
       { key: 'email', label: 'Email', type: 'email', required: true, 
         showInTable: true, 
@@ -249,15 +251,13 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
       },
       { key: 'firstName', label: 'Nombre', type: 'text', required: true, 
         showOnCreate: true, 
-        showOnEdit: true, 
-        showInTable: false,
-        readonlyOnEdit: true  
+        showOnEdit: false, 
+        showInTable: false
       },
       { key: 'lastName', label: 'Apellidos', type: 'text', required: true, 
         showOnCreate: true, 
-        showOnEdit: true, 
-        showInTable: false,
-        readonlyOnEdit: true  
+        showOnEdit: false, 
+        showInTable: false
       },
       { key: 'activo', label: 'Activo', type: 'boolean', 
         showOnCreate: false, 
@@ -272,14 +272,12 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
       { key: 'fechaAlta', label: 'Fecha Alta', type: 'date', readonly: true, 
         showInTable: true,
         showOnCreate: false, 
-        showOnEdit: true,
-        readonlyOnEdit: true   
+        showOnEdit: false
       },
       { key: 'fechaActualizacion', label: 'Últ. Actualización', type: 'date', readonly: true, 
         showInTable: false,
          showOnCreate: false, 
-        showOnEdit: true,
-        readonlyOnEdit: true    
+        showOnEdit: false
       },
     ],
     tableSettings: { pageSizeOptions: [5, 10, 25, 50, 100], defaultPageSize: 10, showSearch: true, showActions: true },
