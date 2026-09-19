@@ -158,6 +158,10 @@ export class FieldErrorComponent {
       if (f?.type === 'password') {
         return 'La contraseña debe tener mínimo 9 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial';
       }
+      // ✅ NUEVO: mensaje para el campo `name` de RoleEntity
+      if (f?.key === 'name') {
+        return 'El nombre debe estar en MAYÚSCULAS y solo puede contener letras y guiones bajos (ej: ROLE_ADMIN)';
+      }
       return 'Formato inválido';
     }
 
@@ -176,6 +180,7 @@ export class FieldErrorComponent {
     return 'Campo inválido';
   }
 
+  
   // ============================================================
   // GETTERS PARA EL TEMPLATE
   // ============================================================

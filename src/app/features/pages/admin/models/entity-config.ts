@@ -41,4 +41,9 @@ export interface EntityConfig {
     columns?: number;
     layout?: 'grid' | 'stacked';
   };
+
+  // ✅ NUEVAS PROPS
+  canCreate?: boolean;   // ¿Se puede crear? (default: true)
+  canEdit?: boolean;     // ¿Se puede editar? (default: true)
+  canDelete?: boolean;   // ¿Se puede eliminar? (default: true)
 }

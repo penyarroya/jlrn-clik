@@ -351,6 +351,7 @@ import { EntityCrudService } from '../../../../../shared/services/sidebar/entity
 import { EntityConfig } from '../../../admin//models/entity-config';
 import { RoleService } from '../../../../services/role/role.service';
 import { FieldErrorComponent } from '../../../../../shared/components/messages/field-error/field-error.component';
+import { PermissionService } from '../../../../services/permission/permission';
 
 @Component({
   selector: 'app-entity-form',
@@ -380,6 +381,7 @@ export class EntityFormComponent implements OnInit {
   private configService = inject(EntityConfigService);
   private crudService = inject(EntityCrudService);
   private roleService = inject(RoleService);
+  private permissionService = inject(PermissionService);
 
 
   // ============================================================
@@ -401,8 +403,9 @@ export class EntityFormComponent implements OnInit {
   editingId = signal<number | null>(null);
   showPassword = signal<Record<string, boolean>>({});
 
-  // Roles disponibles
+  // Roles y permissions disponibles
   availableRoles: any[] = [];
+  availablePermissions = signal<any[]>([]);
 
   // ============================================================
   // COMPUTED
@@ -411,21 +414,55 @@ export class EntityFormComponent implements OnInit {
     return this.configService.getConfig(this.entityName()) || null;
   });
 
+  // editableFields = computed(() => {
+  //   const config = this.config();
+  //   if (!config) return [];
+
+  //   const editing = this.isEditing();
+  //   return config.fields.filter(f => {
+  //     if (f.hidden) return false;
+  //     if (f.key === 'id') return false;
+
+  //     if (editing && f.showOnEdit === false) return false;
+  //     if (!editing && f.showOnCreate === false) return false;
+
+  //     return true;
+  //   });
+  // });
+
+
   editableFields = computed(() => {
     const config = this.config();
     if (!config) return [];
 
     const editing = this.isEditing();
-    return config.fields.filter(f => {
-      if (f.hidden) return false;
-      if (f.key === 'id') return false;
+    const perms = this.availablePermissions();   // ✅ Signal
 
-      if (editing && f.showOnEdit === false) return false;
-      if (!editing && f.showOnCreate === false) return false;
+    return config.fields
+      .filter(f => {
+        if (f.hidden) return false;
+        if (f.key === 'id') return false;
 
-      return true;
-    });
+        if (editing && f.showOnEdit === false) return false;
+        if (!editing && f.showOnCreate === false) return false;
+
+        return true;
+      })
+      .map(f => {
+        // ✅ Inyectar opciones dinámicas para "permissions"
+        if (f.key === 'permissions') {
+          return {
+            ...f,
+            options: perms.map(p => ({
+              label: p.name,     // Ej: "user:read"
+              value: p.name      // Ej: "user:read"
+            }))
+          };
+        }
+        return f;
+      });
   });
+
 
   gridColumns = computed(() => {
     const config = this.config();
@@ -461,6 +498,7 @@ export class EntityFormComponent implements OnInit {
   // ============================================================
   ngOnInit(): void {
     this.loadRoles();
+    this.loadPermissions();
 
     // ✅ Modo "input" (componente usado embebido en otro componente)
     if (this.entity()) {
@@ -506,6 +544,20 @@ export class EntityFormComponent implements OnInit {
   }
 
   // ============================================================
+  // CARGA DE PERMISOS
+  // ============================================================
+  loadPermissions(): void {
+    this.permissionService.getAllPermissions().subscribe({
+      next: (permissions: any[]) => {
+        this.availablePermissions.set(permissions);
+      },
+      error: (err) => {
+        console.error('No se pudieron cargar los permisos', err);
+      }
+    });
+  }
+
+  // ============================================================
   // CARGA DE ITEM
   // ============================================================
   loadItem(id: number): void {
@@ -544,11 +596,34 @@ export class EntityFormComponent implements OnInit {
   //       validators.push(Validators.required);
   //     }
 
+  //     // ✅ Roles: obligatorio y no vacío
   //     if (field.key === 'roles') {
   //       validators.push(Validators.required);
+  //       validators.push((control: AbstractControl) => {
+  //         const value = control.value;
+  //         if (!value || !Array.isArray(value) || value.length === 0) {
+  //           return { required: true };
+  //         }
+  //         return null;
+  //       });
   //     }
 
-  //     if (field.type === 'email') validators.push(Validators.email);
+  //     // ✅ Email: doble validación
+  //     if (field.type === 'email') {
+  //       validators.push(Validators.email);
+  //       validators.push(Validators.pattern(
+  //         /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/
+  //       ));
+  //     }
+
+  //     // ✅ Password: contraseña fuerte (solo en creación)
+  //     if (field.type === 'password' && !editing) {
+  //       validators.push(Validators.minLength(9));
+  //       validators.push(Validators.pattern(
+  //         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{9,}$/
+  //       ));
+  //     }
+
   //     if (field.minLength) validators.push(Validators.minLength(field.minLength));
   //     if (field.maxLength) validators.push(Validators.maxLength(field.maxLength));
 
@@ -587,8 +662,27 @@ export class EntityFormComponent implements OnInit {
         validators.push(Validators.required);
       }
 
-      // ✅ Roles: obligatorio y no vacío
+      // ✅ Roles: obligatorio y no vacío (UserEntity)
       if (field.key === 'roles') {
+        validators.push(Validators.required);
+        validators.push((control: AbstractControl) => {
+          const value = control.value;
+          if (!value || !Array.isArray(value) || value.length === 0) {
+            return { required: true };
+          }
+          return null;
+        });
+      }
+
+      // ✅ NUEVO: name de RoleEntity (solo en creación)
+      if (field.key === 'name' && !editing) {
+        validators.push(Validators.minLength(2));
+        validators.push(Validators.maxLength(50));
+        validators.push(Validators.pattern(/^[A-Z][A-Z_]*$/));
+      }
+
+      // ✅ NUEVO: permissions de RoleEntity (obligatorio al menos 1)
+      if (field.key === 'permissions') {
         validators.push(Validators.required);
         validators.push((control: AbstractControl) => {
           const value = control.value;
@@ -649,42 +743,7 @@ export class EntityFormComponent implements OnInit {
   // ============================================================
   // ENVÍO DEL FORMULARIO
   // ============================================================
-  // onSubmit(): void {
-  //   const formValue = this.form.getRawValue();
-
-  //   const isUserEntity = this.entityName() === 'users' || this.entityName() === 'UserEntity';
-
-  //   if (isUserEntity) {
-  //     if (!formValue.roles || !Array.isArray(formValue.roles) || formValue.roles.length === 0) {
-  //       this.form.get('roles')?.setErrors({ required: true });
-  //       this.form.markAllAsTouched();
-  //       return;
-  //     }
-  //   }
-
-  //   if (this.form.valid) {
-  //     if (this.isEditing() && !formValue.password) {
-  //       delete formValue.password;
-  //     }
-
-  //     if (isUserEntity && formValue.roles) {
-  //       formValue.roleIds = formValue.roles.map((roleName: string) => {
-  //         const foundRole = this.availableRoles.find(r => r.name === roleName);
-  //         return foundRole ? foundRole.id : null;
-  //       }).filter((id: number | null) => id !== null);
-
-  //       delete formValue.roles;
-  //     }
-
-  //     this.saveRequested.emit(formValue);
-  //   } else {
-  //     this.form.markAllAsTouched();
-  //   }
-  // }
-
-
-
-    onSubmit(): void {
+  onSubmit(): void {
       // ✅ Si el form es inválido, no enviar (por seguridad)
       if (this.form.invalid) {
           console.warn('Formulario inválido, no se envía');

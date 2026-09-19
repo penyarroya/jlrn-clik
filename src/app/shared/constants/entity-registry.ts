@@ -283,7 +283,7 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
     tableSettings: { pageSizeOptions: [5, 10, 25, 50, 100], defaultPageSize: 10, showSearch: true, showActions: true },
     formSettings: { columns: 2, layout: 'grid' }
   },
-
+  
   RoleEntity: {
     entityName: 'RoleEntity',
     apiPath: `${API}/roles`,
@@ -291,36 +291,127 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
     displayField: 'name',
     icon: '🛡️',
     module: 'users',
-    roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
+    roles: ['SUPER_ADMIN'],
+
+    // ✅ NUEVAS PROPS
+    canCreate: false,   // ❌ No se pueden crear roles
+    canEdit: true,      // ✅ Se pueden editar (solo permisos)
+    canDelete: false,   // ❌ No se pueden eliminar roles
+
     fields: [
       { key: 'id', label: 'ID', type: 'number', hidden: true },
-      { key: 'name', label: 'Nombre', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'description', label: 'Descripción', type: 'textarea', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'isActive', label: 'Activo', type: 'boolean', showOnCreate: false, showOnEdit: true, showInTable: true },
-      { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
+      { 
+        key: 'name', 
+        label: 'Nombre', 
+        type: 'text', 
+        required: true, 
+        showInTable: true, 
+        showOnCreate: false,
+        showOnEdit: false
+      },
+      { 
+        key: 'permissions', 
+        label: 'Permisos', 
+        type: 'multiselect',
+        showInTable: false,
+        showOnCreate: false,
+        showOnEdit: true
+      },
+      { 
+        key: 'userCount', 
+        label: 'Usuarios', 
+        type: 'number', 
+        readonly: true, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: false
+      },
+      { 
+        key: 'systemRole', 
+        label: 'Sistema', 
+        type: 'boolean', 
+        readonly: true, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: false
+      },
     ],
-    tableSettings: { pageSizeOptions: [5, 10, 25], defaultPageSize: 5, showSearch: true, showActions: true },
-    formSettings: { columns: 1, layout: 'stacked' }
+    tableSettings: { 
+      pageSizeOptions: [5, 10, 25], 
+      defaultPageSize: 10, 
+      showSearch: true, 
+      showActions: true 
+    },
+    formSettings: { 
+      columns: 1, 
+      layout: 'stacked' 
+    }
   },
 
-  PermissionEntity: {
+    PermissionEntity: {
     entityName: 'PermissionEntity',
     apiPath: `${API}/permissions`,
     displayName: 'Permisos',
     displayField: 'name',
     icon: '🔐',
     module: 'users',
-    roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
+    roles: ['SUPER_ADMIN'],
+
+    // ✅ SOLO LECTURA
+    canCreate: false,
+    canEdit: false,
+    canDelete: false,
+
     fields: [
-      { key: 'id', label: 'ID', type: 'number', hidden: true },
-      { key: 'name', label: 'Nombre', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'resource', label: 'Recurso', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'action', label: 'Acción', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'description', label: 'Descripción', type: 'textarea', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
+      { 
+        key: 'id', 
+        label: 'ID', 
+        type: 'number', 
+        hidden: true 
+      },
+      { 
+        key: 'name', 
+        label: 'Nombre', 
+        type: 'text', 
+        showInTable: true 
+      },
+      { 
+        key: 'category', 
+        label: 'Categoría', 
+        type: 'text', 
+        showInTable: true 
+      },
+      { 
+        key: 'action', 
+        label: 'Acción', 
+        type: 'text', 
+        showInTable: true 
+      },
+      { 
+        key: 'roleCount', 
+        label: 'Roles', 
+        type: 'number', 
+        showInTable: true 
+      },
+      { 
+        key: 'corePermission', 
+        label: 'Core', 
+        type: 'boolean', 
+        showInTable: true 
+      },
     ],
-    tableSettings: { pageSizeOptions: [5, 10, 25], defaultPageSize: 5, showSearch: true, showActions: true },
-    formSettings: { columns: 2, layout: 'grid' }
+
+    tableSettings: { 
+      pageSizeOptions: [5, 10, 25, 50], 
+      defaultPageSize: 10, 
+      showSearch: true, 
+      showActions: true 
+    },
+
+    formSettings: { 
+      columns: 1, 
+      layout: 'stacked' 
+    }
   },
 
   // UserProfile: {
