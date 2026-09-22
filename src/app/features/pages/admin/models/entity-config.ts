@@ -3,7 +3,7 @@
 export interface EntityField {
   key: string;
   label: string;
-  type: 'text' | 'email' | 'password' | 'number' | 'boolean' | 'date' | 'textarea' | 'select' | 'multiselect' |'json';
+  type: 'text' | 'email' | 'password' | 'number' | 'boolean' | 'date' | 'textarea' | 'select' | 'multiselect' | 'json';
   isPrimaryKey?: boolean;
   required?: boolean;
   readonly?: boolean;
@@ -15,9 +15,15 @@ export interface EntityField {
   maxLength?: number;
   min?: number;
   max?: number;
+  step?: number; 
   showOnCreate?: boolean;
   showOnEdit?: boolean;
   showInTable?: boolean;
+  optionsSource?: string;
+  optionValueKey?: string;
+  optionLabelKey?: string;
+  defaultValue?: any;
+  truncate?: number;
 }
 
 export interface EntityConfig {

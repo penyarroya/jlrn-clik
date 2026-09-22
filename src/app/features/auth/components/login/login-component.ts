@@ -1957,33 +1957,65 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
   private dictationTarget: 'username' | 'password' | null = null;
   private dictationBuffer = '';
 
-  private readonly WELCOME_MESSAGE = 'Bienvenido a inicio de sesión. Di "usuario", "contraseña", "enviar", "limpiar campos", "leer campos", "volver", o "ayuda" para más opciones.';
+  // ✅ NUEVO: estado de la ayuda fragmentada
+  private helpInProgress = false;
+  private helpCurrentIndex = 0;
+  private helpBlocks: string[] = [];
+  private helpCancelled = false;
+
+  // private readonly WELCOME_MESSAGE = 'Bienvenido a inicio de sesión. Di "usuario", "contraseña", "enviar", "limpiar campos", "leer campos", "volver", o "ayuda" para más opciones.';
+  private readonly WELCOME_MESSAGE = 'Inicio de sesión. Di "usuario" o "ayuda para mas comandos".';
 
   get usernameOrEmailCtrl() { return this.loginForm.controls.usernameOrEmail; }
   get passwordCtrl() { return this.loginForm.controls.password; }
 
-  private readonly synonyms = {
-    dictateUsername: ['usuario', 'escribir usuario', 'escribe usuario', 'nombre', 'escribir nombre', 'escribe nombre', 'user', 'email', 'correo'],
-    dictatePassword: ['contraseña', 'clave', 'escribir contraseña', 'escribe contraseña', 'escribir clave', 'escribe clave', 'password', 'pass'],
-    finish: ['fin', 'listo', 'terminar', 'finalizar', 'ok', 'vale', 'hecho', 'completar'],
-    back: ['volver', 'atrás', 'regresar', 'retroceder', 'cancelar'],
-    login: ['enviar', 'logear', 'acceder', 'entrar', 'iniciar sesión', 'login', 'ingresar', 'acceder al sistema'],
-    mute: ['silenciar micrófono', 'dejar de escuchar', 'silenciar', 'mute', 'apagar micrófono'],
-    unmute: ['activar micrófono', 'encender micrófono', 'desmutear', 'unmute', 'escuchar'],
-    showPassword: ['mostrar contraseña', 'ver contraseña', 'mostrar clave', 'ver clave'],
-    hidePassword: ['ocultar contraseña', 'ocultar clave', 'esconder contraseña'],
-    help: ['ayuda', 'qué puedo decir', 'opciones', 'comandos', 'ayúdame'],
-    clearUsername: ['limpiar usuario', 'borrar usuario', 'limpiar nombre', 'borrar nombre', 'limpiar nombre de usuario'],
-    clearPassword: ['limpiar contraseña', 'borrar contraseña', 'limpiar clave', 'borrar clave'],
-    clearCurrent: ['limpiar campo', 'borrar campo', 'limpiar este campo', 'borrar este campo'],
-    clearAll: ['limpiar campos', 'limpiar todo', 'borrar todo', 'resetear', 'empezar de cero', 'borrar campos'],
-    cancel: ['cancelar', 'cancel', 'abortar'],
-    register: ['registro', 'registrar', 'crear cuenta', 'registrarme', 'nueva cuenta'],
-    forgot: ['olvidé', 'recuperar', 'recuperar contraseña', 'olvide contraseña', 'recuperar clave'],
-    privacy: ['privacidad', 'política de privacidad', 'política'],
-    terms: ['condiciones', 'términos', 'términos y condiciones', 'condiciones de uso'],
-    readFields: ['leer campos', 'leer', 'leer todo', 'qué tengo', 'qué hay', 'mostrar campos', 'qué he escrito', 'revisar campos'],
-    status: ['estado', 'qué falta', 'campos pendientes', 'falta algo']
+  // private readonly synonyms = {
+  //   dictateUsername: ['usuario', 'escribir usuario', 'escribe usuario', 'nombre', 'escribir nombre', 'escribe nombre', 'user', 'email', 'correo'],
+  //   dictatePassword: ['contraseña', 'clave', 'escribir contraseña', 'escribe contraseña', 'escribir clave', 'escribe clave', 'password', 'pass'],
+  //   finish: ['fin', 'listo', 'terminar', 'finalizar', 'ok', 'vale', 'hecho', 'completar'],
+  //   back: ['volver', 'atrás', 'regresar', 'retroceder', 'cancelar'],
+  //   login: ['enviar', 'logear', 'acceder', 'entrar', 'iniciar sesión', 'login', 'ingresar', 'acceder al sistema'],
+  //   mute: ['silenciar micrófono', 'dejar de escuchar', 'silenciar', 'mute', 'apagar micrófono'],
+  //   unmute: ['activar micrófono', 'encender micrófono', 'desmutear', 'unmute', 'escuchar'],
+  //   showPassword: ['mostrar contraseña', 'ver contraseña', 'mostrar clave', 'ver clave'],
+  //   hidePassword: ['ocultar contraseña', 'ocultar clave', 'esconder contraseña'],
+  //   help: ['ayuda', 'qué puedo decir', 'opciones', 'comandos', 'ayúdame'],
+  //   clearUsername: ['limpiar usuario', 'borrar usuario', 'limpiar nombre', 'borrar nombre', 'limpiar nombre de usuario'],
+  //   clearPassword: ['limpiar contraseña', 'borrar contraseña', 'limpiar clave', 'borrar clave'],
+  //   clearCurrent: ['limpiar campo', 'borrar campo', 'limpiar este campo', 'borrar este campo'],
+  //   clearAll: ['limpiar campos', 'limpiar todo', 'borrar todo', 'resetear', 'empezar de cero', 'borrar campos'],
+  //   cancel: ['cancelar', 'cancel', 'abortar'],
+  //   register: ['registro', 'registrar', 'crear cuenta', 'registrarme', 'nueva cuenta'],
+  //   forgot: ['olvidé', 'recuperar', 'recuperar contraseña', 'olvide contraseña', 'recuperar clave'],
+  //   privacy: ['privacidad', 'política de privacidad', 'política'],
+  //   terms: ['condiciones', 'términos', 'términos y condiciones', 'condiciones de uso'],
+  //   readFields: ['leer campos', 'leer', 'leer todo', 'qué tengo', 'qué hay', 'mostrar campos', 'qué he escrito', 'revisar campos'],
+  //   status: ['estado', 'qué falta', 'campos pendientes', 'falta algo']
+  // };
+
+
+    private readonly synonyms = {
+      dictateUsername: ['usuario', 'escribir usuario', 'escribe usuario', 'nombre', 'escribir nombre', 'escribe nombre', 'user', 'email', 'correo'],
+      dictatePassword: ['contraseña', 'clave', 'escribir contraseña', 'escribe contraseña', 'escribir clave', 'escribe clave', 'password', 'pass'],
+      finish: ['fin', 'listo', 'terminar', 'finalizar', 'ok', 'vale', 'hecho', 'completar'],
+      back: ['volver', 'vuelve', 'atrás', 'regresar', 'retroceder', 'cancelar'],
+      login: ['enviar', 'envia', 'logear', 'acceder', 'entrar', 'iniciar sesión', 'login', 'ingresar', 'acceder al sistema'],
+      mute: ['silenciar micrófono', 'dejar de escuchar', 'silenciar', 'mute', 'apagar micrófono'],
+      unmute: ['activar micrófono', 'encender micrófono', 'desmutear', 'unmute', 'escuchar'],
+      showPassword: ['mostrar contraseña', 'ver contraseña', 'mostrar clave', 'ver clave'],
+      hidePassword: ['ocultar contraseña', 'ocultar clave', 'esconder contraseña'],
+      help: ['ayuda', 'qué puedo decir', 'opciones', 'comandos', 'ayúdame'],
+      clearUsername: ['limpiar usuario', 'borrar usuario', 'limpiar nombre', 'borrar nombre', 'limpiar nombre de usuario'],
+      clearPassword: ['limpiar contraseña', 'borrar contraseña', 'limpiar clave', 'borrar clave'],
+      clearCurrent: ['limpiar campo', 'borrar campo', 'limpiar este campo', 'borrar este campo'],
+      clearAll: ['limpiar campos', 'limpiar todo', 'borrar todo', 'resetear', 'empezar de cero', 'borrar campos'],
+      cancel: ['cancelar', 'cancel', 'abortar'],
+      register: ['registro', 'registrar', 'registra', 'crear cuenta', 'registrarme', 'nueva cuenta'],
+      forgot: ['olvidé', 'recuperar', 'recupera', 'recuperar contraseña', 'olvide contraseña', 'recuperar clave'],
+      privacy: ['privacidad', 'política de privacidad', 'política'],
+      terms: ['condiciones', 'términos', 'términos y condiciones', 'condiciones de uso'],
+      readFields: ['leer campos', 'leer', 'leer todo', 'qué tengo', 'qué hay', 'mostrar campos', 'qué he escrito', 'revisar campos'],
+      status: ['estado', 'qué falta', 'campos pendientes', 'falta algo']
   };
 
   private calculatePasswordStrength(password: string): number {
@@ -2074,6 +2106,9 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
 
   //
   ngOnInit(): void {
+    const t0 = performance.now();
+    console.log('⏱️ LoginComponent ngOnInit inicio:', t0);
+
     console.log('✅ LoginComponent inicializado');
 
     this.voiceContext.setContext({
@@ -2217,6 +2252,8 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         });
     }, 1200);
+
+    console.log('⏱️ LoginComponent ngOnInit fin:', performance.now() - t0);
   }
 
   //
@@ -2261,11 +2298,18 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     console.log('🧹 LoginComponent - Iniciando limpieza');
     this.isDestroyed = true;
+
+    // ✅ Detener ayuda en curso 
+    this.helpCancelled = true;
+    this.helpInProgress = false;
+    this.voiceService.setSuppressStopWords(false); 
+    window.speechSynthesis.cancel();
+
     if (this.welcomeTimeout) {
       clearTimeout(this.welcomeTimeout);
       this.welcomeTimeout = null;
     }
-    window.speechSynthesis.cancel();
+
     this.voiceContext.resetContext();
     this.destroy$.next();
     this.destroy$.complete();
@@ -2360,11 +2404,292 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   //
+  // private handleVoiceCommand(text: string): void {
+  //   if (this.isDestroyed) return;
+  //   const lower = text.toLowerCase().trim();
+    
+  //   console.log(`📝 [handleVoiceCommand] lower: "${lower}"`);
+
+  //   // Ignorar números sueltos
+  //   const isNumeric = /^\d+$/.test(lower) || ['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'].some(w => lower === w);
+  //   if (isNumeric) {
+  //     console.log('⏭️ Login: número suelto ignorado');
+  //     return;
+  //   }
+
+  //   // ✅ DEBOUNCE AL PRINCIPIO: filtra duplicados antes de cualquier comando
+  //   const now = Date.now();
+  //   if (lower === this.lastProcessedCommand && (now - this.lastProcessedTime) < this.COMMAND_DEBOUNCE) {
+  //     console.log(`⏭️ Login: comando duplicado ignorado: "${lower}"`);
+  //     return;
+  //   }
+  //   this.lastProcessedCommand = lower;
+  //   this.lastProcessedTime = now;
+
+  //   // ============================================================
+  //   // COMANDOS DE NAVEGACIÓN
+  //   // ============================================================
+  //   if (lower.includes('volver') || lower.includes('atrás') || lower.includes('regresar') || lower.includes('retroceder')) {
+  //     console.log('🔙 Login: ejecutando "volver"');
+  //     if (this.dictationMode) {
+  //       this.stopDictation(undefined, true);
+  //     }
+  //     this.voiceService.clearTranscript();
+  //     this.router.navigateByUrl('/home', { replaceUrl: true });
+  //     return;
+  //   }
+
+  //   if (lower.includes('privacidad') || lower.includes('política de privacidad') || lower.includes('política')) {
+  //     console.log('🔐 [Login] Ejecutando "privacidad"');
+  //     this.voiceService.clearTranscript();
+  //     this.voiceService.speak('Navegando a política de privacidad');
+  //     this.router.navigateByUrl('/privacy', { replaceUrl: true });
+  //     return;
+  //   }
+
+  //   if (lower.includes('condiciones') || lower.includes('términos') || lower.includes('términos y condiciones') || lower.includes('condiciones de uso')) {
+  //     console.log('📄 [Login] Ejecutando "condiciones"');
+  //     this.voiceService.clearTranscript();
+  //     this.voiceService.speak('Navegando a términos y condiciones');
+  //     this.router.navigateByUrl('/terms', { replaceUrl: true });
+  //     return;
+  //   }
+
+  //   // ============================================================
+  //   // DICTADO DIRECTO (si campo vacío)
+  //   // ============================================================
+  //   if (lower === 'usuario' || lower === 'contraseña' || lower === 'clave' || lower === 'password' || lower === 'pass') {
+  //     console.log(`🎤 [Login] Campo "${lower}" detectado`);
+  //     const target = lower === 'usuario' ? 'username' : 'password';
+  //     const formControlName = target === 'username' ? 'usernameOrEmail' : 'password';
+  //     const control = this.loginForm.get(formControlName);
+      
+  //     const shouldStartDictation = (!control?.value || control.value.length === 0) && 
+  //                                 (!this.dictationMode || this.dictationTarget !== target);
+      
+  //     if (shouldStartDictation) {
+  //       console.log(`🎤 [Login] Campo "${lower}" vacío, iniciando dictado directo`);
+  //       if (this.dictationMode) {
+  //         this.stopDictation(undefined, true);
+  //       }
+  //       this.startDictation(target, '');
+  //       return;
+  //     } else if (this.dictationMode && this.dictationTarget === target) {
+  //       console.log(`⏭️ [Login] Ya dictando "${target}", ignorando comando`);
+  //       return;
+  //     }
+  //   }
+
+  //   // ============================================================
+  //   // COMANDOS DE ACCIÓN
+  //   // ============================================================
+  //   if (this.synonyms.cancel.some(s => lower.includes(s))) {
+  //     if (this.dictationMode) {
+  //       this.stopDictation(undefined, true);
+  //       this.voiceService.speak('Dictado cancelado');
+  //     }
+  //     return;
+  //   }
+
+  //   if (this.synonyms.login.some(s => lower.includes(s))) {
+  //     console.log('🔐 Login: ejecutando login por voz');
+  //     if (this.dictationMode) {
+  //       this.stopDictation(undefined, true);
+  //     }
+      
+  //     const username = this.usernameOrEmailCtrl.value || '';
+  //     const password = this.passwordCtrl.value || '';
+      
+  //     if (!username || username.length < 3) {
+  //       this.focusInput('username');
+  //       return;
+  //     }
+      
+  //     if (!password || password.length < 9) {
+  //       this.voiceService.speakAlways('Primero escribe tu contraseña. Di "contraseña" para escribir tu clave.');
+  //       this.focusInput('password');
+  //       return;
+  //     }
+      
+  //     this.onSubmit();
+  //     return;
+  //   }
+
+  //   if (this.synonyms.readFields.some(s => lower.includes(s))) {
+  //     console.log('📖 [Login] Comando "leer campos" detectado');
+  //     if (this.dictationMode) {
+  //       this.stopDictation(undefined, true);
+  //     }
+  //     this.readFields();
+  //     return;
+  //   }
+
+  //   if (this.synonyms.status.some(s => lower.includes(s))) {
+  //     console.log('📊 [Login] Comando "estado" detectado');
+  //     if (this.dictationMode) {
+  //       this.stopDictation(undefined, true);
+  //     }
+  //     this.getStatus();
+  //     return;
+  //   }
+
+  //   if (this.synonyms.clearUsername.some(s => lower.includes(s))) {
+  //     this.clearField('username');
+  //     return;
+  //   }
+
+  //   if (this.synonyms.clearPassword.some(s => lower.includes(s))) {
+  //     this.clearField('password');
+  //     return;
+  //   }
+
+  //   if (this.synonyms.clearCurrent.some(s => lower.includes(s))) {
+  //     const focusedField = this.getFocusedField();
+  //     if (focusedField) {
+  //       this.clearField(focusedField);
+  //     } else {
+  //       this.voiceService.speak('No hay ningún campo enfocado. Di "limpiar usuario" o "limpiar contraseña".');
+  //     }
+  //     return;
+  //   }
+
+  //   if (this.synonyms.clearAll.some(s => lower.includes(s))) {
+  //     this.clearAllFields();
+  //     return;
+  //   }
+
+  //   if (this.synonyms.help.some(s => lower.includes(s))) {
+  //     this.showHelp();
+  //     return;
+  //   }
+
+  //   if (this.synonyms.mute.some(s => lower.includes(s))) {
+  //     this.voiceService.mute();
+  //     return;
+  //   }
+
+  //   if (this.synonyms.unmute.some(s => lower.includes(s))) {
+  //     this.voiceService.unmute();
+  //     return;
+  //   }
+
+  //   if (this.synonyms.showPassword.some(s => lower.includes(s))) {
+  //     if (this.hidePassword()) {
+  //       this.togglePasswordVisibility();
+  //       this.voiceService.speak('Contraseña visible');
+  //     }
+  //     return;
+  //   }
+
+  //   if (this.synonyms.hidePassword.some(s => lower.includes(s))) {
+  //     if (!this.hidePassword()) {
+  //       this.togglePasswordVisibility();
+  //       this.voiceService.speak('Contraseña oculta');
+  //     }
+  //     return;
+  //   }
+
+  //   // ============================================================
+  //   // MODO DICTADO ACTIVO
+  //   // ============================================================
+  //   if (this.dictationMode && this.dictationTarget) {
+  //     console.log(`🔍 [handleVoiceCommand] Modo dictado activo, llamando a handleDictation: "${lower}"`);
+  //     this.handleDictation(lower);
+  //     return;
+  //   }
+
+  //   // ============================================================
+  //   // INICIAR DICTADO
+  //   // ============================================================
+  //   if (this.synonyms.dictateUsername.some(s => lower.includes(s))) {
+  //     const afterCommand = lower.replace(/^(usuario|nombre|user|email|correo|escribir usuario|escribe usuario|escribir nombre|escribe nombre)\s*/, '').trim();
+  //     this.startDictation('username', afterCommand);
+  //     return;
+  //   }
+
+  //   if (this.synonyms.dictatePassword.some(s => lower.includes(s))) {
+  //     const afterCommand = lower.replace(/^(contraseña|clave|pass|password|escribir contraseña|escribe contraseña|escribir clave|escribe clave)\s*/, '').trim();
+  //     this.startDictation('password', afterCommand);
+  //     return;
+  //   }
+
+  //   // if (this.synonyms.register.some(s => lower.includes(s))) {
+  //   //   console.log('🔍 Login: navegando a registro');
+  //   //   this.voiceService.speak('Navegando a registro');
+  //   //   setTimeout(() => {
+  //   //     this.voiceService.clearTranscript();
+  //   //   }, 100);
+  //   //   setTimeout(() => {
+  //   //     if (!this.isDestroyed) {
+  //   //       this.router.navigateByUrl('/register', { replaceUrl: true });
+  //   //     }
+  //   //   }, 300);
+  //   //   return;
+  //   // }
+
+
+  //   if (this.synonyms.register.some(s => lower.includes(s))) {
+  //     console.log('🔍 Login: navegando a registro');
+  //     this.voiceService.clearTranscript();
+  //     this.voiceService.onNavigate();   // ✅ NUEVO: bloquea comandos de navegación 3000 ms
+  //     setTimeout(() => {
+  //       if (!this.isDestroyed) {
+  //         this.router.navigateByUrl('/register', { replaceUrl: true });
+  //       }
+  //     }, 300);
+  //     return;
+  //   }
+
+
+  //   if (this.synonyms.forgot.some(s => lower.includes(s))) {
+  //     this.voiceService.clearTranscript();
+  //     this.voiceService.speak('Navegando a recuperar contraseña');
+  //     this.router.navigateByUrl('/forgot-password', { replaceUrl: true });
+  //     return;
+  //   }
+
+  //   console.log('⏭️ Login - Comando no reconocido, ignorado:', lower);
+  // }
+
+
+
+
+
+
+
+
+
+
+
   private handleVoiceCommand(text: string): void {
     if (this.isDestroyed) return;
     const lower = text.toLowerCase().trim();
     
     console.log(`📝 [handleVoiceCommand] lower: "${lower}"`);
+
+    // ============================================================
+    // ✅ CONTROL DE LA AYUDA EN CURSO (ANTES DE CUALQUIER COSA)
+    // ============================================================
+    if (this.helpInProgress) {
+      if (lower.includes('para') || lower.includes('silencio') ||
+          lower.includes('calla') || lower.includes('stop') ||
+          lower.includes('detente')) {
+        this.stopHelp();
+        this.voiceService.speak('Ayuda detenida.');
+        return;
+      }
+      if (lower === 'siguiente' || lower === 'continúa' || lower === 'continua') {
+        window.speechSynthesis.cancel();
+        return;
+      }
+      if (lower === 'repetir' || lower === 'repite') {
+        this.helpCurrentIndex = Math.max(0, this.helpCurrentIndex - 1);
+        window.speechSynthesis.cancel();
+        return;
+      }
+      console.log('⏭️ Login: ignorando comando durante la ayuda:', lower);
+      return;
+    }
 
     // Ignorar números sueltos
     const isNumeric = /^\d+$/.test(lower) || ['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'].some(w => lower === w);
@@ -2391,10 +2716,11 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
         this.stopDictation(undefined, true);
       }
       this.voiceService.clearTranscript();
+      this.voiceService.onNavigate();
       this.router.navigateByUrl('/home', { replaceUrl: true });
       return;
     }
-
+    
     if (lower.includes('privacidad') || lower.includes('política de privacidad') || lower.includes('política')) {
       console.log('🔐 [Login] Ejecutando "privacidad"');
       this.voiceService.clearTranscript();
@@ -2571,10 +2897,8 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (this.synonyms.register.some(s => lower.includes(s))) {
       console.log('🔍 Login: navegando a registro');
-      this.voiceService.speak('Navegando a registro');
-      setTimeout(() => {
-        this.voiceService.clearTranscript();
-      }, 100);
+      this.voiceService.clearTranscript();
+      this.voiceService.onNavigate();
       setTimeout(() => {
         if (!this.isDestroyed) {
           this.router.navigateByUrl('/register', { replaceUrl: true });
@@ -2592,6 +2916,13 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
 
     console.log('⏭️ Login - Comando no reconocido, ignorado:', lower);
   }
+
+
+
+
+
+
+
 
   //
   private handleDictation(text: string): void {
@@ -2960,6 +3291,34 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   //
+  // private showHelp(): void {
+  //   if (this.isDestroyed) return;
+  //   if (this.voiceService.isCurrentlyMuted()) {
+  //     this.voiceService.speak('El micrófono está desactivado. Di "hola" para activarlo.');
+  //     return;
+  //   }
+
+  //   // ✅ UNA SOLA emisión con el texto completo
+  //   const helpText =
+  //     'Puedes decir: ' +
+  //     '"usuario" para escribir tu usuario. ' +
+  //     '"contraseña" para tu clave. ' +
+  //     '"enviar" para iniciar sesión. ' +
+  //     '"limpiar" para borrar los campos. ' +
+  //     '"leer campos" para escuchar el contenido. ' +
+  //     '"mostrar contraseña" u "ocultar contraseña" para ver u ocultar tu clave. ' +
+  //     '"registrar" para crear una cuenta. ' +
+  //     '"recuperar" para recuperar tu contraseña. ' +
+  //     '"volver" para regresar a la página anterior. ' +
+  //     '"silenciar micrófono" para apagar el micrófono. ' +
+  //     '"privacidad" para ver la política de privacidad. ' +
+  //     '"condiciones" para ver los términos y condiciones. ' +
+  //     'o "ayuda" para ver todas las opciones.';
+
+  //   this.voiceService.speak(helpText);
+  // }
+
+
   private showHelp(): void {
     if (this.isDestroyed) return;
     if (this.voiceService.isCurrentlyMuted()) {
@@ -2967,29 +3326,93 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    // ✅ UNA SOLA emisión con el texto completo
-    const helpText =
-      'Puedes decir: ' +
-      '"usuario" para escribir tu usuario. ' +
-      '"contraseña" para tu clave. ' +
-      '"enviar" para iniciar sesión. ' +
-      '"limpiar" para borrar los campos. ' +
-      '"leer campos" para escuchar el contenido. ' +
-      '"mostrar contraseña" u "ocultar contraseña" para ver u ocultar tu clave. ' +
-      '"registrar" para crear una cuenta. ' +
-      '"recuperar" para recuperar tu contraseña. ' +
-      '"volver" para regresar a la página anterior. ' +
-      '"silenciar micrófono" para apagar el micrófono. ' +
-      '"privacidad" para ver la política de privacidad. ' +
-      '"condiciones" para ver los términos y condiciones. ' +
-      'o "ayuda" para ver todas las opciones.';
+    const blocks = [
+      'Ayuda. Puedes decir:',
+      'usuario, para escribir tu nombre;',
+      'contraseña, para tu clave;',
+      'enviar, para iniciar sesión;',
+      'limpiar, para borrar los campos;',
+      'leer campos, para escuchar lo que has escrito;',
+      'mostrar contraseña u ocultar contraseña;',
+      'registrar, para crear una cuenta;',
+      'recuperar, para recuperar tu contraseña;',
+      'volver, para regresar;',
+      'silenciar micrófono;',
+      'privacidad, para la política;',
+      'condiciones, para los términos;',
+      'o ayuda, para repetir esta lista.',
+      'Di "para" para detener la ayuda.'
+    ];
 
-    this.voiceService.speak(helpText);
+    this.playHelpBlocks(blocks, 350);
   }
 
 
 
 
+  // ✅ NUEVO: reproduce la ayuda en bloques cortos con pausas
+  private playHelpBlocks(blocks: string[], pauseMs = 350): void {
+    if (this.isDestroyed) return;
+
+    this.helpBlocks = blocks;
+    this.helpCurrentIndex = 0;
+    this.helpInProgress = true;
+    this.helpCancelled = false;
+
+    // ✅ Desactivar la intercepción de "para" en el VoiceService
+    this.voiceService.setSuppressStopWords(true);
+
+    const playNext = () => {
+      if (this.isDestroyed || this.helpCancelled) {
+        this.helpInProgress = false;
+        this.voiceService.setSuppressStopWords(false);   // ✅ Reactivar
+        return;
+      }
+
+      if (this.helpCurrentIndex >= this.helpBlocks.length) {
+        this.helpInProgress = false;
+        this.voiceService.setSuppressStopWords(false);   // ✅ Reactivar
+        console.log('🔊 [Login] Ayuda finalizada');
+        return;
+      }
+
+      const block = this.helpBlocks[this.helpCurrentIndex];
+      this.helpCurrentIndex++;
+
+      this.voiceService.speak(block)
+        .then(() => {
+          if (this.helpCancelled || this.isDestroyed) {
+            this.helpInProgress = false;
+            this.voiceService.setSuppressStopWords(false);
+            return;
+          }
+          setTimeout(playNext, pauseMs);
+        })
+        .catch(() => {
+          if (this.helpCancelled || this.isDestroyed) {
+            this.helpInProgress = false;
+            this.voiceService.setSuppressStopWords(false);
+            return;
+          }
+          setTimeout(playNext, pauseMs);
+        });
+    };
+
+    playNext();
+  }
+
+
+  // ✅ NUEVO: detiene la ayuda en curso
+  private stopHelp(): void {
+    if (!this.helpInProgress) return;
+    console.log('🛑 [Login] Ayuda detenida por el usuario');
+    this.helpCancelled = true;
+    this.helpInProgress = false;
+    this.voiceService.setSuppressStopWords(false);   // ✅ Reactivar
+    window.speechSynthesis.cancel();
+  }
+
+  //
   getUsernameErrors(): string | null {
     const ctrl = this.usernameOrEmailCtrl;
     if (!ctrl.dirty && !ctrl.touched) return null;

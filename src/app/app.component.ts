@@ -255,7 +255,7 @@
 // src/app/app.component.ts
 
 import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
-import { IonApp, IonContent, IonAlert } from '@ionic/angular';
+import { IonApp } from '@ionic/angular';
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { VoiceToggleComponent } from "./shared/components/voice-toggle/voice-toggle.component";
 import { ThemeToggleComponent } from './shared/components/theme-toggle/theme-toggle.component';
@@ -269,11 +269,10 @@ import { VoiceContextService } from './features/services/voz/voice-context.servi
   templateUrl: 'app.component.html',
   imports: [
     IonApp,
-    IonContent,
     RouterOutlet,
     VoiceToggleComponent,
     ThemeToggleComponent
-  ],
+],
 })
 export class AppComponent implements OnInit, OnDestroy {
   themeService = inject(ThemeService);

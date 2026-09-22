@@ -2629,13 +2629,15 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   private mutedSubscription?: Subscription;
 
   // Mensajes con lenguaje natural
-  private readonly WELCOME_MESSAGE =
-    'Bienvenido a recuperación de contraseña. Di "correo" para escribir tu correo electrónico, ' +
-    '"enviar" para solicitar el código, ' +
-    '"leer campos" para escuchar lo que has escrito, ' +
-    '"volver" para regresar, ' +
-    '"iniciar sesión" para ir a la pantalla de inicio de sesión, ' +
-    'o "ayuda" para más opciones.';
+  // private readonly WELCOME_MESSAGE =
+  //   'Bienvenido a recuperación de contraseña. Di "correo" para escribir tu correo electrónico, ' +
+  //   '"enviar" para solicitar el código, ' +
+  //   '"leer campos" para escuchar lo que has escrito, ' +
+  //   '"volver" para regresar, ' +
+  //   '"iniciar sesión" para ir a la pantalla de inicio de sesión, ' +
+  //   'o "ayuda" para más opciones.';
+
+  private readonly WELCOME_MESSAGE = 'Recuperación de contraseña. Di "correo" para empezar o "ayuda" para opciones.';
 
   private readonly HELP_MESSAGE_STEP_1 =
     'Puedes decir: "correo" para escribir tu correo electrónico, ' +
@@ -2722,31 +2724,147 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     return code.split('').map(d => map[d] || d).join(', ');
   }
 
+  // ngOnInit(): void {
+  //   console.log('✅ ForgotPasswordComponent inicializado (con voz)');
+
+  //   // ✅ NUEVO: Escuchar cambios de dispositivos (conectar/desconectar auriculares)
+  //   // if (navigator.mediaDevices && 'ondevicechange' in navigator.mediaDevices) {
+  //   //   this.deviceChangeListener = () => {
+  //   //     console.log('🎧 [ForgotPassword] devicechange detectado');
+  //   //     this.updateHeadphonesState();
+  //   //   };
+  //   //   navigator.mediaDevices.addEventListener('devicechange', this.deviceChangeListener);
+  //   // }
+
+  //   // ✅ NUEVO: Polling ligero por si el evento devicechange no se dispara
+  //   //    (algunos navegadores no lo emiten, o el VoiceService ya lo detecta por su cuenta)
+  //   // this.headphonesPollInterval = setInterval(() => {
+  //   //   if (!this.isDestroyed) {
+  //   //     this.updateHeadphonesState();
+  //   //   }
+  //   // }, 3000);
+
+
+  //   this.mutedSubscription = this.voiceService.getMutedState().subscribe(muted => {
+  //     this.isMicActive.set(!muted);
+  //     this.cdr.markForCheck();
+  //   });
+
+  //   const context = {
+  //     activationMessage: this.WELCOME_MESSAGE,
+  //     availableCommands: [
+  //       'correo', 'enviar', 'código', 'codigo', 'otp',
+  //       'contraseña', 'confirmar', 'guardar', 'volver',
+  //       'ayuda', 'borrar', 'limpiar', 'leer campos', 'estado',
+  //       'copiar código',
+  //       'pegar código',
+  //       'iniciar sesión'
+  //     ],
+  //     preventBackend: true
+  //   };
+  //   this.voiceContext.setContext(context);
+
+  //   this.voiceService.ready$
+  //     .pipe(takeUntil(this.destroy$))
+  //     .subscribe((ready) => {
+  //       if (!ready && !this.isDestroyed) {
+  //         console.log('🔄 [ForgotPassword] Reconocimiento caído, reactivando...');
+  //         setTimeout(() => {
+  //           if (!this.isDestroyed) {
+  //             this.voiceService.startListening();
+  //           }
+  //         }, 500);
+  //       }
+  //     });
+
+  //   setTimeout(() => {
+  //     if (!this.isDestroyed) {
+  //       const isActive = this.voiceService.isRecognitionActive();
+  //       const isMuted = this.voiceService.isCurrentlyMuted();
+  //       console.log(`🎤 [ForgotPassword] Estado del micrófono - Activo: ${isActive}, Muteado: ${isMuted}`);
+
+  //       if (!isActive && !isMuted) {
+  //         console.log('🎤 [ForgotPassword] Reconocimiento inactivo, iniciando...');
+  //         this.voiceService.startListening();
+  //       } else if (isActive) {
+  //         console.log('🎤 [ForgotPassword] Micrófono ya activo, no se inicia nuevamente');
+  //       }
+  //     }
+  //   }, 1000);
+
+  //   this.voiceService
+  //   .getTranscriptWithFinal()
+  //   .pipe(takeUntil(this.destroy$))
+  //   .subscribe(({ text, isFinal }) => {
+  //     this.ngZone.run(() => {
+  //       if (this.isDestroyed || !text) return;
+  //       this.handleVoiceCommand(text, isFinal);
+  //     });
+  //   });
+
+  //   this.registerFieldsForCleanup();
+
+  //   setTimeout(() => {
+  //     if (!this.isDestroyed) {
+  //       console.log('🎯 [ForgotPassword] Aplicando foco al campo email');
+  //       this.focusEmailRobusto();
+  //     }
+  //   }, 800);
+
+  //   setTimeout(() => {
+  //     if (this.isDestroyed) return;
+
+  //     const isMuted = this.voiceService.isCurrentlyMuted();
+
+  //     if (isMuted) {
+  //       console.log('🔇 [ForgotPassword] Micrófono muteado, bienvenida omitida');
+  //       if (!this.voiceService.isRecognitionActive()) {
+  //         this.voiceService.startListening();
+  //       }
+  //       return;
+  //     }
+
+  //     console.log('🗣️ [ForgotPassword] Iniciando bienvenida encadenada con micro');
+
+  //     this.voiceService.speakAlways(this.WELCOME_MESSAGE, true)
+  //       .then(() => {
+  //         if (this.isDestroyed) return;
+  //         setTimeout(() => {
+  //           if (this.isDestroyed) return;
+  //           if (!this.voiceService.isRecognitionActive()) {
+  //             console.log('🎤 [ForgotPassword] Bienvenida terminada → arrancando micro');
+  //             this.voiceService.startListening();
+  //           }
+  //         }, 400);
+  //       })
+  //       .catch((err) => {
+  //         console.warn('⚠️ [ForgotPassword] speakAlways falló, arrancando micro igualmente', err);
+  //         if (this.isDestroyed) return;
+  //         if (!this.voiceService.isRecognitionActive()) {
+  //           this.voiceService.startListening();
+  //         }
+  //       });
+  //   }, 1500);
+  // }
+
+
+
+
   ngOnInit(): void {
     console.log('✅ ForgotPasswordComponent inicializado (con voz)');
-
-    // ✅ NUEVO: Escuchar cambios de dispositivos (conectar/desconectar auriculares)
-    if (navigator.mediaDevices && 'ondevicechange' in navigator.mediaDevices) {
-      this.deviceChangeListener = () => {
-        console.log('🎧 [ForgotPassword] devicechange detectado');
-        this.updateHeadphonesState();
-      };
-      navigator.mediaDevices.addEventListener('devicechange', this.deviceChangeListener);
-    }
-
-    // ✅ NUEVO: Polling ligero por si el evento devicechange no se dispara
-    //    (algunos navegadores no lo emiten, o el VoiceService ya lo detecta por su cuenta)
-    this.headphonesPollInterval = setInterval(() => {
-      if (!this.isDestroyed) {
-        this.updateHeadphonesState();
-      }
-    }, 3000);
-
 
     this.mutedSubscription = this.voiceService.getMutedState().subscribe(muted => {
       this.isMicActive.set(!muted);
       this.cdr.markForCheck();
     });
+
+    // ✅ Estado de auriculares reactivo (sin polling)
+    this.voiceService.headphonesConnected$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(connected => {
+        this.headphonesConnected.set(connected);
+        this.cdr.markForCheck();
+      });
 
     const context = {
       activationMessage: this.WELCOME_MESSAGE,
@@ -2791,14 +2909,14 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     }, 1000);
 
     this.voiceService
-    .getTranscriptWithFinal()
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(({ text, isFinal }) => {
-      this.ngZone.run(() => {
-        if (this.isDestroyed || !text) return;
-        this.handleVoiceCommand(text, isFinal);
+      .getTranscriptWithFinal()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ text, isFinal }) => {
+        this.ngZone.run(() => {
+          if (this.isDestroyed || !text) return;
+          this.handleVoiceCommand(text, isFinal);
+        });
       });
-    });
 
     this.registerFieldsForCleanup();
 
@@ -2824,7 +2942,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
       console.log('🗣️ [ForgotPassword] Iniciando bienvenida encadenada con micro');
 
-      this.voiceService.speakAlways(this.WELCOME_MESSAGE, true)
+      this.voiceService.speakAlways(this.WELCOME_MESSAGE, false)
         .then(() => {
           if (this.isDestroyed) return;
           setTimeout(() => {
@@ -2844,6 +2962,9 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
         });
     }, 1500);
   }
+
+
+
 
   // ============================================================
   // ✅ HELPER: OBTENER INSTANCIA DE ION-INPUT
@@ -3235,16 +3356,29 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     }
 
     // ✅ COMANDO VOLVER
+    // if (lower.includes('volver') || lower.includes('atrás') || lower.includes('regresar')) {
+    //   this.goBack();
+    //   return;
+    // }
+    // ✅ COMANDO VOLVER
     if (lower.includes('volver') || lower.includes('atrás') || lower.includes('regresar')) {
       this.goBack();
       return;
     }
 
     // ✅ COMANDO "INICIAR SESIÓN"
-    if (lower.includes('iniciar sesión') || lower.includes('ir a login') || lower.includes('login') || lower.includes('inicia sesión')) {
+    if (
+      lower.startsWith('inicia') ||
+      lower.includes('iniciar sesión') ||
+      lower.includes('inicia sesión') ||
+      lower.includes('iniciar sesion') ||
+      lower.includes('ir a login') ||
+      lower.includes('login')
+    ) {
+      console.log('🔙 [ForgotPassword] Navegando a inicio de sesión');
       this.voiceService.clearTranscript();
-      this.voiceService.speak('Navegando a inicio de sesión.');
-      this.router.navigate(['/login']);
+      this.voiceService.onNavigate();
+      this.router.navigateByUrl('/login', { replaceUrl: true });
       return;
     }
 
@@ -4222,13 +4356,18 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       this.stopDictation(undefined, true);
     }
 
+    // ✅ Si ya terminó el proceso → volver a login sin TTS
     if (this.isFinished()) {
-      this.voiceService.speak('Volviendo al inicio de sesión.');
-      this.router.navigate(['/login']);
+      console.log('🔙 [ForgotPassword] goBack → login (proceso terminado)');
+      this.voiceService.clearTranscript();
+      this.voiceService.onNavigate();
+      this.router.navigateByUrl('/login', { replaceUrl: true });
       return;
     }
 
+    // ✅ Si ya envió el correo → volver al paso 1 (dentro del mismo componente)
     if (this.emailSent()) {
+      console.log('🔙 [ForgotPassword] goBack → paso de correo');
       this.emailSent.set(false);
       this.errorMessage.set(null);
       this.resetPasswordForm.reset();
@@ -4237,10 +4376,14 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.voiceService.speak('Volviendo al inicio de sesión.');
-    this.router.navigate(['/login']);
+    // ✅ Estado inicial (aún no envió correo) → volver a login sin TTS
+    console.log('🔙 [ForgotPassword] goBack → login');
+    this.voiceService.clearTranscript();
+    this.voiceService.onNavigate();
+    this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 
+  //
   public showHelp(): void {
     if (this.helpShown) return;
     this.helpShown = true;
@@ -4538,11 +4681,11 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
           // ✅ Marcar como terminado (por si acaso)
           this.isFinished.set(true);
 
-          // ✅ Mensaje por voz
-          this.voiceService.speak('¡Contraseña actualizada correctamente! Ya puedes iniciar sesión.');
-
-          // ✅ Navegar directamente a /login con un state para mostrar mensaje
-          this.router.navigate(['/login'], {
+          // ✅ Sin TTS: el LoginComponent dirá su bienvenida (evita corte)
+          this.voiceService.clearTranscript();
+          this.voiceService.onNavigate();
+          this.router.navigateByUrl('/login', {
+            replaceUrl: true,
             state: {
               passwordResetSuccess: true,
               message: 'Contraseña actualizada. Ya puedes iniciar sesión.'
@@ -4579,36 +4722,63 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
    * ✅ Actualiza el signal de auriculares consultando al VoiceService.
    *    Si el método no existe, asume false.
    */
-  private async updateHeadphonesState(): Promise<void> {
-    try {
-      const connected = await this.voiceService.isHeadphonesConnected();
+  // private async updateHeadphonesState(): Promise<void> {
+  //   try {
+  //     const connected = await this.voiceService.isHeadphonesConnected();
 
-      if (this.headphonesConnected() !== connected) {
-        console.log(`🎧 [ForgotPassword] Auriculares: ${connected}`);
-        this.headphonesConnected.set(connected);
-        this.cdr.markForCheck();
-      }
-    } catch (err) {
-      console.warn('⚠️ [ForgotPassword] No se pudo consultar el estado de auriculares', err);
-    }
-  }
+  //     if (this.headphonesConnected() !== connected) {
+  //       console.log(`🎧 [ForgotPassword] Auriculares: ${connected}`);
+  //       this.headphonesConnected.set(connected);
+  //       this.cdr.markForCheck();
+  //     }
+  //   } catch (err) {
+  //     console.warn('⚠️ [ForgotPassword] No se pudo consultar el estado de auriculares', err);
+  //   }
+  // }
 
   // ============================================================
   // DESTRUCCIÓN
   // ============================================================
+  // ngOnDestroy(): void {
+  //   console.log('🧹 ForgotPasswordComponent destruido');
+
+  //   // ✅ NUEVO: Limpiar listener de devicechange
+  //   // if (this.deviceChangeListener && navigator.mediaDevices) {
+  //   //   navigator.mediaDevices.removeEventListener('devicechange', this.deviceChangeListener);
+  //   // }
+
+  //   // ✅ NUEVO: Limpiar polling
+  //   // if (this.headphonesPollInterval) {
+  //   //   clearInterval(this.headphonesPollInterval);
+  //   // }
+
+
+  //   this.mutedSubscription?.unsubscribe();
+
+  //   this.isDestroyed = true;
+
+  //   if (this.dictationMode) {
+  //     this.stopDictation(undefined, true);
+  //   }
+
+  //   this.destroy$.next();
+  //   this.destroy$.complete();
+  //   this.voiceContext.resetContext();
+  //   window.speechSynthesis.cancel();
+
+  //   this.fieldCleanup.unregisterField('email');
+  //   this.fieldCleanup.unregisterField('code');
+  //   this.fieldCleanup.unregisterField('password');
+  //   this.fieldCleanup.unregisterField('confirmPassword');
+
+  //   this.dictationMode = false;
+  //   this.dictationTarget = null;
+  //   this.dictationBuffer = '';
+  // }
+
+
   ngOnDestroy(): void {
     console.log('🧹 ForgotPasswordComponent destruido');
-
-    // ✅ NUEVO: Limpiar listener de devicechange
-    if (this.deviceChangeListener && navigator.mediaDevices) {
-      navigator.mediaDevices.removeEventListener('devicechange', this.deviceChangeListener);
-    }
-
-    // ✅ NUEVO: Limpiar polling
-    if (this.headphonesPollInterval) {
-      clearInterval(this.headphonesPollInterval);
-    }
-
 
     this.mutedSubscription?.unsubscribe();
 

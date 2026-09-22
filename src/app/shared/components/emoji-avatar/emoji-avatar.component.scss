@@ -1,0 +1,90 @@
+/* src/app/shared/components/emoji-avatar/emoji-avatar.component.scss */
+
+.emoji-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  user-select: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  }
+}
+
+.emoji {
+  position: relative;
+  z-index: 2;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+/* === FORMAS === */
+.shape-circle {
+  border-radius: 50%;
+}
+
+.shape-squircle {
+  border-radius: 30%;
+}
+
+.shape-hexagon {
+  border-radius: 20%;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* === PATRONES (capa decorativa) === */
+.pattern-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.pattern-dots .pattern-layer {
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.35) 1.5px,
+    transparent 1.5px
+  );
+  background-size: 8px 8px;
+}
+
+.pattern-stripes .pattern-layer {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.2) 0,
+    rgba(255, 255, 255, 0.2) 4px,
+    transparent 4px,
+    transparent 12px
+  );
+}
+
+.pattern-waves .pattern-layer {
+  background-image:
+    radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.25) 0%, transparent 50%),
+    radial-gradient(circle at 70% 30%, rgba(0, 0, 0, 0.15) 0%, transparent 50%);
+}
+
+.pattern-glow .pattern-layer {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.4) 0%,
+    transparent 60%
+  );
+}
+
+/* === MODO OSCURO === */
+@media (prefers-color-scheme: dark) {
+  .emoji-avatar {
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+
+    &:hover {
+      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+    }
+  }
+}

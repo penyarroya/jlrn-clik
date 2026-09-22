@@ -2243,8 +2243,16 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   private noSpeechAttempts = 0;
   private readonly MAX_NO_SPEECH_ATTEMPTS = 10;
 
+  // ✅ NUEVO: estado de la ayuda fragmentada
+  private helpInProgress = false;
+  private helpCurrentIndex = 0;
+  private helpBlocks: string[] = [];
+  private helpCancelled = false;
+
 
   private isRegistering = false;
+
+  private componentCreatedAt = Date.now();
 
   private readonly fieldOrder: string[] = [
     'fullName',
@@ -2271,8 +2279,9 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   timerSeconds = signal(120);
   verificationCode = signal('');
 
-  private readonly WELCOME_MESSAGE =
-    'Bienvenido al registro. Di "usuario", "correo", "contraseña", "confirmar", "nombre", "apellidos", "registrar" para enviar, "limpiar" para borrar campos, "leer campos" para escuchar el contenido, o "ayuda" para más opciones.';
+  // private readonly WELCOME_MESSAGE =
+  //   'Bienvenido al registro. Di "usuario", "correo", "contraseña", "confirmar", "nombre", "apellidos", "registrar" para enviar, "limpiar" para borrar campos, "leer campos" para escuchar el contenido, o "ayuda" para más opciones.';
+  private readonly WELCOME_MESSAGE = 'Registro. Di "usuario", "correo" o "ayuda para mas comandos".';
 
   private readonly HELP_MESSAGE =
     'En el registro puedes decir: "usuario" para el nombre de usuario, ' +
@@ -2306,6 +2315,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   get lastNameCtrl() { return this.registerForm.get('lastName')!; }
 
   constructor() {
+    this.componentCreatedAt = Date.now();
     console.log('🏗️ RegisterComponent constructor');
     console.log('🎤 Estado del micrófono al inicio:', this.voiceService.isCurrentlyMuted() ? 'MUTEADO' : 'ACTIVO');
 
@@ -2344,103 +2354,6 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   //
-  // ngOnInit(): void {
-  //   console.log('✅ RegisterComponent inicializado (con voz)');
-
-  //   if (this.voiceService.isCurrentlyMuted()) {
-  //     console.log('🎤 [Register] Micrófono MUTEADO');
-  //   } else {
-  //     console.log('🎤 [Register] Micrófono ACTIVO');
-  //   }
-
-  //   this.mutedSubscription = this.voiceService.getMutedState().subscribe(muted => {
-  //     this.isMicActive.set(!muted);
-  //     this.cdr.markForCheck();
-  //   });
-
-  //   this.voiceContext.setContext({
-  //     activationMessage: this.WELCOME_MESSAGE,
-  //     availableCommands: [
-  //       'usuario', 'email', 'correo', 'contraseña', 'confirmar',
-  //       'nombre', 'apellidos', 'registrar', 'enviar', 'limpiar',
-  //       'volver', 'ayuda', 'código', 'verificar', 'leer campos',
-  //       'pegar código', 'iniciar sesión'
-  //     ],
-  //     preventBackend: true
-  //   });
-
-  //   this.voiceService
-  //     .getTranscriptWithFinal()
-  //     .pipe(takeUntil(this.destroy$))
-  //     .subscribe({
-  //       next: (transcript: { text: string; isFinal: boolean }) => {
-  //         const text = transcript.text;
-  //         const isFinal = transcript.isFinal;
-  //         if (!text) return;
-
-  //         console.log(`📝 [Register] Transcript recibido: "${text}" (Final: ${isFinal})`);
-
-  //         this.ngZone.run(() => {
-  //           if (this.isDestroyed) return;
-  //           this.handleVoiceCommand(text, isFinal);
-  //         });
-  //       },
-  //       error: (err) => {
-  //         console.error('❌ [Register] Error en transcript:', err);
-  //       }
-  //     });
-
-  //   this.voiceService.ready$
-  //     .pipe(takeUntil(this.destroy$))
-  //     .subscribe((ready) => {
-  //       if (ready) {
-  //         this.noSpeechAttempts = 0;
-  //         return;
-  //       }
-
-  //       if (!ready && !this.isDestroyed) {
-  //         this.noSpeechAttempts++;
-  //         if (this.noSpeechAttempts >= this.MAX_NO_SPEECH_ATTEMPTS) {
-  //           console.warn('🔇 Demasiados errores de no-speech');
-  //           this.noSpeechAttempts = 0;
-  //           return;
-  //         }
-
-  //         console.log(`🔄 [Register] Reconocimiento caído, reintento ${this.noSpeechAttempts}...`);
-  //         setTimeout(() => {
-  //           if (!this.isDestroyed) {
-  //             this.voiceService.startListening();
-  //           }
-  //         }, 500);
-  //       }
-  //     });
-
-  //   setTimeout(() => {
-  //     if (!this.isDestroyed && !this.voiceService.isCurrentlyMuted() && !this.isVerifying()) {
-  //       this.voiceService.speakAlways(this.WELCOME_MESSAGE);
-  //     }
-  //   }, 1000);
-
-  //   this.registerFieldsForCleanup();
-
-  //   this.registerForm.valueChanges
-  //     .pipe(takeUntil(this.destroy$))
-  //     .subscribe(() => {
-  //       if (this.isFormCompleteAndValid() && !this.formCompleteNotified) {
-  //         this.formCompleteNotified = true;
-  //         this.voiceService.speak('Todos los campos están completos. Di "registrar" para crear la cuenta, o "leer campos" para comprobar el contenido.');
-  //       } else if (!this.isFormCompleteAndValid()) {
-  //         this.formCompleteNotified = false;
-  //       }
-  //     });
-
-  //   this.resetOtpVisuals();
-  // }
-
-
-
-
-
   ngOnInit(): void {
     console.log('✅ RegisterComponent inicializado (con voz)');
 
@@ -2595,9 +2508,6 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     this.resetOtpVisuals();
   }
 
-
-
-
   //
   private focusByQuerySelectorRegister(): void {
     const inputEl = document.querySelector('ion-input[formControlName="fullName"]') as any;
@@ -2718,21 +2628,50 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   private handleVoiceCommand(text: string, isFinal: boolean = false): void {
     if (this.isDestroyed) return;
 
-    if (this.isReadingFields) {
-      const lower = text.toLowerCase().trim();
+    const lower = text.toLowerCase().trim();
 
+    // ============================================================
+    // ✅ CONTROL DE LA AYUDA EN CURSO (ANTES DE CUALQUIER COSA)
+    // ============================================================
+    if (this.helpInProgress) {
+      if (lower.includes('para') || lower.includes('silencio') ||
+          lower.includes('calla') || lower.includes('stop') ||
+          lower.includes('detente')) {
+        this.stopHelp();
+        this.voiceService.speak('Ayuda detenida.');
+        return;
+      }
+      if (lower === 'siguiente' || lower === 'continúa' || lower === 'continua') {
+        window.speechSynthesis.cancel();
+        return;
+      }
+      if (lower === 'repetir' || lower === 'repite') {
+        this.helpCurrentIndex = Math.max(0, this.helpCurrentIndex - 1);
+        window.speechSynthesis.cancel();
+        return;
+      }
+      console.log('⏭️ Register: ignorando comando durante la ayuda:', lower);
+      return;
+    }
+
+    // ✅ Ignorar comandos que llegan justo tras crearse el componente
+    if (Date.now() - this.componentCreatedAt < 1500) {
+      console.log(`⏭️ [Register] Ignorando comando recién creado el componente: "${text}"`);
+      return;
+    }
+
+    // ✅ Si se están leyendo campos, ignorar todo salvo "volver"
+    if (this.isReadingFields) {
       if (lower.includes('volver') || lower.includes('atrás') || lower.includes('regresar')) {
         this.isReadingFields = false;
         window.speechSynthesis.cancel();
         this.goBack();
         return;
       }
-
       console.log('⏭️ [Register] Ignorando comando mientras se leen campos:', text);
       return;
     }
 
-    const lower = text.toLowerCase().trim();
     console.log(`🔍 [handleVoiceCommand] isVerifying: ${this.isVerifying()}, lower: "${lower}"`);
 
     if (lower.includes('volver') || lower.includes('atrás') || lower.includes('regresar')) {
@@ -2741,7 +2680,8 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     if (lower.includes('iniciar sesión') || lower.includes('ir a login') || lower.includes('login') || lower.includes('inicia sesión')) {
-      this.voiceService.speak('Navegando a inicio de sesión.');
+      this.voiceService.clearTranscript();
+      this.voiceService.onNavigate();
       this.router.navigateByUrl('/login', { replaceUrl: true });
       return;
     }
@@ -3077,7 +3017,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     speakNext();
   }
 
-
+  //
   private clearField(target: string): void {
     if (this.isDestroyed) return;
 
@@ -3720,35 +3660,135 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   // ============================================================
   // ACCIONES
   // ============================================================
-
+  //
   private submitForm(): void {
     if (this.isDestroyed) return;
     if (this.dictationMode) this.stopDictation(undefined, true);
 
     if (this.registerForm.invalid) {
-      this.registerForm.markAllAsTouched();
-      const errors = this.generalErrorMessage;
-      this.voiceService.speak(`El formulario tiene errores: ${errors}`);
+      // ✅ Solo marcar touched si el usuario ya ha interactuado
+      const hasAnyValue = Object.keys(this.registerForm.controls).some(
+        key => this.registerForm.get(key)?.value
+      );
+
+      if (hasAnyValue) {
+        this.registerForm.markAllAsTouched();
+        const errors = this.generalErrorMessage;
+        this.voiceService.speak(`El formulario tiene errores: ${errors}`);
+      } else {
+        this.voiceService.speak('El formulario está vacío. Di "usuario" para empezar.');
+      }
       return;
     }
     this.onRegister();
   }
 
+  //
   private showHelp(): void {
-    if (this.helpShown) return;
-    this.helpShown = true;
-
+    if (this.isDestroyed) return;
     if (this.voiceService.isCurrentlyMuted()) {
       this.voiceService.speak('El micrófono está desactivado. Di "hola" para activarlo.');
-    } else if (this.isVerifying()) {
-      this.voiceService.speak('En la verificación puedes decir "código" para enfocar el campo OTP, "pegar código" para rellenar automáticamente el código, "copiar código" para copiarlo al portapapeles, o "verificar" para validar el código.');
-    } else {
-      this.voiceService.speak(this.HELP_MESSAGE);
+      return;
     }
 
-    setTimeout(() => { this.helpShown = false; }, 5000);
+    // ✅ Modo verificación OTP
+    if (this.isVerifying()) {
+      const blocks = [
+        'Ayuda de verificación. Puedes decir:',
+        'código, para activar el dictado del código;',
+        'pegar código, para rellenarlo desde el portapapeles;',
+        'leer código, para que yo te lo lea en voz alta;',
+        'verificar, para validar el código;',
+        'atrás, para volver;',
+        'o ayuda, para repetir esta lista.',
+        'Di "para" para detener la ayuda.'
+      ];
+      this.playHelpBlocks(blocks, 350);
+      return;
+    }
+
+    // ✅ Modo registro normal
+    const blocks = [
+      'Ayuda del registro. Puedes decir:',
+      'usuario, para tu nombre de usuario;',
+      'correo, para tu email;',
+      'contraseña, para tu clave;',
+      'confirmar, para repetir la contraseña;',
+      'nombre, para tu nombre propio;',
+      'apellidos, para tus apellidos;',
+      'registrar, para crear la cuenta;',
+      'limpiar, para borrar los campos;',
+      'leer campos, para escuchar lo que has escrito;',
+      'iniciar sesión, para ir al login;',
+      'volver, para regresar;',
+      'o ayuda, para repetir esta lista.',
+      'Di "para" para detener la ayuda.'
+    ];
+
+    this.playHelpBlocks(blocks, 350);
   }
 
+  //
+  private playHelpBlocks(blocks: string[], pauseMs = 350): void {
+    if (this.isDestroyed) return;
+
+    this.helpBlocks = blocks;
+    this.helpCurrentIndex = 0;
+    this.helpInProgress = true;
+    this.helpCancelled = false;
+
+    // ✅ Desactivar la intercepción de "para" en el VoiceService
+    this.voiceService.setSuppressStopWords(true);
+
+    const playNext = () => {
+      if (this.isDestroyed || this.helpCancelled) {
+        this.helpInProgress = false;
+        this.voiceService.setSuppressStopWords(false);
+        return;
+      }
+
+      if (this.helpCurrentIndex >= this.helpBlocks.length) {
+        this.helpInProgress = false;
+        this.voiceService.setSuppressStopWords(false);
+        console.log('🔊 [Register] Ayuda finalizada');
+        return;
+      }
+
+      const block = this.helpBlocks[this.helpCurrentIndex];
+      this.helpCurrentIndex++;
+
+      this.voiceService.speak(block)
+        .then(() => {
+          if (this.helpCancelled || this.isDestroyed) {
+            this.helpInProgress = false;
+            this.voiceService.setSuppressStopWords(false);
+            return;
+          }
+          setTimeout(playNext, pauseMs);
+        })
+        .catch(() => {
+          if (this.helpCancelled || this.isDestroyed) {
+            this.helpInProgress = false;
+            this.voiceService.setSuppressStopWords(false);
+            return;
+          }
+          setTimeout(playNext, pauseMs);
+        });
+    };
+
+    playNext();
+  }
+
+  private stopHelp(): void {
+    if (!this.helpInProgress) return;
+    console.log('🛑 [Register] Ayuda detenida por el usuario');
+    this.helpCancelled = true;
+    this.helpInProgress = false;
+    this.voiceService.setSuppressStopWords(false);
+    window.speechSynthesis.cancel();
+  }
+
+  //
   togglePassword(): void {
     if (this.isDestroyed) return;
     this.hidePassword.update((value) => !value);
@@ -4162,6 +4202,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     return `Errores en los campos: ${fields.join(', ')} y ${last}.`;
   }
 
+  //
   public goBack(): void {
     if (this.isDestroyed) return;
     if (this.dictationMode) this.stopDictation(undefined, true);
@@ -4172,10 +4213,12 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    this.voiceService.speak('Volviendo al inicio de sesión.');
+    this.voiceService.clearTranscript();
+    this.voiceService.onNavigate();
     this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 
+  //
   goToLogin(): void {
     if (this.isDestroyed) return;
     if (this.dictationMode) this.stopDictation(undefined, true);
@@ -4283,6 +4326,12 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.isDestroyed = true;
 
+    // ✅ Detener ayuda en curso
+    this.helpCancelled = true;
+    this.helpInProgress = false;
+    this.voiceService.setSuppressStopWords(false);
+    window.speechSynthesis.cancel();
+
     if (this.dictationMode) {
       this.stopDictation(undefined, true);
     }
@@ -4307,7 +4356,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     this.destroy$.next();
     this.destroy$.complete();
     this.voiceContext.resetContext();
-    window.speechSynthesis.cancel();
+    //window.speechSynthesis.cancel();
 
     const fieldNames = ['fullName', 'email', 'password', 'confirmPassword', 'firstName', 'lastName'];
     for (const name of fieldNames) {

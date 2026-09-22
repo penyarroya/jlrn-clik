@@ -426,6 +426,7 @@ export class HomePage implements OnInit, OnDestroy {
     });
   }
 
+  //
   ngOnInit(): void {
     // ✅ NUEVO: Cargar imágenes del carrusel
     this.loadImages();
@@ -482,15 +483,16 @@ export class HomePage implements OnInit, OnDestroy {
     );
 
     // ✅ 5. SUSCRIBIRSE A LOS COMANDOS DE VOZ DE HOME
+    // ✅ CAMBIO: usar getTranscriptWithFinal() para tener acceso a isFinal
     this.subscriptions.push(
-      this.voiceService.getTranscript().subscribe(transcript => {
-        if (!transcript) return;
+      this.voiceService.getTranscriptWithFinal().subscribe(({ text, isFinal }) => {
+        if (!text) return;
         // ✅ Ignorar comandos mientras se está navegando
         if (this.isNavigating) {
-          console.log('⏭️ [Home] Ignorando comando durante navegación:', transcript);
+          console.log('⏭️ [Home] Ignorando comando durante navegación:', text);
           return;
         }
-        this.handleVoiceCommand(transcript);
+        this.handleVoiceCommand(text, isFinal);
       })
     );
 
@@ -501,73 +503,79 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   //
-  private handleVoiceCommand(transcript: string): void {
-    const lower = transcript.toLowerCase().trim();
+  private handleVoiceCommand(transcript: string, isFinal: boolean): void {
+      const lower = transcript.toLowerCase().trim();
 
-    // ✅ Debounce local (defensa en profundidad)
-    const now = Date.now();
-    if (lower === this.lastProcessedCommand && (now - this.lastProcessedTime) < this.COMMAND_DEBOUNCE) {
-      console.log(`⏭️ [Home] Comando duplicado ignorado: "${lower}"`);
-      return;
-    }
-    this.lastProcessedCommand = lower;
-    this.lastProcessedTime = now;
+      // ✅ Comandos de una sola palabra: solo procesar cuando el reconocimiento los confirma
+      const singleWordCommands = ['ayuda', 'help', 'silenciar', 'mute'];
+      if (singleWordCommands.includes(lower) && !isFinal) {
+        console.log(`⏭️ [Home] Ignorando parcial de comando de una palabra: "${lower}"`);
+        return;
+      }
 
-    console.log('📝 [Home] Comando de voz recibido:', lower);
+      // ✅ Debounce local (defensa en profundidad)
+      const now = Date.now();
+      if (lower === this.lastProcessedCommand && (now - this.lastProcessedTime) < this.COMMAND_DEBOUNCE) {
+        console.log(`⏭️ [Home] Comando duplicado ignorado: "${lower}"`);
+        return;
+      }
+      this.lastProcessedCommand = lower;
+      this.lastProcessedTime = now;
 
-    // ✅ Comando "login"
-    if (lower === 'login' || lower === 'iniciar sesion' || lower === 'inicio de sesion') {
-      if (this.isNavigating) return;
-      this.isNavigating = true;
-      console.log('🔐 [Home] Navegando a login');
-      this.voiceService.clearTranscript();
-      this.router.navigateByUrl('/login', { replaceUrl: true }).finally(() => {
-        setTimeout(() => { this.isNavigating = false; }, 1000);
-      });
-      return;
-    }
+      console.log('📝 [Home] Comando de voz recibido:', lower);
 
-    // ✅ Comando "acerca de"
-    if (lower === 'acerca de' || lower === 'acerca') {
-      if (this.isNavigating) return;
-      this.isNavigating = true;
-      console.log('ℹ️ [Home] Navegando a About');
-      this.voiceService.clearTranscript();
-      this.router.navigateByUrl('/about', { replaceUrl: true }).finally(() => {
-        setTimeout(() => { this.isNavigating = false; }, 1000);
-      });
-      return;
-    }
+      // ✅ Comando "login"
+      if (lower === 'login' || lower === 'iniciar sesion' || lower === 'inicio de sesion' || lower === 'logi') {
+        if (this.isNavigating) return;
+        this.isNavigating = true;
+        console.log('🔐 [Home] Navegando a login');
+        this.voiceService.clearTranscript();
+        this.router.navigateByUrl('/login', { replaceUrl: true }).finally(() => {
+          setTimeout(() => { this.isNavigating = false; }, 1000);
+        });
+        return;
+      }
 
-    // ✅ Comando "registro"
-    if (lower === 'registro' || lower === 'registrar') {
-      if (this.isNavigating) return;
-      this.isNavigating = true;
-      console.log('📝 [Home] Navegando a registro');
-      this.voiceService.clearTranscript();
-      this.router.navigateByUrl('/register', { replaceUrl: true }).finally(() => {
-        setTimeout(() => { this.isNavigating = false; }, 1000);
-      });
-      return;
-    }
+      // ✅ Comando "acerca de"
+      if (lower === 'acerca de' || lower === 'acerca' || lower === 'acer') {
+        if (this.isNavigating) return;
+        this.isNavigating = true;
+        console.log('ℹ️ [Home] Navegando a About');
+        this.voiceService.clearTranscript();
+        this.router.navigateByUrl('/about', { replaceUrl: true }).finally(() => {
+          setTimeout(() => { this.isNavigating = false; }, 1000);
+        });
+        return;
+      }
 
-    // ✅ Comando "ayuda"
-    if (lower === 'ayuda' || lower === 'help') {
-      console.log('❓ [Home] Mostrando ayuda');
-      const commands = this.voiceContext.getAvailableCommands();
-      const helpMessage = `Comandos: ${commands.join(', ')}.`;
-      this.voiceService.speakAlways(helpMessage);
-      return;
-    }
+      // ✅ Comando "registro"
+      if (lower === 'registro' || lower === 'registrar' || lower === 'regi') {
+        if (this.isNavigating) return;
+        this.isNavigating = true;
+        console.log('📝 [Home] Navegando a registro');
+        this.voiceService.clearTranscript();
+        this.router.navigateByUrl('/register', { replaceUrl: true }).finally(() => {
+          setTimeout(() => { this.isNavigating = false; }, 1000);
+        });
+        return;
+      }
 
-    // ❌ Comando "volver" ELIMINADO
-    // Home es la página raíz, no tiene sentido "volver" desde aquí.
-    // Este comando era el causante del bucle Home → Login → Home.
+      // ✅ Comando "ayuda"
+      if (lower === 'ayuda' || lower === 'help') {
+        console.log('❓ [Home] Mostrando ayuda');
+        const commands = this.voiceContext.getAvailableCommands();
+        const helpMessage = `Comandos: ${commands.join(', ')}.`;
+        this.voiceService.speakAlways(helpMessage);
+        return;
+      }
 
-    // ✅ Comandos no reconocidos en Home
-    console.log('⏭️ [Home] Comando no reconocido en esta página:', lower);
+      // ❌ Comando "volver" ELIMINADO
+      // Home es la página raíz, no tiene sentido "volver" desde aquí.
+      // Este comando era el causante del bucle Home → Login → Home.
+
+      // ✅ Comandos no reconocidos en Home
+      console.log('⏭️ [Home] Comando no reconocido en esta página:', lower);
   }
- 
 
   /**
    * ✅ VERIFICAR AURICULARES AL INICIAR

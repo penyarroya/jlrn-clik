@@ -1,0 +1,16 @@
+<!-- src/app/shared/components/emoji-avatar/emoji-avatar.component.html -->
+
+<div
+  class="emoji-avatar"
+  [class]="cssClasses()"
+  [style.width.px]="size()"
+  [style.height.px]="size()"
+  [style.font-size.px]="size() * 0.55"
+  [style.background]="gradient()"
+  [attr.title]="alt()"
+  [attr.aria-label]="alt()">
+
+  <span class="emoji">{{ emoji() }}</span>
+  <span class="pattern-layer"></span>
+
+</div>

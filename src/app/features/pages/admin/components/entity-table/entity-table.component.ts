@@ -97,7 +97,8 @@ export class EntityTableComponent {
       const search = this.searchTerm();
 
       if (cfg) {
-        this.fetchData(cfg.apiPath, page, size, search);
+        const url = cfg.apiListPath ?? cfg.apiPath;
+        this.fetchData(url, page, size, search);
       }
     });
   }
@@ -235,9 +236,11 @@ export class EntityTableComponent {
   reload(): void {
     const cfg = this.config();
     if (cfg) {
-      this.fetchData(cfg.apiPath, this.pageIndex(), this.pageSize(), this.searchTerm());
+      const url = cfg.apiListPath ?? cfg.apiPath;
+      this.fetchData(url, this.pageIndex(), this.pageSize(), this.searchTerm());
     }
   }
+
 
   // ============================================================
   // ACCIONES DE FILA

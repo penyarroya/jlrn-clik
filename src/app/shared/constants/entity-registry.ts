@@ -348,57 +348,57 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
     }
   },
 
-    PermissionEntity: {
-    entityName: 'PermissionEntity',
-    apiPath: `${API}/permissions`,
-    displayName: 'Permisos',
-    displayField: 'name',
-    icon: '🔐',
-    module: 'users',
-    roles: ['SUPER_ADMIN'],
+  PermissionEntity: {
+  entityName: 'PermissionEntity',
+  apiPath: `${API}/permissions`,
+  displayName: 'Permisos',
+  displayField: 'name',
+  icon: '🔐',
+  module: 'users',
+  roles: ['SUPER_ADMIN'],
 
-    // ✅ SOLO LECTURA
-    canCreate: false,
-    canEdit: false,
-    canDelete: false,
+  // ✅ SOLO LECTURA
+  canCreate: false,
+  canEdit: false,
+  canDelete: false,
 
-    fields: [
-      { 
-        key: 'id', 
-        label: 'ID', 
-        type: 'number', 
-        hidden: true 
-      },
-      { 
-        key: 'name', 
-        label: 'Nombre', 
-        type: 'text', 
-        showInTable: true 
-      },
-      { 
-        key: 'category', 
-        label: 'Categoría', 
-        type: 'text', 
-        showInTable: true 
-      },
-      { 
-        key: 'action', 
-        label: 'Acción', 
-        type: 'text', 
-        showInTable: true 
-      },
-      { 
-        key: 'roleCount', 
-        label: 'Roles', 
-        type: 'number', 
-        showInTable: true 
-      },
-      { 
-        key: 'corePermission', 
-        label: 'Core', 
-        type: 'boolean', 
-        showInTable: true 
-      },
+  fields: [
+    { 
+      key: 'id', 
+      label: 'ID', 
+      type: 'number', 
+      hidden: true 
+    },
+    { 
+      key: 'name', 
+      label: 'Nombre', 
+      type: 'text', 
+      showInTable: true 
+    },
+    { 
+      key: 'category', 
+      label: 'Categoría', 
+      type: 'text', 
+      showInTable: true 
+    },
+    { 
+      key: 'action', 
+      label: 'Acción', 
+      type: 'text', 
+      showInTable: true 
+    },
+    { 
+      key: 'roleCount', 
+      label: 'Roles', 
+      type: 'number', 
+      showInTable: true 
+    },
+    { 
+      key: 'corePermission', 
+      label: 'Core', 
+      type: 'boolean', 
+      showInTable: true 
+    },
     ],
 
     tableSettings: { 
@@ -414,111 +414,332 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
     }
   },
 
-  // UserProfile: {
-  //   entityName: 'UserProfile',
-  //   apiPath: `${API}/profiles`,
-  //   displayName: 'Perfiles de Usuario',
-  //   displayField: 'fullName',
-  //   icon: '📋',
-  //   module: 'users',
-  //   roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
-  //   fields: [
-  //     { key: 'id', label: 'ID', type: 'number', hidden: true },
-  //     { key: 'userId', label: 'ID Usuario', type: 'number', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-  //     { key: 'firstName', label: 'Nombre', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-  //     { key: 'lastName', label: 'Apellidos', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-  //     { key: 'phone', label: 'Teléfono', type: 'text', showInTable: true, showOnCreate: true, showOnEdit: true },
-  //     { key: 'bio', label: 'Biografía', type: 'textarea', showInTable: false, showOnCreate: true, showOnEdit: true },
-  //     { key: 'avatar', label: 'Avatar', type: 'text', showInTable: false, showOnCreate: true, showOnEdit: true },
-  //     { key: 'birthDate', label: 'Fecha Nacimiento', type: 'date', showInTable: false, showOnCreate: true, showOnEdit: true },
-  //     { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
-  //   ],
-  //   tableSettings: { pageSizeOptions: [5, 10, 25, 50], defaultPageSize: 10, showSearch: true, showActions: true },
-  //   formSettings: { columns: 2, layout: 'grid' }
-  // },
-
-
   UserProfile: {
     entityName: 'UserProfile',
-    apiPath: `${API}/profiles`, // O `${API}/users` si tu backend los anida
-    apiListPath: `${API}/profiles/all`, // O `${API}/users/profiles/all` según tu controlador backend
-    apiDetailPath: (userId: number) => `${API}/profiles/${userId}`, // Ruta exacta que espera tu backend para buscar/editar por ID
+    apiPath: `${API}/profiles`,
+    apiListPath: `${API}/profiles/entity-manager`,
+    apiDetailPath: (userId: number) => `${API}/profiles/${userId}`,
     displayName: 'Perfiles de Usuario',
     displayField: 'firstName',
     icon: '📋',
     module: 'users',
-    roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
-    fields: [
-      // ⚠️ CRUCIAL: El ID real de la entidad es userId, NO 'id'
-      { key: 'userId', label: 'ID Usuario', type: 'number', required: true, isPrimaryKey: true, showInTable: true, showOnCreate: true, showOnEdit: true, readonlyOnEdit: true },
-      { key: 'firstName', label: 'Nombre', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'lastName', label: 'Apellidos', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'phone', label: 'Teléfono', type: 'text', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'bio', label: 'Biografía', type: 'textarea', showInTable: false, showOnCreate: true, showOnEdit: true },
-      { key: 'avatarUrl', label: 'Avatar', type: 'text', showInTable: false, showOnCreate: true, showOnEdit: true }, // Coincide con el modelo Java (avatarUrl)
-      { key: 'birthDate', label: 'Fecha Nacimiento', type: 'date', showInTable: false, showOnCreate: true, showOnEdit: true },
-      { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
-    ],
-    tableSettings: { pageSizeOptions: [5, 10, 25, 50], defaultPageSize: 10, showSearch: true, showActions: true },
-    formSettings: { columns: 2, layout: 'grid' }
-  },
+    roles: ['SUPER_ADMIN', 'ADMIN'],
 
-  // UserPreference: {
-  //   entityName: 'UserPreference',
-  //   apiPath: `${API}/users/preferences/all`,
-  //   displayName: 'Preferencias',
-  //   displayField: 'userId',
-  //   icon: '⚙️',
-  //   module: 'users',
-  //   roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
-  //   fields: [
-  //     { key: 'userId', label: 'ID Usuario', type: 'number', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-  //     { key: 'theme', label: 'Tema', type: 'select', options: [
-  //       { label: 'Claro', value: 'LIGHT' },
-  //       { label: 'Oscuro', value: 'DARK' },
-  //       { label: 'Sistema', value: 'SYSTEM' }
-  //     ], showInTable: true, showOnCreate: true, showOnEdit: true },
-  //     { key: 'lastPage', label: 'Última Página', type: 'text', showInTable: true, showOnCreate: true, showOnEdit: true },
-  //     { key: 'defaultVoice', label: 'Voz', type: 'text', showInTable: true, showOnCreate: true, showOnEdit: true },
-  //     { key: 'defaultSpeed', label: 'Velocidad', type: 'number', min: 0.5, max: 2, showInTable: true, showOnCreate: true, showOnEdit: true },
-  //     { key: 'defaultLanguage', label: 'Idioma', type: 'text', showInTable: true, showOnCreate: true, showOnEdit: true },
-  //     { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
-  //   ],
-  //   tableSettings: { pageSizeOptions: [5, 10, 25, 50], defaultPageSize: 10, showSearch: true, showActions: true },
-  //   formSettings: { columns: 2, layout: 'grid' }
-  // },
+    canCreate: false,
+    canEdit: true,
+    canDelete: false,
+
+    fields: [
+      { 
+        key: 'userId', 
+        label: 'ID Usuario', 
+        type: 'number', 
+        required: true, 
+        isPrimaryKey: true, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: true, 
+        readonlyOnEdit: true 
+      },
+      { 
+        key: 'username', 
+        label: 'Usuario', 
+        type: 'text', 
+        readonly: true, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
+      { 
+        key: 'userEmail', 
+        label: 'Email', 
+        type: 'email', 
+        readonly: true, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
+      { 
+        key: 'firstName', 
+        label: 'Nombre', 
+        type: 'text', 
+        required: true, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'lastName', 
+        label: 'Apellidos', 
+        type: 'text', 
+        required: true, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'phone', 
+        label: 'Teléfono', 
+        type: 'text', 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+
+      // ✅ NUEVO: Avatar con emoji
+      { 
+        key: 'avatarEmoji', 
+        label: 'Avatar', 
+        type: 'select',
+        options: [
+          // 😀 Personas
+          { label: '👤 Persona',    value: '👤' },
+          { label: '👨 Hombre',     value: '👨' },
+          { label: '👩 Mujer',      value: '👩' },
+          { label: '🧑 Neutro',     value: '🧑' },
+          { label: '🧙 Mago',       value: '🧙' },
+          { label: '🧛 Vampiro',    value: '🧛' },
+          { label: '🧜 Sirena',     value: '🧜' },
+          { label: '🦸 Superhéroe', value: '🦸' },
+
+          // 🐾 Animales
+          { label: '🐺 Lobo',       value: '🐺' },
+          { label: '🦊 Zorro',      value: '🦊' },
+          { label: '🦁 León',       value: '🦁' },
+          { label: '🐯 Tigre',      value: '🐯' },
+          { label: '🐼 Panda',      value: '🐼' },
+          { label: '🐨 Koala',      value: '🐨' },
+          { label: '🐸 Rana',       value: '🐸' },
+          { label: '🦉 Búho',       value: '🦉' },
+          { label: '🦅 Águila',     value: '🦅' },
+          { label: '🐢 Tortuga',    value: '🐢' },
+          { label: '🐙 Pulpo',      value: '🐙' },
+          { label: '🦄 Unicornio',  value: '🦄' },
+          { label: '🐲 Dragón',     value: '🐲' },
+          { label: '🐦 Colibrí',    value: '🐦' },
+          { label: '🦋 Mariposa',   value: '🦋' },
+
+          // 🌟 Cosas
+          { label: '⭐ Estrella',    value: '⭐' },
+          { label: '🌙 Luna',       value: '🌙' },
+          { label: '☀️ Sol',        value: '☀️' },
+          { label: '🔥 Fuego',      value: '🔥' },
+          { label: '⚡ Rayo',        value: '⚡' },
+          { label: '💎 Diamante',   value: '💎' },
+          { label: '🎯 Diana',      value: '🎯' },
+          { label: '🚀 Cohete',     value: '🚀' },
+          { label: '🎨 Paleta',     value: '🎨' },
+          { label: '📚 Libros',     value: '📚' },
+          { label: '💻 Código',     value: '💻' },
+          { label: '☕ Café',        value: '☕' },
+          { label: '🎮 Gaming',     value: '🎮' },
+
+          // 🌈 Símbolos
+          { label: '❤️ Corazón',    value: '❤️' },
+          { label: '💙 Azul',       value: '💙' },
+          { label: '💚 Verde',      value: '💚' },
+          { label: '💜 Morado',     value: '💜' },
+          { label: '🌈 Arcoíris',   value: '🌈' },
+          { label: '✨ Destellos',  value: '✨' },
+        ],
+        showInTable: false, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+
+      // ⚠️ LEGACY: avatar por imagen (por si algún usuario lo tiene guardado)
+      { 
+        key: 'avatarUrl', 
+        label: 'Avatar (imagen, legacy)', 
+        type: 'select',
+        options: [
+          { label: '🐦 Colibrí',   value: '/assets/img/perfiles/Colibri.jpg' },
+          { label: '🦅 Águila',    value: '/assets/img/perfiles/Aguila.jpg' },
+          { label: '🐺 Lobo',      value: '/assets/img/perfiles/Lobo.jpg' },
+          { label: '🦁 León',      value: '/assets/img/perfiles/Leon.jpg' },
+          { label: '🐯 Tigre',     value: '/assets/img/perfiles/Tigre.jpg' },
+          { label: '🦋 Mariposa',  value: '/assets/img/perfiles/Mariposa.jpg' },
+        ],
+        showInTable: false, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+
+      { 
+        key: 'enabled', 
+        label: 'Activo', 
+        type: 'boolean', 
+        readonly: true, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
+    ],
+
+    tableSettings: { 
+      pageSizeOptions: [5, 10, 25, 50], 
+      defaultPageSize: 10, 
+      showSearch: true, 
+      showActions: true 
+    },
+
+    formSettings: { 
+      columns: 2, 
+      layout: 'grid' 
+    }
+  },
 
   UserPreference: {
     entityName: 'UserPreference',
-    apiPath: `${API}/profiles`,
-    apiListPath: `${API}/users/preferences/all`, // Ruta específica para listar todo (Admin)
-    apiDetailPath: (userId: number) => `${API}/profiles/user/${userId}`, // Ruta anidada exacta del backend
+    apiPath: `${API}/users/preferences`,
+    apiListPath: `${API}/users/preferences/all`,
+    apiDetailPath: (userId: number) => `${API}/users/preferences/${userId}`,
     displayName: 'Preferencias',
     displayField: 'userId',
     icon: '⚙️',
     module: 'users',
-    roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
-    fields: [
-      { key: 'userId', label: 'ID Usuario', type: 'number', required: true, isPrimaryKey: true, showInTable: true, showOnCreate: true, showOnEdit: true, readonlyOnEdit: true },
-      { key: 'theme', label: 'Tema', type: 'select', options: [
-        { label: 'Claro', value: 'LIGHT' },
-        { label: 'Oscuro', value: 'DARK' },
-        { label: 'Sistema', value: 'SYSTEM' }
-      ], showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'lastPage', label: 'Última Página', type: 'text', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'defaultVoice', label: 'Voz', type: 'text', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'defaultSpeed', label: 'Velocidad', type: 'number', min: 0.5, max: 2, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'defaultLanguage', label: 'Idioma', type: 'text', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
-    ],
-    tableSettings: { pageSizeOptions: [5, 10, 25, 50], defaultPageSize: 10, showSearch: true, showActions: true },
-    formSettings: { columns: 2, layout: 'grid' }
-  },
+    roles: ['SUPER_ADMIN', 'ADMIN'],
 
+    // ✅ Preferencias auto-creadas, no eliminables
+    canCreate: false,
+    canEdit: true,
+    canDelete: false,
+
+    fields: [
+      { 
+        key: 'userId', 
+        label: 'ID Usuario', 
+        type: 'number', 
+        required: true, 
+        isPrimaryKey: true, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: true, 
+        readonlyOnEdit: true 
+      },
+      { 
+        key: 'theme', 
+        label: 'Tema', 
+        type: 'select', 
+        options: [
+          { label: '☀️ Claro',    value: 'LIGHT' },
+          { label: '🌙 Oscuro',   value: 'DARK' }
+        ], 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'lastPage', 
+        label: 'Última Página', 
+        type: 'text', 
+        maxLength: 255,
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'selectedInstitutionId', 
+        label: 'Institución', 
+        type: 'number', 
+        min: 0, 
+        step: 1,                                        // ✅ NUEVO
+        showInTable: false, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'defaultVoice', 
+        label: 'Voz', 
+        type: 'text', 
+        maxLength: 20, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'defaultSpeed', 
+        label: 'Velocidad', 
+        type: 'number', 
+        min: 0.1, 
+        max: 2.0, 
+        step: 0.1,                                      // ✅ NUEVO
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'defaultLanguage', 
+        label: 'Idioma', 
+        type: 'text', 
+        maxLength: 5, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'defaultSilenceDuration', 
+        label: 'Silencio (seg)', 
+        type: 'number', 
+        min: 0.0, 
+        max: 2.0, 
+        step: 0.1,                                      // ✅ NUEVO
+        showInTable: false, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'totalStep', 
+        label: 'Total Pasos', 
+        type: 'number', 
+        min: 1, 
+        step: 1,                                        // ✅ NUEVO
+        showInTable: false, 
+        showOnCreate: false, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'createdAt', 
+        label: 'Creado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: false, 
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
+      { 
+        key: 'updatedAt', 
+        label: 'Actualizado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
+      { 
+        key: 'version', 
+        label: 'Versión', 
+        type: 'number', 
+        hidden: true 
+      },
+    ],
+
+    tableSettings: { 
+      pageSizeOptions: [5, 10, 25, 50], 
+      defaultPageSize: 10, 
+      showSearch: true, 
+      showActions: true 
+    },
+
+    formSettings: { 
+      columns: 2, 
+      layout: 'grid' 
+    }
+  },
+  
   // ============================================================
   // MÓDULO UNIVERSILAB (16 entidades)
   // ============================================================
-
   InstitutionEntity: {
     entityName: 'InstitutionEntity',
     apiPath: `${API}/universilab/institutions`,
@@ -526,16 +747,80 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
     displayField: 'name',
     icon: '🏛️',
     module: 'universilab',
-    roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
+    roles: ['SUPER_ADMIN', 'ADMIN'],
     fields: [
       { key: 'id', label: 'ID', type: 'number', hidden: true },
-      { key: 'name', label: 'Nombre', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'email', label: 'Email', type: 'email', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'phone', label: 'Teléfono', type: 'text', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'address', label: 'Dirección', type: 'textarea', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'website', label: 'Web', type: 'text', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'isActive', label: 'Activa', type: 'boolean', showOnCreate: false, showOnEdit: true, showInTable: true },
-      { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
+      { 
+        key: 'name', 
+        label: 'Nombre', 
+        type: 'text', 
+        required: true, 
+        minLength: 2,
+        maxLength: 200,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'email', 
+        label: 'Email', 
+        type: 'email', 
+        required: true, 
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'phone', 
+        label: 'Teléfono', 
+        type: 'text', 
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'address', 
+        label: 'Dirección', 
+        type: 'textarea', 
+        maxLength: 300,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'website', 
+        label: 'Web', 
+        type: 'text', 
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'isActive', 
+        label: 'Activa', 
+        type: 'boolean', 
+        showOnCreate: false, 
+        showOnEdit: true, 
+        showInTable: true 
+      },
+      { 
+        key: 'createdAt', 
+        label: 'Creado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: true, 
+        showOnCreate: false,
+        showOnEdit: false  
+      },
+      { 
+        key: 'updatedAt', 
+        label: 'Actualizado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: true,       // ← Mostrar en la tabla
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
     ],
     tableSettings: { pageSizeOptions: [5, 10, 25, 50], defaultPageSize: 10, showSearch: true, showActions: true },
     formSettings: { columns: 2, layout: 'grid' }
@@ -548,15 +833,129 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
     displayField: 'title',
     icon: '📚',
     module: 'universilab',
-    roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
+    roles: ['SUPER_ADMIN', 'ADMIN'],
     fields: [
       { key: 'id', label: 'ID', type: 'number', hidden: true },
-      { key: 'title', label: 'Título', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'description', label: 'Descripción', type: 'textarea', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'institutionId', label: 'Institución', type: 'number', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'estimatedHours', label: 'Horas Estimadas', type: 'number', min: 0, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'isActive', label: 'Activo', type: 'boolean', showOnCreate: false, showOnEdit: true, showInTable: true },
-      { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
+      { 
+        key: 'title', 
+        label: 'Título', 
+        type: 'text', 
+        required: true, 
+        minLength: 2,
+        maxLength: 200,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'description', 
+        label: 'Descripción', 
+        type: 'textarea', 
+        maxLength: 2000,                       
+        showInTable: false,                   
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'institutionId', 
+        label: 'Institución', 
+        type: 'select', 
+        required: true, 
+        readonlyOnEdit: true,                  
+        optionsSource: 'institutions',  
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'level', 
+        label: 'Nivel', 
+        type: 'select', 
+        required: true,                        
+        options: [
+          { label: 'Principiante', value: 'BEGINNER' },
+          { label: 'Intermedio', value: 'INTERMEDIATE' },
+          { label: 'Avanzado', value: 'ADVANCED' },
+          { label: 'Experto', value: 'EXPERT' }
+        ],
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'visibility', 
+        label: 'Visibilidad', 
+        type: 'select', 
+        options: [
+          { label: 'Público', value: 'PUBLIC' },
+          { label: 'Privado', value: 'PRIVATE' },
+          { label: 'Oculto', value: 'HIDDEN' }
+        ],
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'estimatedHours', 
+        label: 'Horas Estimadas', 
+        type: 'number', 
+        min: 0, 
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'maxWeeks', 
+        label: 'Semanas Máximas', 
+        type: 'number', 
+        min: 0, 
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'language', 
+        label: 'Idioma', 
+        type: 'text', 
+        maxLength: 10,                         
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'enrollmentType', 
+        label: 'Tipo de Inscripción', 
+        type: 'text', 
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'isActive', 
+        label: 'Activo', 
+        type: 'boolean', 
+        showOnCreate: false, 
+        showOnEdit: true, 
+        showInTable: true 
+      },
+      { 
+        key: 'createdAt', 
+        label: 'Creado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
+      { 
+        key: 'updatedAt', 
+        label: 'Actualizado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
     ],
     tableSettings: { pageSizeOptions: [5, 10, 25, 50], defaultPageSize: 10, showSearch: true, showActions: true },
     formSettings: { columns: 2, layout: 'grid' }
@@ -566,20 +965,125 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
     entityName: 'CollectionEntity',
     apiPath: `${API}/universilab/collections`,
     displayName: 'Colecciones',
-    displayField: 'name',
+    displayField: 'title',                    
     icon: '📁',
     module: 'universilab',
-    roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
+    roles: ['SUPER_ADMIN', 'ADMIN'],
     fields: [
-      { key: 'id', label: 'ID', type: 'number', hidden: true },
-      { key: 'name', label: 'Nombre', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'description', label: 'Descripción', type: 'textarea', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'courseId', label: 'Curso', type: 'number', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'order', label: 'Orden', type: 'number', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'isActive', label: 'Activo', type: 'boolean', showOnCreate: false, showOnEdit: true, showInTable: true },
-      { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
+      { 
+        key: 'id', 
+        label: 'ID',
+        type: 'number', 
+        hidden: true 
+      },
+      { 
+        key: 'title',                         
+        label: 'Título', 
+        type: 'text', 
+        required: true, 
+        maxLength: 200,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'description', 
+        label: 'Descripción', 
+        type: 'textarea', 
+        maxLength: 1000,
+        showInTable: false,          
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'icon',                           
+        label: 'Icono', 
+        type: 'select',              // ← CAMBIO: era 'text'
+        defaultValue: '📁',          // ← NUEVO
+        options: [                   // ← NUEVO
+          { label: '📁 Carpeta', value: '📁' },
+          { label: '📚 Libros', value: '📚' },
+          { label: '📖 Libro abierto', value: '📖' },
+          { label: '📝 Notas', value: '📝' },
+          { label: '🎓 Graduación', value: '🎓' },
+          { label: '💡 Idea', value: '💡' },
+          { label: '🔬 Ciencia', value: '🔬' },
+          { label: '🧪 Laboratorio', value: '🧪' },
+          { label: '💻 Código', value: '💻' },
+          { label: '🎨 Arte', value: '🎨' },
+          { label: '🎵 Música', value: '🎵' },
+          { label: '🌍 Mundo', value: '🌍' },
+          { label: '⭐ Favorito', value: '⭐' },
+          { label: '🏆 Logro', value: '🏆' },
+        ],
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'courseId', 
+        label: 'Curso', 
+        type: 'select',   
+        required: true, 
+        optionsSource: 'courses',
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'order', 
+        label: 'Orden', 
+        type: 'number', 
+        required: true, 
+        defaultValue: 0,
+        min: 0,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'isRequired',                     
+        label: 'Obligatoria', 
+        type: 'boolean', 
+        defaultValue: true,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'estimatedHours',                 
+        label: 'Horas estimadas', 
+        type: 'number',
+        min: 0,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'createdAt', 
+        label: 'Creado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: false,
+        showOnCreate: false,   
+        showOnEdit: false 
+      },
+      { 
+        key: 'updatedAt',                      
+        label: 'Actualizado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: false,
+        showOnCreate: false,   
+        showOnEdit: false  
+      },
     ],
-    tableSettings: { pageSizeOptions: [5, 10, 25, 50], defaultPageSize: 10, showSearch: true, showActions: true },
+    tableSettings: { 
+      pageSizeOptions: [5, 10, 25, 50], 
+      defaultPageSize: 10, 
+      showSearch: true, 
+      showActions: true 
+    },
     formSettings: { columns: 2, layout: 'grid' }
   },
 
@@ -590,17 +1094,98 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
     displayField: 'title',
     icon: '📖',
     module: 'universilab',
-    roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
+    roles: ['SUPER_ADMIN', 'ADMIN'],
     fields: [
-      { key: 'id', label: 'ID', type: 'number', hidden: true },
-      { key: 'title', label: 'Título', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'description', label: 'Descripción', type: 'textarea', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'collectionId', label: 'Colección', type: 'number', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'order', label: 'Orden', type: 'number', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'isActive', label: 'Activo', type: 'boolean', showOnCreate: false, showOnEdit: true, showInTable: true },
-      { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
+      { 
+        key: 'id', 
+        label: 'ID', 
+        type: 'number', 
+        hidden: true 
+      },
+      { 
+        key: 'title', 
+        label: 'Título', 
+        type: 'text', 
+        required: true, 
+        maxLength: 200,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'description', 
+        label: 'Descripción', 
+        type: 'textarea', 
+        maxLength: 1000,
+        showInTable: false,          
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'collectionId', 
+        label: 'Colección', 
+        type: 'select',
+        required: true, 
+        optionsSource: 'collections',
+        readonlyOnEdit: true,        
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'order', 
+        label: 'Orden', 
+        type: 'number', 
+        required: true,               
+        defaultValue: 0,              
+        min: 0,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'estimatedMinutes',      
+        label: 'Minutos estimados', 
+        type: 'number', 
+        min: 0,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'isPublished',           
+        label: 'Publicado', 
+        type: 'boolean', 
+        defaultValue: true,
+        showOnCreate: false, 
+        showOnEdit: true, 
+        showInTable: true 
+      },
+      { 
+        key: 'createdAt', 
+        label: 'Creado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: false,
+        showOnCreate: false,          
+        showOnEdit: false             
+      },
+      { 
+        key: 'updatedAt',             
+        label: 'Actualizado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: false,
+        showOnCreate: false,
+        showOnEdit: false
+      },
     ],
-    tableSettings: { pageSizeOptions: [5, 10, 25, 50], defaultPageSize: 10, showSearch: true, showActions: true },
+    tableSettings: { 
+      pageSizeOptions: [5, 10, 25, 50], 
+      defaultPageSize: 10, 
+      showSearch: true, 
+      showActions: true 
+    },
     formSettings: { columns: 2, layout: 'grid' }
   },
 
@@ -611,17 +1196,182 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
     displayField: 'title',
     icon: '📄',
     module: 'universilab',
-    roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
+    roles: ['SUPER_ADMIN', 'ADMIN'],
     fields: [
-      { key: 'id', label: 'ID', type: 'number', hidden: true },
-      { key: 'title', label: 'Título', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'content', label: 'Contenido', type: 'textarea', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'topicId', label: 'Tema', type: 'number', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'order', label: 'Orden', type: 'number', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'isActive', label: 'Activo', type: 'boolean', showOnCreate: false, showOnEdit: true, showInTable: true },
-      { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
+      { 
+        key: 'id', 
+        label: 'ID', 
+        type: 'number', 
+        hidden: true 
+      },
+      { 
+        key: 'title', 
+        label: 'Título', 
+        type: 'text', 
+        required: true, 
+        maxLength: 200,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'summary',                   
+        label: 'Resumen', 
+        type: 'textarea', 
+        maxLength: 500,
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'content', 
+        label: 'Contenido', 
+        type: 'textarea', 
+        maxLength: 10000,
+        showInTable: false,                // ← oculto en tabla (es enorme)
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'topicId', 
+        label: 'Tema', 
+        type: 'select',                   
+        required: true, 
+        optionsSource: 'topics',           
+        readonlyOnEdit: true,              // ← coherente con jerarquía
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'order', 
+        label: 'Orden', 
+        type: 'number', 
+        required: true, 
+        defaultValue: 0, 
+        min: 0,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'estimatedMinutes',           
+        label: 'Minutos estimados', 
+        type: 'number', 
+        min: 0,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'isPublished',                // ← CAMBIO (era 'isActive')
+        label: 'Publicado', 
+        type: 'boolean', 
+        defaultValue: true,
+        showOnCreate: false, 
+        showOnEdit: true, 
+        showInTable: true 
+      },
+      { 
+        key: 'authorId',                  
+        label: 'ID del autor', 
+        type: 'number',
+        min: 0,
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'authorName',                 
+        label: 'Nombre del autor', 
+        type: 'text',
+        maxLength: 100,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      // ✅ Accesibilidad
+      { 
+        key: 'hasAudioDescription',        
+        label: 'Audiodescripción', 
+        type: 'boolean', 
+        defaultValue: false,
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'hasSignLanguage',            
+        label: 'Lengua de signos', 
+        type: 'boolean', 
+        defaultValue: false,
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'hasTranscript',              
+        label: 'Transcripción', 
+        type: 'boolean', 
+        defaultValue: false,
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'hasAlternativeText',         
+        label: 'Texto alternativo', 
+        type: 'boolean', 
+        defaultValue: false,
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      // ✅ Solo lectura (métricas)
+      { 
+        key: 'views',                     
+        label: 'Vistas', 
+        type: 'number', 
+        readonly: true,
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
+      { 
+        key: 'likes',                      
+        label: 'Me gusta', 
+        type: 'number', 
+        readonly: true,
+        showInTable: true, 
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
+      // ✅ Auditoría
+      { 
+        key: 'createdAt', 
+        label: 'Creado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: false,
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
+      { 
+        key: 'updatedAt',                 
+        label: 'Actualizado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: false,
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
     ],
-    tableSettings: { pageSizeOptions: [5, 10, 25, 50], defaultPageSize: 10, showSearch: true, showActions: true },
+    tableSettings: { 
+      pageSizeOptions: [5, 10, 25, 50], 
+      defaultPageSize: 10, 
+      showSearch: true, 
+      showActions: true 
+    },
     formSettings: { columns: 2, layout: 'grid' }
   },
 
@@ -632,17 +1382,116 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
     displayField: 'title',
     icon: '📝',
     module: 'universilab',
-    roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
+    roles: ['SUPER_ADMIN', 'ADMIN'],
     fields: [
-      { key: 'id', label: 'ID', type: 'number', hidden: true },
-      { key: 'title', label: 'Título', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'content', label: 'Contenido', type: 'textarea', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'subtopicId', label: 'Subtema', type: 'number', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'order', label: 'Orden', type: 'number', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'isPublished', label: 'Publicada', type: 'boolean', showOnCreate: false, showOnEdit: true, showInTable: true },
-      { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
+      { 
+        key: 'id', 
+        label: 'ID', 
+        type: 'number', 
+        hidden: true 
+      },
+      { 
+        key: 'title', 
+        label: 'Título', 
+        type: 'text', 
+        required: true, 
+        maxLength: 200,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'content', 
+        label: 'Contenido', 
+        type: 'textarea', 
+        maxLength: 10000,
+        showInTable: false,            // ← oculto en tabla (es enorme)
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'subtopicId', 
+        label: 'Subtema', 
+        type: 'select',                
+        required: true, 
+        optionsSource: 'subtopics',   
+        readonlyOnEdit: true,          // ← coherente con jerarquía
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'type',                   // ← NUEVO (obligatorio)
+        label: 'Tipo', 
+        type: 'select', 
+        required: true, 
+        defaultValue: 'TEXT',
+        options: [
+          { label: 'Texto',        value: 'TEXT' },
+          { label: 'Vídeo',        value: 'VIDEO' },
+          { label: 'Cuestionario', value: 'QUIZ' },
+          { label: 'Ejercicio',    value: 'EXERCISE' },
+          { label: 'Interactivo',  value: 'INTERACTIVE' },
+        ],
+        readonlyOnEdit: true, 
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'order', 
+        label: 'Orden', 
+        type: 'number', 
+        required: true, 
+        defaultValue: 0, 
+        min: 0,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'estimatedMinutes',       // ← NUEVO
+        label: 'Minutos estimados', 
+        type: 'number', 
+        min: 0,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'isPublished', 
+        label: 'Publicada', 
+        type: 'boolean', 
+        defaultValue: true,
+        showOnCreate: false, 
+        showOnEdit: true, 
+        showInTable: true 
+      },
+      { 
+        key: 'createdAt', 
+        label: 'Creado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: false,
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
+      { 
+        key: 'updatedAt',              // ← NUEVO
+        label: 'Actualizado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: false,
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
     ],
-    tableSettings: { pageSizeOptions: [5, 10, 25, 50], defaultPageSize: 10, showSearch: true, showActions: true },
+    tableSettings: { 
+      pageSizeOptions: [5, 10, 25, 50], 
+      defaultPageSize: 10, 
+      showSearch: true, 
+      showActions: true 
+    },
     formSettings: { columns: 2, layout: 'grid' }
   },
 
@@ -655,21 +1504,135 @@ export const ENTITY_REGISTRY: Record<string, EntityConfig> = {
     module: 'universilab',
     roles: ['SUPER_ADMIN', 'ADMIN', 'USER'],
     fields: [
-      { key: 'id', label: 'ID', type: 'number', hidden: true },
-      { key: 'title', label: 'Título', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'type', label: 'Tipo', type: 'select', options: [
-        { label: 'Video', value: 'VIDEO' },
-        { label: 'PDF', value: 'PDF' },
-        { label: 'Imagen', value: 'IMAGE' },
-        { label: 'Enlace', value: 'LINK' },
-        { label: 'Documento', value: 'DOCUMENT' }
-      ], showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'url', label: 'URL', type: 'text', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'pageId', label: 'Página', type: 'number', required: true, showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'description', label: 'Descripción', type: 'textarea', showInTable: true, showOnCreate: true, showOnEdit: true },
-      { key: 'createdAt', label: 'Creado', type: 'date', readonly: true, showInTable: false },
+      { 
+        key: 'id', 
+        label: 'ID', 
+        type: 'number', 
+        hidden: true 
+      },
+      { 
+        key: 'title', 
+        label: 'Título', 
+        type: 'text', 
+        required: true, 
+        maxLength: 200,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'type', 
+        label: 'Tipo', 
+        type: 'select', 
+        required: true, 
+        defaultValue: 'PDF',
+        options: [
+          { label: '🎥 Vídeo',       value: 'VIDEO' },
+          { label: '📄 PDF',         value: 'PDF' },
+          { label: '🎵 Audio',       value: 'AUDIO' },
+          { label: '🖼️ Imagen',      value: 'IMAGE' },
+          { label: '📃 Documento',   value: 'DOCUMENT' },
+          { label: '🔗 Enlace',      value: 'LINK' },
+          { label: '🎮 Interactivo', value: 'INTERACTIVE' },
+        ],
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'url', 
+        label: 'URL', 
+        type: 'text', 
+        required: true, 
+        maxLength: 500,
+        placeholder: 'https://... o /assets/...',
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'subtopicId', 
+        label: 'Subtema', 
+        type: 'select', 
+        optionsSource: 'subtopics', 
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'pageId', 
+        label: 'Página', 
+        type: 'select', 
+        optionsSource: 'pages', 
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'order', 
+        label: 'Orden', 
+        type: 'number', 
+        required: true, 
+        defaultValue: 0,
+        min: 0,
+        showInTable: true, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      // ✅ Accesibilidad
+      { 
+        key: 'hasTranscript', 
+        label: 'Transcripción', 
+        type: 'boolean', 
+        defaultValue: false,
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'hasCaption', 
+        label: 'Subtítulos', 
+        type: 'boolean', 
+        defaultValue: false,
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      { 
+        key: 'hasAudioDescription', 
+        label: 'Audiodescripción', 
+        type: 'boolean', 
+        defaultValue: false,
+        showInTable: false, 
+        showOnCreate: true, 
+        showOnEdit: true 
+      },
+      // ✅ Auditoría
+      { 
+        key: 'createdAt', 
+        label: 'Creado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: false,
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
+      { 
+        key: 'updatedAt', 
+        label: 'Actualizado', 
+        type: 'date', 
+        readonly: true, 
+        showInTable: false,
+        showOnCreate: false, 
+        showOnEdit: false 
+      },
     ],
-    tableSettings: { pageSizeOptions: [5, 10, 25, 50], defaultPageSize: 10, showSearch: true, showActions: true },
+    tableSettings: { 
+      pageSizeOptions: [5, 10, 25, 50], 
+      defaultPageSize: 10, 
+      showSearch: true, 
+      showActions: true 
+    },
     formSettings: { columns: 2, layout: 'grid' }
   },
 

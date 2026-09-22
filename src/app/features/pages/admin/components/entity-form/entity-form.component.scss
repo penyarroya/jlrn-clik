@@ -251,3 +251,136 @@ ion-checkbox {
     }
   }
 }
+
+
+
+// /* ============================================================
+//    SUBIDA DE ARCHIVOS + GALERÍA DE PRESETS
+//    ============================================================ */
+// .file-upload {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 12px;
+
+//   /* ✅ Preview actual */
+//   .file-preview {
+//     display: flex;
+//     align-items: center;
+//     gap: 12px;
+//     padding: 10px;
+//     background: var(--bg-secondary, #f8fafc);
+//     border-radius: 10px;
+//     border: 1px solid var(--border-color, #e2e8f0);
+
+//     img {
+//       width: 64px;
+//       height: 64px;
+//       object-fit: cover;
+//       border-radius: 50%;
+//       border: 2px solid var(--accent, #f59e0b);
+//       flex-shrink: 0;
+//     }
+
+//     .preview-info {
+//       display: flex;
+//       flex-direction: column;
+//       gap: 4px;
+//       flex: 1;
+//       min-width: 0;
+
+//       .file-path {
+//         font-size: 0.72rem;
+//         color: var(--text-muted, #94a3b8);
+//         word-break: break-all;
+//       }
+
+//       .btn-clear {
+//         align-self: flex-start;
+//         background: transparent;
+//         border: none;
+//         color: #dc2626;
+//         cursor: pointer;
+//         padding: 2px 6px;
+//         border-radius: 4px;
+//         font-size: 1rem;
+
+//         &:hover {
+//           background: rgba(220, 38, 38, 0.1);
+//         }
+//       }
+//     }
+//   }
+
+//   /* ✅ Botón de subir */
+//   .upload-row {
+//     display: flex;
+//     gap: 8px;
+//   }
+
+//   /* ✅ Galería de presets */
+//   .preset-gallery {
+//     display: flex;
+//     flex-direction: column;
+//     gap: 8px;
+
+//     .preset-label {
+//       font-size: 0.8rem;
+//       font-weight: 500;
+//       color: var(--text-secondary, #475569);
+//     }
+
+//     .preset-grid {
+//       display: flex;
+//       flex-wrap: wrap;
+//       gap: 8px;
+//     }
+
+//     .preset-item {
+//       width: 56px;
+//       height: 56px;
+//       padding: 0;
+//       border: 2px solid transparent;
+//       border-radius: 50%;
+//       background: var(--bg-secondary, #f8fafc);
+//       cursor: pointer;
+//       overflow: hidden;
+//       transition: all 0.2s ease;
+
+//       img {
+//         width: 100%;
+//         height: 100%;
+//         object-fit: cover;
+//         border-radius: 50%;
+//       }
+
+//       &:hover {
+//         border-color: var(--accent, #f59e0b);
+//         transform: scale(1.08);
+//       }
+
+//       &.selected {
+//         border-color: var(--accent, #f59e0b);
+//         box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+//       }
+//     }
+//   }
+// }
+
+// /* ✅ Modo oscuro */
+// .dark-theme .file-upload,
+// [data-theme="dark"] .file-upload {
+//   .file-preview {
+//     background: rgba(255, 255, 255, 0.05);
+//     border-color: rgba(255, 255, 255, 0.1);
+//   }
+
+//   .preset-gallery {
+//     .preset-item {
+//       background: rgba(255, 255, 255, 0.05);
+
+//       &.selected {
+//         box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.3);
+//       }
+//     }
+//   }
+// }

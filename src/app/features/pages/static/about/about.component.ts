@@ -337,6 +337,7 @@ export class AboutComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     console.log('✅ AboutComponent inicializado (con voz contextual)');
+     console.trace('🔵 AboutComponent inicializado - Callstack:');
 
     // ✅ FORZAR INICIO DEL RECONOCIMIENTO
     this.voiceService.startListening();
